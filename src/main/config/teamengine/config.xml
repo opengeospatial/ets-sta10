@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Unpack the *-ctl-scripts.zip archive in the TE_BASE/scripts directory -->
+<!-- Add this entry to TE_BASE/config.xml (//organization/standard) -->
+<organization>
+  <name>OGC</name>
+  <standard>
+    <name>Test suite: ets-sta10</name>
+    <version>
+      <name>${spec-version}</name>
+      <suite>
+        <namespace-uri>http://www.opengis.net/cite/sta10</namespace-uri>
+        <prefix>tns</prefix>
+        <local-name>ets-sta10-${version}</local-name>
+        <title>Test suite ets-sta10</title>
+        <description>Describe scope of testing.</description>
+      </suite>
+      <revision>
+        <name>${version}</name>
+        <status>Beta</status>
+        <sources>
+          <source>sta10/${spec-version}/ctl</source>
+        </sources>
+        <webdir>sta10/${spec-version}/site</webdir>
+      </revision>
+    </version>
+  </standard>
+</organization>
