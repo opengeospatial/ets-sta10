@@ -1,4 +1,4 @@
-package org.opengis.cite.sta10.publishEntities;
+package org.opengis.cite.sta10.createUpdateDelete;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

@@ -1,4 +1,4 @@
-package org.opengis.cite.sta10.readEntities;
+package org.opengis.cite.sta10.sensingCore;
 
 import java.io.*;
 import java.net.HttpURLConnection;
