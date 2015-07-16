@@ -1,4 +1,4 @@
-## Test suite: ets-sta10
+## OGC SensorThings API Test Suite
 
 ### Scope
 
