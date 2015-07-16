@@ -44,6 +44,47 @@ public class Capability1Tests{
         checkAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST,response);
     }
 
+    @Test(description = "GET not-existed Entity")
+    public void readNotExistedEntityAndCheckResponse(){
+        readNotExistedEntityWithEntityType(EntityType.THING);
+        readNotExistedEntityWithEntityType(EntityType.LOCATION);
+        readNotExistedEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
+        readNotExistedEntityWithEntityType(EntityType.DATASTREAM);
+        readNotExistedEntityWithEntityType(EntityType.SENSOR);
+        readNotExistedEntityWithEntityType(EntityType.OBSERVATION);
+        readNotExistedEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
+        readNotExistedEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    @Test(description = "GET Specific Entity")
+    public void readEntityAndCheckResponse(){
+        readEntityWithEntityType(EntityType.THING);
+        readEntityWithEntityType(EntityType.LOCATION);
+        readEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
+        readEntityWithEntityType(EntityType.DATASTREAM);
+        readEntityWithEntityType(EntityType.SENSOR);
+        readEntityWithEntityType(EntityType.OBSERVATION);
+        readEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
+        readEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    public void readEntityWithEntityType(EntityType entityType){
+        try {
+            String response = getEntities(entityType);
+            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
+            int responseCode = getEntity(entityType, id);
+            Assert.assertEquals(responseCode, 200, "Reading exitixting "+entityType.name()+" with id "+id+" failed.");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void readNotExistedEntityWithEntityType(EntityType entityType){
+            long id = Long.MAX_VALUE;
+            int responseCode = getEntity(entityType, id);
+            Assert.assertEquals(responseCode, 404, "Reading non-exitixting "+entityType.name()+" with id "+id+" failed.");
+    }
+
     @Test(description = "Check Service Root UI")
     public void checkServiceRootUri(){
         try {
@@ -184,6 +225,67 @@ public class Capability1Tests{
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if(connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    public int getEntity(EntityType entityType, long id){
+        String urlString = rootUri;
+        if(id == -1){
+            return -1;
+        }
+        if(entityType != null) { // It is not Service Root URI
+            switch (entityType) {
+                case THING:
+                    urlString += "/Things("+id+")";
+                    break;
+                case LOCATION:
+                    urlString += "/Locations("+id+")";
+                    break;
+                case HISTORICAL_LOCATION:
+                    urlString += "/HistoricalLocations("+id+")";
+                    break;
+                case DATASTREAM:
+                    urlString += "/Datastreams("+id+")";
+                    break;
+                case SENSOR:
+                    urlString += "/Sensors("+id+")";
+                    break;
+                case OBSERVATION:
+                    urlString += "/Observations("+id+")";
+                    break;
+                case OBSERVED_PROPERTY:
+                    urlString += "/ObservedProperties("+id+")";
+                    break;
+                case FEATURE_OF_INTEREST:
+                    urlString += "/FeaturesOfInterest("+id+")";
+                    break;
+                default:
+                    Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+                    return -1;
+            }
+        }
+        HttpURLConnection connection = null;
+        int result = -1;
+        try {
+            //Create connection
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type",
+                    "application/json");
+
+            connection.setUseCaches(false);
+            connection.setDoOutput(false);
+
+            result = connection.getResponseCode();
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return result;
         } finally {
             if(connection != null) {
                 connection.disconnect();
