@@ -1,0 +1,10 @@
+{
+  "description": "Air temperature, 2 metres above ground",
+  "feature": {
+    "type": "Point",
+    "coordinates": [
+      -114.05,
+      51.05
+    ]
+  }
+}
