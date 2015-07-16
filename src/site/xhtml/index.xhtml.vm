@@ -95,7 +95,7 @@ dt {
         <td>Conformance Level 1</td>
         <td>
           <ul style="list-style: none;">
-            <li>org.opengis.cite.sta10.readEntities.Capability1Tests</li>
+            <li>org.opengis.cite.sta10.sensingCore.Capability1Tests</li>
           </ul>
         </td>
       </tr>
@@ -103,7 +103,7 @@ dt {
         <td>Conformance Level 2</td>
         <td>
           <ul style="list-style: none;">
-            <li>org.opengis.cite.sta10.publishEntities.Capability2Tests</li>
+            <li>org.opengis.cite.sta10.createUpdateDelete.Capability2Tests</li>
           </ul>
         </td>
       </tr>

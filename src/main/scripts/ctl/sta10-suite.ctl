@@ -37,8 +37,8 @@
                </ul>
                <p>Two conformance levels are defined:</p>
                <ul>
-                 <li>Read Entities</li>
-                 <li>Publish Entities</li>
+                 <li>Sensing Core</li>
+                 <li>Create-Update-Delete</li>
                </ul>
              </div>
              <fieldset style="background:#ccffff">

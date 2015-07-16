@@ -11,12 +11,12 @@
 
   <test name="Conformance Level 1">
     <packages>
-      <package name="org.opengis.cite.sta10.readEntities" />
+      <package name="org.opengis.cite.sta10.sensingCore" />
     </packages>
   </test>
   <test name="Conformance Level 2">
     <packages>
-      <package name="org.opengis.cite.sta10.publishEntities" />
+      <package name="org.opengis.cite.sta10.createUpdateDelete" />
     </packages>
   </test>
 </suite>
