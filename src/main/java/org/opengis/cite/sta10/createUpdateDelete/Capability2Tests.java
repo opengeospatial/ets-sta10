@@ -17,25 +17,25 @@ public class Capability2Tests{
     @Test(description = "Post Entities")
     public void createEntities(){
         String urlParameters  = "{\"description\":\"This is a Test From TestNG\"}";
-        postEntity(EntityType.THING, urlParameters);
+        long thingId = postEntity(EntityType.THING, urlParameters);
         urlParameters  = "{\n" +
                 "  \"description\": \"bow river\",\n" +
                 "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
                 "  \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }\n" +
                 "}";
-        postEntity(EntityType.LOCATION, urlParameters);
+        long locationId = postEntity(EntityType.LOCATION, urlParameters);
         urlParameters  = "{\n" +
                 "  \"description\": \"Fuguro Barometer\",\n" +
                 "  \"encodingType\": \"http://schema.org/description\",\n" +
                 "  \"metadata\": \"Barometer\"\n" +
                 "}";
-        postEntity(EntityType.SENSOR, urlParameters);
+        long sensorId = postEntity(EntityType.SENSOR, urlParameters);
         urlParameters  = "{\n" +
                 "  \"name\": \"DewPoint Temperature\",\n" +
                 "  \"definition\": \"http://dbpedia.org/page/Dew_point\",\n" +
                 "  \"description\": \"The dewpoint temperature is the temperature to which the air must be cooled, at constant pressure, for dew to form. As the grass and other objects near the ground cool to the dewpoint, some of the water vapor in the atmosphere condenses into liquid water on the objects.\"\n" +
                 "}";
-        postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
+        long obsPropId = postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
         urlParameters  = "{\n" +
                 "  \"description\": \"A weather station.\",\n" +
                 "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
@@ -47,10 +47,57 @@ public class Capability2Tests{
                 "    ]\n" +
                 "  }\n" +
                 "}";
-        postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
+        long foiId = postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
+        urlParameters = "{\n" +
+                "  \"unitOfMeasurement\": {\n" +
+                "    \"name\": \"Celsius\",\n" +
+                "    \"symbol\": \"degC\",\n" +
+                "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                "  },\n" +
+                "  \"description\": \"test datastream.\",\n" +
+                "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                "  \"Thing\": { \"id\": " + thingId + " },\n" +
+                "  \"ObservedProperty\":{ \"id\":" + obsPropId + "},\n" +
+                "  \"Sensor\": { \"id\": " + sensorId + " }\n" +
+                "}";
+        long datastreamId = postEntity(EntityType.DATASTREAM, urlParameters);
+        urlParameters = "{\n" +
+                "  \"phenomenonTime\": \"2015-03-01T00:40:00Z\",\n" +
+                "  \"result\": 8,\n" +
+                "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
+                "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
+                "}";
+        postEntity(EntityType.OBSERVATION, urlParameters);
+        //POST Observation without FOI (Automatic creation of FOI)
+        urlParameters = "{\n" +
+                "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                "  \"result\": 100,\n" +
+                "  \"FeatureOfInterest\": {\n" +
+                "  \t\"description\": \"A weather station.\",\n" +
+                "  \t\"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                "    \"feature\": {\n" +
+                "      \"type\": \"Point\",\n" +
+                "      \"coordinates\": [\n" +
+                "        -114.05,\n" +
+                "        51.05\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                "}";
+        postEntity(EntityType.OBSERVATION, urlParameters);
+
+
+        //TODO: This code must be uncommented when creating historicalLocation is implemented correctly. - STV2-121
+//        urlParameters = "{\n" +
+//                "  \"time\": \"2015-03-01T00:40:00Z\",\n" +
+//                "  \"Thing\":{\"id\": " + thingId + "},\n" +
+//                "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
+//                "}";
+//        postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
     }
 
-    public void postEntity(EntityType entityType, String urlParameters){
+    public long postEntity(EntityType entityType, String urlParameters){
         String urlString = "http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0";
         switch (entityType) {
             case THING:
@@ -79,7 +126,7 @@ public class Capability2Tests{
                 break;
             default:
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return;
+                return -1;
         }
         HttpURLConnection conn= null;
         try {
@@ -120,8 +167,11 @@ public class Capability2Tests{
             responseCode = conn.getResponseCode();
             Assert.assertEquals(responseCode, 200, "The POSTed entity is not created.");
 
+            return id;
+
         } catch (Exception e) {
             e.printStackTrace();
+            return -1;
         } finally {
             if(conn != null) {
                 conn.disconnect();

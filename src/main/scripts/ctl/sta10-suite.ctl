@@ -49,8 +49,8 @@
                  <label for="uri">
                    <h4 style="margin-bottom: 0.5em">Location of SensorThings IUT (absolute http: or file: URI)</h4>
                  </label>
-                 <input id="uri" name="uri" size="128" type="text" value="http://www.w3schools.com/xml/note.xml" />
-               </p>
+
+               </p><input id="uri" name="uri" size="128" type="text" value="http://www.w3schools.com/xml/note.xml" />
                <p>
                  <label for="doc">
                    <h4 style="margin-bottom: 0.5em">Upload IUT</h4>
