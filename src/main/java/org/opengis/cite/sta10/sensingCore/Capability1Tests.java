@@ -175,6 +175,96 @@ public class Capability1Tests {
         }
     }
 
+    @Test(description = "GET Related Entity of an Entity")
+    public void readRelatedEntityOfEntityAndCheckResponse(){
+        readRelatedEntityOfEntityWithEntityType(EntityType.THING);
+        readRelatedEntityOfEntityWithEntityType(EntityType.LOCATION);
+        readRelatedEntityOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
+        readRelatedEntityOfEntityWithEntityType(EntityType.DATASTREAM);
+        readRelatedEntityOfEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
+        readRelatedEntityOfEntityWithEntityType(EntityType.SENSOR);
+        readRelatedEntityOfEntityWithEntityType(EntityType.OBSERVATION);
+        readRelatedEntityOfEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    public void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
+        try {
+            String response = getEntities(entityType);
+            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
+            switch (entityType){
+                case THING:
+                    for (String relation : EntityRelations.THING_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                        //checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case LOCATION:
+                    for (String relation : EntityRelations.LOCATION_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case HISTORICAL_LOCATION:
+                    for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                      //  checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case DATASTREAM:
+                    for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case SENSOR:
+                    for (String relation : EntityRelations.SENSOR_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                      //  checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case OBSERVATION:
+                    for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case OBSERVED_PROPERTY:
+                    for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                case FEATURE_OF_INTEREST:
+                    for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
+                        checkGetNavigationLinkOfEntity(entityType, id, relation);
+                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                    }
+                    break;
+                default:
+                    break;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void checkGetNavigationLinkOfEntity(EntityType entityType, long id, String relation){
+        int responseCode = getEntityResponseCode(entityType, id, relation);
+        Assert.assertTrue(responseCode==200 /*|| (relation.lastIndexOf("s")!= relation.length()-1 && responseCode==404)*/ , "Reading relation \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+    }
+
+    public void checkGetAssociationOfEntity(EntityType entityType, long id, String relation) {
+        int responseCode = getEntityResponseCode(entityType, id, relation+"/$ref");
+        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+        String response = getEntityResponse(entityType, id, relation+"/$ref");
+        if(!relation.equals("location") && !relation.equals("feature") && !relation.equals("unitOfMeasurement")) {
+            Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + relation + "\"of \"" + entityType + "\" fails.");
+        } else {
+            Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + relation + "\"of \"" + entityType + "\" fails.");
+        }
+    }
+
     public String readEntityWithEntityType(EntityType entityType) {
         try {
             String response = getEntities(entityType);
