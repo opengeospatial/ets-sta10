@@ -24,7 +24,7 @@ public class Capability1Tests {
     public final String rootUri = "http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0";
 
 
-    @Test(description = "GET Entities")
+    @Test(description = "GET Entities", groups = "level-1")
     public void readEntitiesAndCheckResponse() {
         String response = getEntities(EntityType.THING);
         checkEntitiesAllAspectsForResponse(EntityType.THING, response);
@@ -44,7 +44,7 @@ public class Capability1Tests {
         checkEntitiesAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST, response);
     }
 
-    @Test(description = "GET not-existed Entity")
+    @Test(description = "GET not-existed Entity", groups = "level-1")
     public void readNotExistedEntity() {
         readNotExistedEntityWithEntityType(EntityType.THING);
         readNotExistedEntityWithEntityType(EntityType.LOCATION);
@@ -56,7 +56,7 @@ public class Capability1Tests {
         readNotExistedEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
     }
 
-    @Test(description = "GET Specific Entity")
+    @Test(description = "GET Specific Entity", groups = "level-1")
     public void readEntityAndCheckResponse() {
         String response = readEntityWithEntityType(EntityType.THING);
         checkEntityAllAspectsForResponse(EntityType.THING, response);
@@ -76,7 +76,7 @@ public class Capability1Tests {
         checkEntityAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST, response);
     }
 
-    @Test(description = "GET Propety of an Entity")
+    @Test(description = "GET Propety of an Entity", groups = "level-1")
     public void readPropertyOfEntityAndCheckResponse(){
         readPropertyOfEntityWithEntityType(EntityType.THING);
         readPropertyOfEntityWithEntityType(EntityType.LOCATION);
@@ -175,7 +175,7 @@ public class Capability1Tests {
         }
     }
 
-    @Test(description = "GET Related Entity of an Entity")
+    @Test(description = "GET Related Entity of an Entity", groups = "level-1")
     public void readRelatedEntityOfEntityAndCheckResponse(){
         readRelatedEntityOfEntityWithEntityType(EntityType.THING);
         readRelatedEntityOfEntityWithEntityType(EntityType.LOCATION);
@@ -294,7 +294,7 @@ public class Capability1Tests {
         Assert.assertEquals(responseCode, 404, "Reading non-exitixting " + entityType.name() + " with id " + id + " failed.");
     }
 
-    @Test(description = "Check Service Root UI")
+    @Test(description = "Check Service Root UI", groups = "level-1")
     public void checkServiceRootUri() {
         try {
             String response = getEntities(null);

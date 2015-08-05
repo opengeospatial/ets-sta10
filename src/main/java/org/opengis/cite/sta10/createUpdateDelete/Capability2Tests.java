@@ -14,8 +14,10 @@ import java.nio.charset.StandardCharsets;
  */
 public class Capability2Tests{
 
-    @Test(description = "Post Entities")
-    public void createEntities(){
+    public final String rootUri = "http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0";
+
+    @Test(description = "POST and DELETE Entities", groups = "level-2")
+    public void createAndDeleteEntities(){
         String urlParameters  = "{\"description\":\"This is a Test From TestNG\"}";
         long thingId = postEntity(EntityType.THING, urlParameters);
         urlParameters  = "{\n" +
@@ -67,7 +69,7 @@ public class Capability2Tests{
                 "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
                 "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
                 "}";
-        postEntity(EntityType.OBSERVATION, urlParameters);
+        long obsId1 = postEntity(EntityType.OBSERVATION, urlParameters);
         //POST Observation without FOI (Automatic creation of FOI)
         urlParameters = "{\n" +
                 "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
@@ -85,9 +87,19 @@ public class Capability2Tests{
                 "  },\n" +
                 "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
                 "}";
-        postEntity(EntityType.OBSERVATION, urlParameters);
+        long obsId2 = postEntity(EntityType.OBSERVATION, urlParameters);
 
 
+        deleteEntity(EntityType.OBSERVATION, obsId1);
+        deleteEntity(EntityType.OBSERVATION, obsId2);
+        deleteEntity(EntityType.FEATURE_OF_INTEREST, foiId);
+        deleteEntity(EntityType.DATASTREAM, datastreamId);
+        deleteEntity(EntityType.OBSERVED_PROPERTY, obsPropId);
+        deleteEntity(EntityType.SENSOR, sensorId);
+        //TODO: This code must be uncommented when creating historicalLocation is implemented correctly. - STV2-121
+//        deleteEntity(EntityType.HISTORICAL_LOCATION, histLocId);
+        deleteEntity(EntityType.LOCATION, locationId);
+        deleteEntity(EntityType.THING, thingId);
         //TODO: This code must be uncommented when creating historicalLocation is implemented correctly. - STV2-121
 //        urlParameters = "{\n" +
 //                "  \"time\": \"2015-03-01T00:40:00Z\",\n" +
@@ -175,6 +187,73 @@ public class Capability2Tests{
         } finally {
             if(conn != null) {
                 conn.disconnect();
+            }
+        }
+    }
+
+    private void deleteEntity(EntityType entityType, long id){
+        String urlString = rootUri;
+        switch (entityType) {
+            case THING:
+                urlString += "/Things("+id+")";
+                break;
+            case LOCATION:
+                urlString += "/Locations("+id+")";
+                break;
+            case HISTORICAL_LOCATION:
+                urlString += "/HistoricalLocations("+id+")";
+                break;
+            case DATASTREAM:
+                urlString += "/Datastreams("+id+")";
+                break;
+            case SENSOR:
+                urlString += "/Sensors("+id+")";
+                break;
+            case OBSERVATION:
+                urlString += "/Observations("+id+")";
+                break;
+            case OBSERVED_PROPERTY:
+                urlString += "/ObservedProperties("+id+")";
+                break;
+            case FEATURE_OF_INTEREST:
+                urlString += "/FeaturesOfInterest("+id+")";
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+                return;
+        }
+        HttpURLConnection connection= null;
+        try {
+            //Create connection
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestProperty(
+                    "Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestMethod("DELETE");
+            connection.connect();
+            int responseCode= connection.getResponseCode();
+            Assert.assertEquals(responseCode, 200, "DELETE does not work properly for "+entityType+" with id "+id+". Returned with response code "+responseCode+".");
+
+            connection.disconnect();
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type",
+                    "application/json");
+
+            connection.setUseCaches(false);
+            connection.setDoOutput(false);
+
+            responseCode = connection.getResponseCode();
+            Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : "+entityType+"("+id+").");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        } finally {
+            if(connection != null) {
+                connection.disconnect();
             }
         }
     }
