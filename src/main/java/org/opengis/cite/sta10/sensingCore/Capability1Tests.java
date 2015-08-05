@@ -195,49 +195,49 @@ public class Capability1Tests {
                 case THING:
                     for (String relation : EntityRelations.THING_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        //checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case LOCATION:
                     for (String relation : EntityRelations.LOCATION_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case HISTORICAL_LOCATION:
                     for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                      //  checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case DATASTREAM:
                     for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case SENSOR:
                     for (String relation : EntityRelations.SENSOR_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                      //  checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case OBSERVATION:
                     for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case OBSERVED_PROPERTY:
                     for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 case FEATURE_OF_INTEREST:
                     for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
                         checkGetNavigationLinkOfEntity(entityType, id, relation);
-                       // checkGetPropertyValueOfEntity(entityType, id, relation);
+                        checkGetAssociationOfEntity(entityType, id, relation);
                     }
                     break;
                 default:
@@ -255,13 +255,22 @@ public class Capability1Tests {
     }
 
     public void checkGetAssociationOfEntity(EntityType entityType, long id, String relation) {
-        int responseCode = getEntityResponseCode(entityType, id, relation+"/$ref");
-        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-        String response = getEntityResponse(entityType, id, relation+"/$ref");
-        if(!relation.equals("location") && !relation.equals("feature") && !relation.equals("unitOfMeasurement")) {
-            Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + relation + "\"of \"" + entityType + "\" fails.");
-        } else {
-            Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + relation + "\"of \"" + entityType + "\" fails.");
+        if(!relation.endsWith("s")){
+            return;
+        }
+        try {
+            int responseCode = getEntityResponseCode(entityType, id, relation + "/$ref");
+            Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+            String response = getEntityResponse(entityType, id, relation + "/$ref");
+            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for "+entityType+"("+id+")/"+relation+" does not match SensorThings API : missing \"value\" in response.");
+            JSONArray value = new JSONObject(response).getJSONArray("value");
+            for (int i = 0; i < value.length() ; i++) {
+                JSONObject obj = value.getJSONObject(i);
+                Assert.assertTrue(obj.get(ControlInformation.SELF_LINK)!=null, "The Association Link for "+entityType+"("+id+")/"+relation+" does not contain self-links.");
+                Assert.assertEquals(obj.length(), 1, "The Association Link for "+entityType+"("+id+")/"+relation+" contains properties other than self-link.");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
