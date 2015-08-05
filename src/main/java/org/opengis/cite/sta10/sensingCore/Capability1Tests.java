@@ -76,13 +76,93 @@ public class Capability1Tests {
         checkEntityAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST, response);
     }
 
+    @Test(description = "GET Propety of an Entity")
+    public void readPropertyOfEntityAndCheckResponse(){
+        readPropertyOfEntityWithEntityType(EntityType.THING);
+        readPropertyOfEntityWithEntityType(EntityType.LOCATION);
+        readPropertyOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
+        readPropertyOfEntityWithEntityType(EntityType.DATASTREAM);
+        readPropertyOfEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
+        readPropertyOfEntityWithEntityType(EntityType.SENSOR);
+        readPropertyOfEntityWithEntityType(EntityType.OBSERVATION);
+        readPropertyOfEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    public void readPropertyOfEntityWithEntityType(EntityType entityType) {
+        try {
+            String response = getEntities(entityType);
+            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
+            switch (entityType){
+                case THING:
+                    for (String property : EntityProperties.THING_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case LOCATION:
+                    for (String property : EntityProperties.LOCATION_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case HISTORICAL_LOCATION:
+                    for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case DATASTREAM:
+                    for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case SENSOR:
+                    for (String property : EntityProperties.SENSOR_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case OBSERVATION:
+                    for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case OBSERVED_PROPERTY:
+                    for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                case FEATURE_OF_INTEREST:
+                    for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
+                        checkGetPropertyOfEntity(entityType, id, property);
+                    }
+                    break;
+                default:
+                    break;
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void checkGetPropertyOfEntity(EntityType entityType, long id, String property){
+        try {
+            int responseCode = getEntityResponseCode(entityType, id, property);
+            Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+            String response = getEntityResponse(entityType, id, property);
+            JSONObject entity = null;
+            entity = new JSONObject(response);
+            Assert.assertTrue(entity.get(property)!=null, "Reading property \""+ property+"\"of \"" +entityType+"\" fails.");
+            Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String readEntityWithEntityType(EntityType entityType) {
         try {
             String response = getEntities(entityType);
             Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
-            int responseCode = getEntityResponseCode(entityType, id);
+            int responseCode = getEntityResponseCode(entityType, id, null);
             Assert.assertEquals(responseCode, 200, "Reading exitixting " + entityType.name() + " with id " + id + " failed.");
-            response = getEntityResponse(entityType, id);
+            response = getEntityResponse(entityType, id, null);
             return response;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -92,7 +172,7 @@ public class Capability1Tests {
 
     public void readNotExistedEntityWithEntityType(EntityType entityType) {
         long id = Long.MAX_VALUE;
-        int responseCode = getEntityResponseCode(entityType, id);
+        int responseCode = getEntityResponseCode(entityType, id, null);
         Assert.assertEquals(responseCode, 404, "Reading non-exitixting " + entityType.name() + " with id " + id + " failed.");
     }
 
@@ -243,7 +323,7 @@ public class Capability1Tests {
         }
     }
 
-    public int getEntityResponseCode(EntityType entityType, long id) {
+    public int getEntityResponseCode(EntityType entityType, long id, String property) {
         String urlString = rootUri;
         if (id == -1) {
             return -1;
@@ -279,6 +359,9 @@ public class Capability1Tests {
                     return -1;
             }
         }
+        if(property != null){
+            urlString = urlString + "/" + property;
+        }
         HttpURLConnection connection = null;
         int result = -1;
         try {
@@ -304,7 +387,7 @@ public class Capability1Tests {
         }
     }
 
-    public String getEntityResponse(EntityType entityType, long id) {
+    public String getEntityResponse(EntityType entityType, long id, String property) {
         String urlString = rootUri;
         if (id == -1) {
             return null;
@@ -339,6 +422,9 @@ public class Capability1Tests {
                     Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
                     return null;
             }
+        }
+        if(property != null){
+            urlString = urlString + "/" +property;
         }
         HttpURLConnection connection = null;
         try {
