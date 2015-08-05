@@ -96,41 +96,49 @@ public class Capability1Tests {
                 case THING:
                     for (String property : EntityProperties.THING_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case LOCATION:
                     for (String property : EntityProperties.LOCATION_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case HISTORICAL_LOCATION:
                     for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case DATASTREAM:
                     for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case SENSOR:
                     for (String property : EntityProperties.SENSOR_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case OBSERVATION:
                     for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case OBSERVED_PROPERTY:
                     for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 case FEATURE_OF_INTEREST:
                     for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
                         checkGetPropertyOfEntity(entityType, id, property);
+                        checkGetPropertyValueOfEntity(entityType, id, property);
                     }
                     break;
                 default:
@@ -153,6 +161,17 @@ public class Capability1Tests {
             Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
+        int responseCode = getEntityResponseCode(entityType, id, property+"/$value");
+        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+        String response = getEntityResponse(entityType, id, property+"/$value");
+        if(!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
+            Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
+        } else {
+            Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
         }
     }
 
