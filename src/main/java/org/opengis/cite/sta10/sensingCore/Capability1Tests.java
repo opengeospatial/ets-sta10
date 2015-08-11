@@ -9,20 +9,33 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.ControlInformation;
 import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityRelations;
 import org.opengis.cite.sta10.util.EntityType;
 import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import javax.swing.text.Document;
 
 /**
  * Includes various tests of capability 1.
  */
 public class Capability1Tests {
 
-    public final String rootUri = "http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0";
+    public final String rootUri = "http://192.168.1.13:8080/OGCSensorThings/v1.0";
 
+    @BeforeClass
+    public void obtainTestSubject(ITestContext testContext) {
+        Object obj = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName());
+        if ((null != obj) && Document.class.isAssignableFrom(obj.getClass())) {
+            Document.class.cast(obj);
+        }
+    }
 
     @Test(description = "GET Entities", groups = "level-1")
     public void readEntitiesAndCheckResponse() {

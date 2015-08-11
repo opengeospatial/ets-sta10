@@ -54,10 +54,10 @@ public class TestNGController implements TestSuiteController {
             String homeDir = System.getProperty("user.home");
             xmlArgs = new File(homeDir, "test-run-props.xml");
         }
-        if (!xmlArgs.exists()) {
-            throw new IllegalArgumentException(
-                    "Test run arguments not found at " + xmlArgs);
-        }
+//        if (!xmlArgs.exists()) {
+//            throw new IllegalArgumentException(
+//                    "Test run arguments not found at " + xmlArgs);
+//        }
         Document testRunArgs = db.parse(xmlArgs);
         TestNGController controller = new TestNGController();
         Source testResults = controller.doTestRun(testRunArgs);
@@ -130,26 +130,26 @@ public class TestNGController implements TestSuiteController {
      *             If any arguments are missing or invalid for some reason.
      */
     void validateTestRunArgs(Document testRunArgs) throws Exception {
-        if (null == testRunArgs
-                || !testRunArgs.getDocumentElement().getNodeName()
-                        .equals("properties")) {
-            throw new IllegalArgumentException(
-                    "Input is not an XML properties document.");
-        }
-        NodeList entries = testRunArgs.getDocumentElement()
-                .getElementsByTagName("entry");
-        if (entries.getLength() == 0) {
-            throw new IllegalArgumentException("No test run arguments found.");
-        }
-        Map<String, String> args = new HashMap<String, String>();
-        for (int i = 0; i < entries.getLength(); i++) {
-            Element entry = (Element) entries.item(i);
-            args.put(entry.getAttribute("key"), entry.getTextContent());
-        }
-        if (!args.containsKey(TestRunArg.IUT.toString())) {
-            throw new IllegalArgumentException(String.format(
-                    "Missing argument: '%s' must be present.",
-                    TestRunArg.IUT));
-        }
+//        if (null == testRunArgs
+//                || !testRunArgs.getDocumentElement().getNodeName()
+//                        .equals("properties")) {
+//            throw new IllegalArgumentException(
+//                    "Input is not an XML properties document.");
+//        }
+//        NodeList entries = testRunArgs.getDocumentElement()
+//                .getElementsByTagName("entry");
+//        if (entries.getLength() == 0) {
+//            throw new IllegalArgumentException("No test run arguments found.");
+//        }
+//        Map<String, String> args = new HashMap<String, String>();
+//        for (int i = 0; i < entries.getLength(); i++) {
+//            Element entry = (Element) entries.item(i);
+//            args.put(entry.getAttribute("key"), entry.getTextContent());
+//        }
+//        if (!args.containsKey(TestRunArg.IUT.toString())) {
+//            throw new IllegalArgumentException(String.format(
+//                    "Missing argument: '%s' must be present.",
+//                    TestRunArg.IUT));
+//        }
     }
 }

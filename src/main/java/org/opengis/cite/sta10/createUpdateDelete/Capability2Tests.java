@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class Capability2Tests{
 
-    public final String rootUri = "http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0";
+    public final String rootUri = "http://192.168.1.13:8080/OGCSensorThings/v1.0";
 
     @Test(description = "POST and DELETE Entities", groups = "level-2")
     public void createAndPutAndDeleteEntities(){
@@ -41,14 +41,13 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.LOCATION, urlParameters);
             long locationId = entity.getLong("id");
-            //TODO: this code must be uncommented when the PUT implementation for Location is corrected.
-//            urlParameters = "{\"encodingType\":\"UPDATED ENCODING\",\"description\":\"UPDATED DESCRIPTION\", \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
-//            diffs = new HashMap<>();
-//            diffs.put("encodingType","UPDATED ENCODING");
-//            diffs.put("description","UPDATED DESCRIPTION");
-//            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
-//            updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
-//            checkPut(EntityType.LOCATION,entity,updatedEntity,diffs);
+            urlParameters = "{\"encodingType\":\"UPDATED ENCODING\",\"description\":\"UPDATED DESCRIPTION\", \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
+            diffs = new HashMap<>();
+            diffs.put("encodingType","UPDATED ENCODING");
+            diffs.put("description","UPDATED DESCRIPTION");
+            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
+            updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
+            checkPut(EntityType.LOCATION,entity,updatedEntity,diffs);
 
 
             urlParameters = "{\n" +
@@ -77,7 +76,7 @@ public class Capability2Tests{
             urlParameters = "{\"name\":\"QWERTY\", \"definition\": \"ZXCVB\", \"description\":\"POIUYTREW\"}";
             diffs = new HashMap<>();
             diffs.put("name","QWERTY");
-        diffs.put("definition", "ZXCVB");
+            diffs.put("definition", "ZXCVB");
             diffs.put("description", "POIUYTREW");
             updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
             checkPut(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
@@ -149,7 +148,7 @@ public class Capability2Tests{
             diffs = new HashMap<>();
             diffs.put("result", "99");
             updatedEntity = updateEntity(EntityType.OBSERVATION, urlParameters, obsId1);
-            checkPut(EntityType.OBSERVATION,entity,updatedEntity,diffs);
+            checkPut(EntityType.OBSERVATION, entity, updatedEntity, diffs);
 
 
             //POST Observation without FOI (Automatic creation of FOI)
@@ -173,23 +172,29 @@ public class Capability2Tests{
             long obsId2 = entity.getLong("id");
 
 
+            urlParameters = "{\n" +
+                    "  \"time\": \"2015-03-01T00:40:00Z\",\n" +
+                    "  \"Thing\":{\"id\": " + thingId + "},\n" +
+                    "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
+                    "}";
+            entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
+            long histLocId = entity.getLong("id");
+            urlParameters = "{\"time\": \"2015-08-01T00:00:00Z\"}";
+            diffs = new HashMap<>();
+            diffs.put("time", "2015-08-01T00:00:00Z");
+            updatedEntity = updateEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
+            checkPut(EntityType.HISTORICAL_LOCATION,entity,updatedEntity,diffs);
+
             deleteEntity(EntityType.OBSERVATION, obsId1);
             deleteEntity(EntityType.OBSERVATION, obsId2);
             deleteEntity(EntityType.FEATURE_OF_INTEREST, foiId);
             deleteEntity(EntityType.DATASTREAM, datastreamId);
             deleteEntity(EntityType.OBSERVED_PROPERTY, obsPropId);
             deleteEntity(EntityType.SENSOR, sensorId);
-            //TODO: This code must be uncommented when creating historicalLocation is implemented correctly. - STV2-121
-//        deleteEntity(EntityType.HISTORICAL_LOCATION, histLocId);
+            deleteEntity(EntityType.HISTORICAL_LOCATION, histLocId);
             deleteEntity(EntityType.LOCATION, locationId);
             deleteEntity(EntityType.THING, thingId);
-            //TODO: This code must be uncommented when creating historicalLocation is implemented correctly. - STV2-121
-//        urlParameters = "{\n" +
-//                "  \"time\": \"2015-03-01T00:40:00Z\",\n" +
-//                "  \"Thing\":{\"id\": " + thingId + "},\n" +
-//                "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
-//                "}";
-//        postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
