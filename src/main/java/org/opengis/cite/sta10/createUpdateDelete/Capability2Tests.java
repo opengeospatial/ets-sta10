@@ -18,7 +18,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,30 +30,28 @@ public class Capability2Tests{
 
     public final String rootUri = "http://192.168.1.13:8080/OGCSensorThings/v1.0";
 
-    @Test(description = "POST and DELETE Entities", groups = "level-2")
-    public void createAndPatchAndDeleteEntities(){
+    List<Long> thingIds = new ArrayList<>();
+    List<Long> locationIds = new ArrayList<>();
+    List<Long> historicalLocationIds = new ArrayList<>();
+    List<Long> datastreamIds = new ArrayList<>();
+    List<Long> observationIds = new ArrayList<>();
+    List<Long> sensorIds = new ArrayList<>();
+    List<Long> obsPropIds = new ArrayList<>();
+    List<Long> foiIds = new ArrayList<>();
+
+
+
+
+    @Test(description = "POST Entities", groups = "level-2", priority = 1)
+    public void createEntities(){
         try {
             /** Thing **/
-            //POST
             String urlParameters = "{\"description\":\"This is a Test Thing From TestNG\"}";
             JSONObject entity = postEntity(EntityType.THING, urlParameters);
             long thingId = entity.getLong("id");
-            //PUT
-            urlParameters = "{\"description\":\"This is a Updated Test Thing From TestNG\"}";
-            Map<String,Object> diffs = new HashMap<>();
-            diffs.put("description", "This is a Updated Test Thing From TestNG");
-            JSONObject updatedEntity = updateEntity(EntityType.THING, urlParameters, thingId);
-            checkPut(EntityType.THING,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
-            urlParameters = "{\"description\":\"This is a PATCHED Test Thing From TestNG\"}";
-            diffs = new HashMap<>();
-            diffs.put("description", "This is a PATCHED Test Thing From TestNG");
-            updatedEntity = patchEntity(EntityType.THING, urlParameters, thingId);
-            checkPatch(EntityType.THING,entity,updatedEntity,diffs);
+            thingIds.add(thingId);
 
             /** Location **/
-            //POST
             urlParameters = "{\n" +
                     "  \"description\": \"bow river\",\n" +
                     "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
@@ -59,25 +59,10 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.LOCATION, urlParameters);
             long locationId = entity.getLong("id");
-            //PUT
-            urlParameters = "{\"encodingType\":\"UPDATED ENCODING\",\"description\":\"UPDATED DESCRIPTION\", \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
-            diffs = new HashMap<>();
-            diffs.put("encodingType","UPDATED ENCODING");
-            diffs.put("description","UPDATED DESCRIPTION");
-            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
-            updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
-            checkPut(EntityType.LOCATION,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
-            urlParameters = "{\"location\": { \"type\": \"Point\", \"coordinates\": [114.05, -50] }}";
-            diffs = new HashMap<>();
-            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -50] }}"));
-            updatedEntity = patchEntity(EntityType.LOCATION, urlParameters, locationId);
-            checkPatch(EntityType.LOCATION, entity, updatedEntity, diffs);
-            JSONObject locationEntity = updatedEntity;
+            locationIds.add(locationId);
+            JSONObject locationEntity = entity;
 
             /** Sensor **/
-            //POST
             urlParameters = "{\n" +
                     "  \"description\": \"Fuguro Barometer\",\n" +
                     "  \"encodingType\": \"http://schema.org/description\",\n" +
@@ -85,25 +70,9 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.SENSOR, urlParameters);
             long sensorId = entity.getLong("id");
-            //PUT
-            urlParameters = "{\"description\": \"UPDATED\", \"encodingType\":\"http://schema.org/description\", \"metadata\": \"UPDATED\"}";
-            diffs = new HashMap<>();
-            diffs.put("description", "UPDATED");
-            diffs.put("encodingType", "http://schema.org/description");
-            diffs.put("metadata", "UPDATED");
-            updatedEntity = updateEntity(EntityType.SENSOR, urlParameters, sensorId);
-            checkPut(EntityType.SENSOR,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
-            urlParameters = "{\"metadata\": \"PATCHED\"}";
-            diffs = new HashMap<>();
-            diffs.put("metadata", "PATCHED");
-            updatedEntity = patchEntity(EntityType.SENSOR, urlParameters, sensorId);
-            checkPatch(EntityType.SENSOR, entity, updatedEntity, diffs);
-
+            sensorIds.add(sensorId);
 
             /** ObservedProperty **/
-            //POST
             urlParameters = "{\n" +
                     "  \"name\": \"DewPoint Temperature\",\n" +
                     "  \"definition\": \"http://dbpedia.org/page/Dew_point\",\n" +
@@ -111,25 +80,9 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
             long obsPropId = entity.getLong("id");
-            //PUT
-            urlParameters = "{\"name\":\"QWERTY\", \"definition\": \"ZXCVB\", \"description\":\"POIUYTREW\"}";
-            diffs = new HashMap<>();
-            diffs.put("name","QWERTY");
-            diffs.put("definition", "ZXCVB");
-            diffs.put("description", "POIUYTREW");
-            updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
-            checkPut(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
-            urlParameters = "{\"description\":\"PATCHED\"}";
-            diffs = new HashMap<>();
-            diffs.put("description", "PATCHED");
-            updatedEntity = patchEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
-            checkPatch(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
-
+            obsPropIds.add(obsPropId);
 
             /** FeatureOfInterest **/
-            //POST
             urlParameters = "{\n" +
                     "  \"description\": \"A weather station.\",\n" +
                     "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
@@ -143,25 +96,9 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
             long foiId = entity.getLong("id");
-            //PUT
-            urlParameters = "{\"encodingType\":\"SQUARE\",\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, \"description\":\"POIUYTREW\"}";
-            diffs = new HashMap<>();
-            diffs.put("encodingType","SQUARE");
-            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
-            diffs.put("description", "POIUYTREW");
-            updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
-            checkPut(EntityType.FEATURE_OF_INTEREST,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
-            urlParameters = "{\"feature\":{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }}";
-            diffs = new HashMap<>();
-            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }"));
-            updatedEntity = patchEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
-            checkPatch(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
-
+            foiIds.add(foiId);
 
             /** Datastream **/
-            //POST
             urlParameters = "{\n" +
                     "  \"unitOfMeasurement\": {\n" +
                     "    \"name\": \"Celsius\",\n" +
@@ -176,24 +113,108 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.DATASTREAM, urlParameters);
             long datastreamId = entity.getLong("id");
-            //PUT
+            datastreamIds.add(datastreamId);
+
+            /** Observation **/
             urlParameters = "{\n" +
-                    "  \"description\": \"Data coming from sensor on ISS.\",\n" +
-                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation\",\n" +
-                    "  \"unitOfMeasurement\": {\n" +
-                    "    \"name\": \"Entropy\",\n" +
-                    "    \"symbol\": \"S\",\n" +
-                    "    \"definition\": \"http://qudt.org/vocab/unit#Entropy\"\n" +
-                    "  }\n" +
-                    "}\n";
+                    "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
+                    "  \"result\": 8,\n" +
+                    "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
+                    "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
+                    "}";
+            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            long obsId1 = entity.getLong("id");
+            observationIds.add(obsId1);
+            //POST Observation without FOI (Automatic creation of FOI)
+            //Add location to the Thing
+            urlParameters = "{\"Locations\":[{\"id\":"+locationId+"}]}";
+            patchEntity(EntityType.THING, urlParameters, thingId);
+
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
+                    "  \"result\": 100,\n" +
+                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                    "}";
+            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            long obsId2 = entity.getLong("id");
+            observationIds.add(obsId2);
+            checkAutomaticInsertionOfFOI(obsId2, locationEntity);
+
+            /** HistoricalLocation **/
+            urlParameters = "{\n" +
+                    "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
+                    "  \"Thing\":{\"id\": " + thingId + "},\n" +
+                    "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
+                    "}";
+            entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
+            long histLocId = entity.getLong("id");
+            historicalLocationIds.add(histLocId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(description = "PATCH Entities", groups = "level-2", priority = 2)
+    public void patchEntities(){
+        try{
+            /** Thing **/
+            long thingId = thingIds.get(0);
+            JSONObject entity = getEntity(EntityType.THING, thingId);
+            String urlParameters = "{\"description\":\"This is a PATCHED Test Thing From TestNG\"}";
+            Map<String,Object> diffs = new HashMap<>();
+            diffs.put("description", "This is a PATCHED Test Thing From TestNG");
+            JSONObject updatedEntity = patchEntity(EntityType.THING, urlParameters, thingId);
+            checkPatch(EntityType.THING,entity,updatedEntity,diffs);
+
+            /** Location **/
+            long locationId = locationIds.get(0);
+            entity = getEntity(EntityType.LOCATION, locationId);
+            urlParameters = "{\"location\": { \"type\": \"Point\", \"coordinates\": [114.05, -50] }}";
             diffs = new HashMap<>();
-            diffs.put("description", "Data coming from sensor on ISS.");
-            diffs.put("observationType", "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation");
-            diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy\",\"symbol\": \"S\",\"definition\": \"http://qudt.org/vocab/unit#Entropy\"}"));
-            updatedEntity = updateEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
-            checkPut(EntityType.DATASTREAM,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
+            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -50] }}"));
+            updatedEntity = patchEntity(EntityType.LOCATION, urlParameters, locationId);
+            checkPatch(EntityType.LOCATION, entity, updatedEntity, diffs);
+
+            /** HistoricalLocation **/
+            long histLocId = historicalLocationIds.get(0);
+            entity = getEntity(EntityType.HISTORICAL_LOCATION, histLocId);
+            urlParameters = "{\"time\": \"2015-07-01T00:00:00.000Z\"}";
+            diffs = new HashMap<>();
+            diffs.put("time", "2015-07-01T00:00:00.000Z");
+            updatedEntity = patchEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
+            checkPatch(EntityType.HISTORICAL_LOCATION, entity, updatedEntity, diffs);
+
+            /** Sensor **/
+            long sensorId = sensorIds.get(0);
+            entity = getEntity(EntityType.SENSOR, sensorId);
+            urlParameters = "{\"metadata\": \"PATCHED\"}";
+            diffs = new HashMap<>();
+            diffs.put("metadata", "PATCHED");
+            updatedEntity = patchEntity(EntityType.SENSOR, urlParameters, sensorId);
+            checkPatch(EntityType.SENSOR, entity, updatedEntity, diffs);
+
+            /** ObserverdProperty **/
+            long obsPropId = obsPropIds.get(0);
+            entity = getEntity(EntityType.OBSERVED_PROPERTY, obsPropId);
+            urlParameters = "{\"description\":\"PATCHED\"}";
+            diffs = new HashMap<>();
+            diffs.put("description", "PATCHED");
+            updatedEntity = patchEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
+            checkPatch(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
+
+            /** FeatureOfInterest **/
+            long foiId = foiIds.get(0);
+            entity = getEntity(EntityType.FEATURE_OF_INTEREST, foiId);
+            urlParameters = "{\"feature\":{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }}";
+            diffs = new HashMap<>();
+            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }"));
+            updatedEntity = patchEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
+            checkPatch(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
+
+            /** Datastream **/
+            long datastreamId = datastreamIds.get(0);
+            entity = getEntity(EntityType.DATASTREAM, datastreamId);
             urlParameters = "{\"description\": \"Patched Description\"}";
             diffs = new HashMap<>();
             diffs.put("description", "Patched Description");
@@ -211,83 +232,212 @@ public class Capability2Tests{
             updatedEntity = patchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
             checkPatch(EntityType.DATASTREAM, entity, updatedEntity, diffs);
 
-
             /** Observation **/
-            //POST
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
-                    "  \"result\": 8,\n" +
-                    "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
-                    "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
-                    "}";
-            entity = postEntity(EntityType.OBSERVATION, urlParameters);
-            long obsId1 = entity.getLong("id");
-            //PUT
-            urlParameters = "{\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
-            diffs = new HashMap<>();
-            diffs.put("result", "99");
-            diffs.put("phenomenonTime", "2015-08-01T00:40:00.000Z");
-            updatedEntity = updateEntity(EntityType.OBSERVATION, urlParameters, obsId1);
-            checkPut(EntityType.OBSERVATION, entity, updatedEntity, diffs);
-            //PATCH
-            entity = updatedEntity;
+            long obsId1 = observationIds.get(0);
+            entity = getEntity(EntityType.OBSERVATION, obsId1);
             urlParameters = "{\"phenomenonTime\": \"2015-07-01T00:40:00.000Z\"}";
             diffs = new HashMap<>();
             diffs.put("phenomenonTime", "2015-07-01T00:40:00.000Z");
             updatedEntity = patchEntity(EntityType.OBSERVATION, urlParameters, obsId1);
             checkPatch(EntityType.OBSERVATION, entity, updatedEntity, diffs);
 
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-            //POST Observation without FOI (Automatic creation of FOI)
-            //Add location to the Thing
-            urlParameters = "{\"Locations\":[{\"id\":"+locationId+"}]}";
-            patchEntity(EntityType.THING, urlParameters, thingId);
+    @Test(description = "PUT Entities", groups = "level-2", priority = 2)
+    public void putEntities(){
+        try{
+            /** Thing **/
+            long thingId = thingIds.get(0);
+            JSONObject entity = getEntity(EntityType.THING, thingId);
+            String urlParameters = "{\"description\":\"This is a Updated Test Thing From TestNG\"}";
+            Map<String,Object> diffs = new HashMap<>();
+            diffs.put("description", "This is a Updated Test Thing From TestNG");
+            JSONObject updatedEntity = updateEntity(EntityType.THING, urlParameters, thingId);
+            checkPut(EntityType.THING, entity, updatedEntity, diffs);
 
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
-                    "  \"result\": 100,\n" +
-                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
-                    "}";
-            entity = postEntity(EntityType.OBSERVATION, urlParameters);
-            long obsId2 = entity.getLong("id");
-            checkAutomaticInsertionOfFOI(obsId2, locationEntity);
-
+            /** Location **/
+            long locationId = locationIds.get(0);
+            entity = getEntity(EntityType.LOCATION, locationId);
+            urlParameters = "{\"encodingType\":\"UPDATED ENCODING\",\"description\":\"UPDATED DESCRIPTION\", \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
+            diffs = new HashMap<>();
+            diffs.put("encodingType","UPDATED ENCODING");
+            diffs.put("description","UPDATED DESCRIPTION");
+            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
+            updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
+            checkPut(EntityType.LOCATION, entity, updatedEntity, diffs);
 
             /** HistoricalLocation **/
-            //POST
-            urlParameters = "{\n" +
-                    "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
-                    "  \"Thing\":{\"id\": " + thingId + "},\n" +
-                    "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
-                    "}";
-            entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
-            long histLocId = entity.getLong("id");
-            //PUT
+            long histLocId = historicalLocationIds.get(0);
+            entity = getEntity(EntityType.HISTORICAL_LOCATION, histLocId);
             urlParameters = "{\"time\": \"2015-08-01T00:00:00.000Z\"}";
             diffs = new HashMap<>();
             diffs.put("time", "2015-08-01T00:00:00.000Z");
             updatedEntity = updateEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
-            checkPut(EntityType.HISTORICAL_LOCATION,entity,updatedEntity,diffs);
-            //PATCH
-            entity = updatedEntity;
-            urlParameters = "{\"time\": \"2015-07-01T00:00:00.000Z\"}";
-            diffs = new HashMap<>();
-            diffs.put("time", "2015-07-01T00:00:00.000Z");
-            updatedEntity = patchEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
-            checkPatch(EntityType.HISTORICAL_LOCATION,entity,updatedEntity,diffs);
+            checkPut(EntityType.HISTORICAL_LOCATION, entity, updatedEntity, diffs);
 
-            deleteEntity(EntityType.OBSERVATION, obsId1);
-            deleteEntity(EntityType.OBSERVATION, obsId2);
-            deleteEntity(EntityType.FEATURE_OF_INTEREST, foiId);
-            deleteEntity(EntityType.DATASTREAM, datastreamId);
-            deleteEntity(EntityType.OBSERVED_PROPERTY, obsPropId);
-            deleteEntity(EntityType.SENSOR, sensorId);
-            deleteEntity(EntityType.HISTORICAL_LOCATION, histLocId);
-            deleteEntity(EntityType.LOCATION, locationId);
-            deleteEntity(EntityType.THING, thingId);
+            /** Sensor **/
+            long sensorId = sensorIds.get(0);
+            entity = getEntity(EntityType.SENSOR, sensorId);
+            urlParameters = "{\"description\": \"UPDATED\", \"encodingType\":\"http://schema.org/description\", \"metadata\": \"UPDATED\"}";
+            diffs = new HashMap<>();
+            diffs.put("description", "UPDATED");
+            diffs.put("encodingType", "http://schema.org/description");
+            diffs.put("metadata", "UPDATED");
+            updatedEntity = updateEntity(EntityType.SENSOR, urlParameters, sensorId);
+            checkPut(EntityType.SENSOR, entity, updatedEntity, diffs);
+
+            /** ObserverdProperty **/
+            long obsPropId = obsPropIds.get(0);
+            urlParameters = "{\"name\":\"QWERTY\", \"definition\": \"ZXCVB\", \"description\":\"POIUYTREW\"}";
+            diffs = new HashMap<>();
+            diffs.put("name","QWERTY");
+            diffs.put("definition", "ZXCVB");
+            diffs.put("description", "POIUYTREW");
+            updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
+            checkPut(EntityType.OBSERVED_PROPERTY, entity, updatedEntity, diffs);
+
+            /** FeatureOfInterest **/
+            long foiId = foiIds.get(0);
+            entity = getEntity(EntityType.FEATURE_OF_INTEREST, foiId);
+            urlParameters = "{\"encodingType\":\"SQUARE\",\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, \"description\":\"POIUYTREW\"}";
+            diffs = new HashMap<>();
+            diffs.put("encodingType","SQUARE");
+            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
+            diffs.put("description", "POIUYTREW");
+            updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
+            checkPut(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
+
+            /** Datastream **/
+            long datastreamId = datastreamIds.get(0);
+            entity = getEntity(EntityType.DATASTREAM, datastreamId);
+            urlParameters = "{\n" +
+                    "  \"description\": \"Data coming from sensor on ISS.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation\",\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Entropy\",\n" +
+                    "    \"symbol\": \"S\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#Entropy\"\n" +
+                    "  }\n" +
+                    "}\n";
+            diffs = new HashMap<>();
+            diffs.put("description", "Data coming from sensor on ISS.");
+            diffs.put("observationType", "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation");
+            diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy\",\"symbol\": \"S\",\"definition\": \"http://qudt.org/vocab/unit#Entropy\"}"));
+            updatedEntity = updateEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+            checkPut(EntityType.DATASTREAM, entity, updatedEntity, diffs);
+
+            /** Observation **/
+            long obsId1 = observationIds.get(0);
+            entity = getEntity(EntityType.OBSERVATION, obsId1);
+            urlParameters = "{\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
+            diffs = new HashMap<>();
+            diffs.put("result", "99");
+            diffs.put("phenomenonTime", "2015-08-01T00:40:00.000Z");
+            updatedEntity = updateEntity(EntityType.OBSERVATION, urlParameters, obsId1);
+            checkPut(EntityType.OBSERVATION, entity, updatedEntity, diffs);
 
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @Test(description = "DELETE Entities", groups = "level-2", priority = 3)
+    public void deleteEntities(){
+        for (int i = 0; i < observationIds.size(); i++) {
+            deleteEntity(EntityType.OBSERVATION, observationIds.get(i));
+        }
+        for (int i = 0; i < foiIds.size(); i++) {
+            deleteEntity(EntityType.FEATURE_OF_INTEREST, foiIds.get(i));
+        }
+        for (int i = 0; i < datastreamIds.size(); i++) {
+            deleteEntity(EntityType.DATASTREAM, datastreamIds.get(i));
+        }
+        for (int i = 0; i < obsPropIds.size(); i++) {
+            deleteEntity(EntityType.OBSERVED_PROPERTY, obsPropIds.get(i));
+        }
+        for (int i = 0; i < sensorIds.size(); i++) {
+            deleteEntity(EntityType.SENSOR, sensorIds.get(i));
+        }
+        for (int i = 0; i < historicalLocationIds.size(); i++) {
+            deleteEntity(EntityType.HISTORICAL_LOCATION, historicalLocationIds.get(i));
+        }
+        for (int i = 0; i < locationIds.size(); i++) {
+            deleteEntity(EntityType.LOCATION, locationIds.get(i));
+        }
+        for (int i = 0; i < thingIds.size(); i++) {
+            deleteEntity(EntityType.THING, thingIds.get(i));
+        }
+    }
+
+    public JSONObject getEntity(EntityType entityType, long id) {
+        String urlString = rootUri;
+        if (id == -1) {
+            return null;
+        }
+        if (entityType != null) { // It is not Service Root URI
+            switch (entityType) {
+                case THING:
+                    urlString += "/Things(" + id + ")";
+                    break;
+                case LOCATION:
+                    urlString += "/Locations(" + id + ")";
+                    break;
+                case HISTORICAL_LOCATION:
+                    urlString += "/HistoricalLocations(" + id + ")";
+                    break;
+                case DATASTREAM:
+                    urlString += "/Datastreams(" + id + ")";
+                    break;
+                case SENSOR:
+                    urlString += "/Sensors(" + id + ")";
+                    break;
+                case OBSERVATION:
+                    urlString += "/Observations(" + id + ")";
+                    break;
+                case OBSERVED_PROPERTY:
+                    urlString += "/ObservedProperties(" + id + ")";
+                    break;
+                case FEATURE_OF_INTEREST:
+                    urlString += "/FeaturesOfInterest(" + id + ")";
+                    break;
+                default:
+                    Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+                    return null;
+            }
+        }
+        HttpURLConnection connection = null;
+        try {
+            //Create connection
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type",
+                    "application/json");
+
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
+            //Get Response
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();
+            return new JSONObject(response.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
