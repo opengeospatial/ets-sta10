@@ -382,6 +382,20 @@ public class Capability2Tests{
         deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
     }
 
+    @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 3)
+    public void deleteNoneexistentEntities(){
+        deleteNonExsistentEntity(EntityType.THING);
+        deleteNonExsistentEntity(EntityType.LOCATION);
+        deleteNonExsistentEntity(EntityType.HISTORICAL_LOCATION);
+        deleteNonExsistentEntity(EntityType.SENSOR);
+        deleteNonExsistentEntity(EntityType.OBSERVED_PROPERTY);
+        deleteNonExsistentEntity(EntityType.DATASTREAM);
+        deleteNonExsistentEntity(EntityType.OBSERVATION);
+        deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
+    }
+
+
+
     public JSONObject getEntity(EntityType entityType, long id) {
         String urlString = rootUri;
         if (id == -1) {
