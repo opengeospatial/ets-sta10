@@ -1,5 +1,11 @@
 package org.opengis.cite.sta10.createUpdateDelete;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.util.EntityProperties;
@@ -9,6 +15,7 @@ import org.testng.annotations.Test;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -22,18 +29,29 @@ public class Capability2Tests{
     public final String rootUri = "http://192.168.1.13:8080/OGCSensorThings/v1.0";
 
     @Test(description = "POST and DELETE Entities", groups = "level-2")
-    public void createAndPutAndDeleteEntities(){
+    public void createAndPatchAndDeleteEntities(){
         try {
+            /** Thing **/
+            //POST
             String urlParameters = "{\"description\":\"This is a Test Thing From TestNG\"}";
             JSONObject entity = postEntity(EntityType.THING, urlParameters);
             long thingId = entity.getLong("id");
-            urlParameters = "{\"description\":\"This is a Updated Test Thing From TestNG\", \"properties\" : {\"test\" : \"update\"}}";
+            //PUT
+            urlParameters = "{\"description\":\"This is a Updated Test Thing From TestNG\"}";
             Map<String,Object> diffs = new HashMap<>();
             diffs.put("description", "This is a Updated Test Thing From TestNG");
             JSONObject updatedEntity = updateEntity(EntityType.THING, urlParameters, thingId);
             checkPut(EntityType.THING,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"description\":\"This is a PATCHED Test Thing From TestNG\"}";
+            diffs = new HashMap<>();
+            diffs.put("description", "This is a PATCHED Test Thing From TestNG");
+            updatedEntity = patchEntity(EntityType.THING, urlParameters, thingId);
+            checkPatch(EntityType.THING,entity,updatedEntity,diffs);
 
-
+            /** Location **/
+            //POST
             urlParameters = "{\n" +
                     "  \"description\": \"bow river\",\n" +
                     "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
@@ -41,6 +59,7 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.LOCATION, urlParameters);
             long locationId = entity.getLong("id");
+            //PUT
             urlParameters = "{\"encodingType\":\"UPDATED ENCODING\",\"description\":\"UPDATED DESCRIPTION\", \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
             diffs = new HashMap<>();
             diffs.put("encodingType","UPDATED ENCODING");
@@ -48,8 +67,17 @@ public class Capability2Tests{
             diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
             updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
             checkPut(EntityType.LOCATION,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"location\": { \"type\": \"Point\", \"coordinates\": [114.05, -50] }}";
+            diffs = new HashMap<>();
+            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -50] }}"));
+            updatedEntity = patchEntity(EntityType.LOCATION, urlParameters, locationId);
+            checkPatch(EntityType.LOCATION, entity, updatedEntity, diffs);
+            JSONObject locationEntity = updatedEntity;
 
-
+            /** Sensor **/
+            //POST
             urlParameters = "{\n" +
                     "  \"description\": \"Fuguro Barometer\",\n" +
                     "  \"encodingType\": \"http://schema.org/description\",\n" +
@@ -57,6 +85,7 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.SENSOR, urlParameters);
             long sensorId = entity.getLong("id");
+            //PUT
             urlParameters = "{\"description\": \"UPDATED\", \"encodingType\":\"http://schema.org/description\", \"metadata\": \"UPDATED\"}";
             diffs = new HashMap<>();
             diffs.put("description", "UPDATED");
@@ -64,8 +93,17 @@ public class Capability2Tests{
             diffs.put("metadata", "UPDATED");
             updatedEntity = updateEntity(EntityType.SENSOR, urlParameters, sensorId);
             checkPut(EntityType.SENSOR,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"metadata\": \"PATCHED\"}";
+            diffs = new HashMap<>();
+            diffs.put("metadata", "PATCHED");
+            updatedEntity = patchEntity(EntityType.SENSOR, urlParameters, sensorId);
+            checkPatch(EntityType.SENSOR, entity, updatedEntity, diffs);
 
 
+            /** ObservedProperty **/
+            //POST
             urlParameters = "{\n" +
                     "  \"name\": \"DewPoint Temperature\",\n" +
                     "  \"definition\": \"http://dbpedia.org/page/Dew_point\",\n" +
@@ -73,6 +111,7 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
             long obsPropId = entity.getLong("id");
+            //PUT
             urlParameters = "{\"name\":\"QWERTY\", \"definition\": \"ZXCVB\", \"description\":\"POIUYTREW\"}";
             diffs = new HashMap<>();
             diffs.put("name","QWERTY");
@@ -80,8 +119,17 @@ public class Capability2Tests{
             diffs.put("description", "POIUYTREW");
             updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
             checkPut(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"description\":\"PATCHED\"}";
+            diffs = new HashMap<>();
+            diffs.put("description", "PATCHED");
+            updatedEntity = patchEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
+            checkPatch(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
 
 
+            /** FeatureOfInterest **/
+            //POST
             urlParameters = "{\n" +
                     "  \"description\": \"A weather station.\",\n" +
                     "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
@@ -95,6 +143,7 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
             long foiId = entity.getLong("id");
+            //PUT
             urlParameters = "{\"encodingType\":\"SQUARE\",\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, \"description\":\"POIUYTREW\"}";
             diffs = new HashMap<>();
             diffs.put("encodingType","SQUARE");
@@ -102,9 +151,17 @@ public class Capability2Tests{
             diffs.put("description", "POIUYTREW");
             updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
             checkPut(EntityType.FEATURE_OF_INTEREST,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"feature\":{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }}";
+            diffs = new HashMap<>();
+            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }"));
+            updatedEntity = patchEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
+            checkPatch(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
 
 
-
+            /** Datastream **/
+            //POST
             urlParameters = "{\n" +
                     "  \"unitOfMeasurement\": {\n" +
                     "    \"name\": \"Celsius\",\n" +
@@ -119,6 +176,7 @@ public class Capability2Tests{
                     "}";
             entity = postEntity(EntityType.DATASTREAM, urlParameters);
             long datastreamId = entity.getLong("id");
+            //PUT
             urlParameters = "{\n" +
                     "  \"description\": \"Data coming from sensor on ISS.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation\",\n" +
@@ -131,59 +189,92 @@ public class Capability2Tests{
             diffs = new HashMap<>();
             diffs.put("description", "Data coming from sensor on ISS.");
             diffs.put("observationType", "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation");
-        diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy\",\"symbol\": \"S\",\"definition\": \"http://qudt.org/vocab/unit#Entropy\""));
+            diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy\",\"symbol\": \"S\",\"definition\": \"http://qudt.org/vocab/unit#Entropy\"}"));
             updatedEntity = updateEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
             checkPut(EntityType.DATASTREAM,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"description\": \"Patched Description\"}";
+            diffs = new HashMap<>();
+            diffs.put("description", "Patched Description");
+            updatedEntity = patchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+            checkPatch(EntityType.DATASTREAM, entity, updatedEntity, diffs);
+            //Second PATCH for UOM
+            entity = updatedEntity;
+            urlParameters = "{ \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Entropy2\",\n" +
+                    "    \"symbol\": \"S2\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#Entropy2\"\n" +
+                    "  } }";
+            diffs = new HashMap<>();
+            diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy2\",\"symbol\": \"S2\",\"definition\": \"http://qudt.org/vocab/unit#Entropy2\"}"));
+            updatedEntity = patchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+            checkPatch(EntityType.DATASTREAM, entity, updatedEntity, diffs);
 
 
+            /** Observation **/
+            //POST
             urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-01T00:40:00Z\",\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
                     "  \"result\": 8,\n" +
                     "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
                     "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
             long obsId1 = entity.getLong("id");
-            urlParameters = "{\"result\": \"99\"}";
+            //PUT
+            urlParameters = "{\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
             diffs = new HashMap<>();
             diffs.put("result", "99");
+            diffs.put("phenomenonTime", "2015-08-01T00:40:00.000Z");
             updatedEntity = updateEntity(EntityType.OBSERVATION, urlParameters, obsId1);
             checkPut(EntityType.OBSERVATION, entity, updatedEntity, diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"phenomenonTime\": \"2015-07-01T00:40:00.000Z\"}";
+            diffs = new HashMap<>();
+            diffs.put("phenomenonTime", "2015-07-01T00:40:00.000Z");
+            updatedEntity = patchEntity(EntityType.OBSERVATION, urlParameters, obsId1);
+            checkPatch(EntityType.OBSERVATION, entity, updatedEntity, diffs);
 
 
             //POST Observation without FOI (Automatic creation of FOI)
+            //Add location to the Thing
+            urlParameters = "{\"Locations\":[{\"id\":"+locationId+"}]}";
+            patchEntity(EntityType.THING, urlParameters, thingId);
+
             urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
                     "  \"result\": 100,\n" +
-                    "  \"FeatureOfInterest\": {\n" +
-                    "  \t\"description\": \"A weather station.\",\n" +
-                    "  \t\"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
-                    "    \"feature\": {\n" +
-                    "      \"type\": \"Point\",\n" +
-                    "      \"coordinates\": [\n" +
-                    "        -114.05,\n" +
-                    "        51.05\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  },\n" +
                     "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
             long obsId2 = entity.getLong("id");
+            checkAutomaticInsertionOfFOI(obsId2, locationEntity);
 
 
+            /** HistoricalLocation **/
+            //POST
             urlParameters = "{\n" +
-                    "  \"time\": \"2015-03-01T00:40:00Z\",\n" +
+                    "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
                     "  \"Thing\":{\"id\": " + thingId + "},\n" +
                     "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
                     "}";
             entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
             long histLocId = entity.getLong("id");
-            urlParameters = "{\"time\": \"2015-08-01T00:00:00Z\"}";
+            //PUT
+            urlParameters = "{\"time\": \"2015-08-01T00:00:00.000Z\"}";
             diffs = new HashMap<>();
-            diffs.put("time", "2015-08-01T00:00:00Z");
+            diffs.put("time", "2015-08-01T00:00:00.000Z");
             updatedEntity = updateEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
             checkPut(EntityType.HISTORICAL_LOCATION,entity,updatedEntity,diffs);
+            //PATCH
+            entity = updatedEntity;
+            urlParameters = "{\"time\": \"2015-07-01T00:00:00.000Z\"}";
+            diffs = new HashMap<>();
+            diffs.put("time", "2015-07-01T00:00:00.000Z");
+            updatedEntity = patchEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
+            checkPatch(EntityType.HISTORICAL_LOCATION,entity,updatedEntity,diffs);
 
             deleteEntity(EntityType.OBSERVATION, obsId1);
             deleteEntity(EntityType.OBSERVATION, obsId2);
@@ -451,78 +542,161 @@ public class Capability2Tests{
         }
     }
 
+    public JSONObject patchEntity(EntityType entityType, String urlParameters, long id){
+        String urlString = rootUri;
+        switch (entityType) {
+            case THING:
+                urlString += "/Things("+id+")";
+                break;
+            case LOCATION:
+                urlString += "/Locations("+id+")";
+                break;
+            case HISTORICAL_LOCATION:
+                urlString += "/HistoricalLocations("+id+")";
+                break;
+            case DATASTREAM:
+                urlString += "/Datastreams("+id+")";
+                break;
+            case SENSOR:
+                urlString += "/Sensors("+id+")";
+                break;
+            case OBSERVATION:
+                urlString += "/Observations("+id+")";
+                break;
+            case OBSERVED_PROPERTY:
+                urlString += "/ObservedProperties("+id+")";
+                break;
+            case FEATURE_OF_INTEREST:
+                urlString += "/FeaturesOfInterest("+id+")";
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+                return null;
+        }
+
+        HttpURLConnection conn = null;
+
+        try {
+
+            //PATCH
+            URI uri = new URI(urlString);
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPatch request = new HttpPatch(uri);
+            StringEntity params = new StringEntity(urlParameters, ContentType.APPLICATION_JSON);
+            request.setEntity(params);
+            CloseableHttpResponse response = httpClient.execute(request);
+            int responseCode = response.getStatusLine().getStatusCode();
+            Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name());
+            httpClient.close();
+
+            //GET patched entity for return
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type",
+                    "application/json");
+
+            conn.setUseCaches(false);
+            conn.setDoOutput(true);
+
+            responseCode = conn.getResponseCode();
+
+            //Get Response
+            InputStream is = conn.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                responseBuilder.append(line);
+                responseBuilder.append('\r');
+            }
+            rd.close();
+
+            JSONObject result = new JSONObject(responseBuilder.toString());
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if(conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs){
         try {
             switch (entityType) {
                 case THING:
                     for (String property : EntityProperties.THING_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case LOCATION:
                     for (String property : EntityProperties.LOCATION_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case HISTORICAL_LOCATION:
                     for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case DATASTREAM:
                     for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case SENSOR:
                     for (String property : EntityProperties.SENSOR_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case OBSERVATION:
                     for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case OBSERVED_PROPERTY:
                     for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
                 case FEATURE_OF_INTEREST:
                     for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         } else{
-                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
                         }
                     }
                     break;
@@ -540,7 +714,7 @@ public class Capability2Tests{
                 case THING:
                     for (String property : EntityProperties.THING_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
                         } else{
 //                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
                         }
@@ -558,7 +732,7 @@ public class Capability2Tests{
                 case HISTORICAL_LOCATION:
                     for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
                         } else{
 //                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
                         }
@@ -576,7 +750,7 @@ public class Capability2Tests{
                 case SENSOR:
                     for (String property : EntityProperties.SENSOR_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
                         } else{
 //                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
                         }
@@ -585,7 +759,7 @@ public class Capability2Tests{
                 case OBSERVATION:
                     for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
                         } else{
 //                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
                         }
@@ -594,7 +768,7 @@ public class Capability2Tests{
                 case OBSERVED_PROPERTY:
                     for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
                         if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property), diffs.get(property), "PUT was not applied correctly for "+entityType+".");
+                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
                         } else{
 //                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
                         }
@@ -614,6 +788,40 @@ public class Capability2Tests{
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void checkAutomaticInsertionOfFOI(long obsId, JSONObject locationObj){
+        String urlString = rootUri+"/Observations("+obsId+")/FeatureOfInterest";
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type",
+                    "application/json");
+            conn.setUseCaches(false);
+            conn.setDoOutput(true);
+            int responseCode = conn.getResponseCode();
+            Assert.assertEquals(responseCode, 200, "ERROR: FeatureOfInterest was not automatically create.");
+            //Get Response
+            InputStream is = conn.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                responseBuilder.append(line);
+                responseBuilder.append('\r');
+            }
+            rd.close();
+            JSONObject result = new JSONObject(responseBuilder.toString());
+            Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(conn != null) {
+                conn.disconnect();
+            }
         }
     }
 }
