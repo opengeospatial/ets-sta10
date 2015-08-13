@@ -57,16 +57,16 @@ public class Capability1Tests {
         checkEntitiesAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST, response);
     }
 
-    @Test(description = "GET not-existed Entity", groups = "level-1")
-    public void readNotExistedEntity() {
-        readNotExistedEntityWithEntityType(EntityType.THING);
-        readNotExistedEntityWithEntityType(EntityType.LOCATION);
-        readNotExistedEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
-        readNotExistedEntityWithEntityType(EntityType.DATASTREAM);
-        readNotExistedEntityWithEntityType(EntityType.SENSOR);
-        readNotExistedEntityWithEntityType(EntityType.OBSERVATION);
-        readNotExistedEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
-        readNotExistedEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
+    @Test(description = "GET nonexistent Entity", groups = "level-1")
+    public void readNonexistentEntity() {
+        readNonexistentEntityWithEntityType(EntityType.THING);
+        readNonexistentEntityWithEntityType(EntityType.LOCATION);
+        readNonexistentEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
+        readNonexistentEntityWithEntityType(EntityType.DATASTREAM);
+        readNonexistentEntityWithEntityType(EntityType.SENSOR);
+        readNonexistentEntityWithEntityType(EntityType.OBSERVATION);
+        readNonexistentEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
+        readNonexistentEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
     }
 
     @Test(description = "GET Specific Entity", groups = "level-1")
@@ -301,7 +301,7 @@ public class Capability1Tests {
         }
     }
 
-    public void readNotExistedEntityWithEntityType(EntityType entityType) {
+    public void readNonexistentEntityWithEntityType(EntityType entityType) {
         long id = Long.MAX_VALUE;
         int responseCode = getEntityResponseCode(entityType, id, null);
         Assert.assertEquals(responseCode, 404, "Reading non-exitixting " + entityType.name() + " with id " + id + " failed.");

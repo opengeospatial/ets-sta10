@@ -304,7 +304,7 @@ public class Capability2Tests{
             entity = getEntity(EntityType.FEATURE_OF_INTEREST, foiId);
             urlParameters = "{\"encodingType\":\"SQUARE\",\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, \"description\":\"POIUYTREW\"}";
             diffs = new HashMap<>();
-            diffs.put("encodingType","SQUARE");
+            diffs.put("encodingType", "SQUARE");
             diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
             diffs.put("description", "POIUYTREW");
             updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
@@ -371,6 +371,15 @@ public class Capability2Tests{
         for (int i = 0; i < thingIds.size(); i++) {
             deleteEntity(EntityType.THING, thingIds.get(i));
         }
+
+        deleteNonExsistentEntity(EntityType.THING);
+        deleteNonExsistentEntity(EntityType.LOCATION);
+        deleteNonExsistentEntity(EntityType.HISTORICAL_LOCATION);
+        deleteNonExsistentEntity(EntityType.SENSOR);
+        deleteNonExsistentEntity(EntityType.OBSERVED_PROPERTY);
+        deleteNonExsistentEntity(EntityType.DATASTREAM);
+        deleteNonExsistentEntity(EntityType.OBSERVATION);
+        deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
     }
 
     public JSONObject getEntity(EntityType entityType, long id) {
@@ -591,6 +600,63 @@ public class Capability2Tests{
 
             responseCode = connection.getResponseCode();
             Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : "+entityType+"("+id+").");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        } finally {
+            if(connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private void deleteNonExsistentEntity(EntityType entityType){
+        String urlString = rootUri;
+        long id = Long.MAX_VALUE;
+        switch (entityType) {
+            case THING:
+                urlString += "/Things("+id+")";
+                break;
+            case LOCATION:
+                urlString += "/Locations("+id+")";
+                break;
+            case HISTORICAL_LOCATION:
+                urlString += "/HistoricalLocations("+id+")";
+                break;
+            case DATASTREAM:
+                urlString += "/Datastreams("+id+")";
+                break;
+            case SENSOR:
+                urlString += "/Sensors("+id+")";
+                break;
+            case OBSERVATION:
+                urlString += "/Observations("+id+")";
+                break;
+            case OBSERVED_PROPERTY:
+                urlString += "/ObservedProperties("+id+")";
+                break;
+            case FEATURE_OF_INTEREST:
+                urlString += "/FeaturesOfInterest("+id+")";
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+                return;
+        }
+        HttpURLConnection connection= null;
+        try {
+            //Create connection
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestProperty(
+                    "Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestMethod("DELETE");
+            connection.connect();
+            int responseCode= connection.getResponseCode();
+            Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+
+            connection.disconnect();
 
         } catch (Exception e) {
             e.printStackTrace();
