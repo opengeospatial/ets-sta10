@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
+import org.opengis.cite.sta10.TestRunArg;
 import org.opengis.cite.sta10.util.ControlInformation;
 import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityRelations;
@@ -26,15 +27,17 @@ import javax.swing.text.Document;
  */
 public class Capability1Tests {
 
-    public final String rootUri = "http://192.168.1.13:8080/OGCSensorThings/v1.0";
+    public String rootUri;
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
-        Object obj = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT.getName());
-        if ((null != obj) && Document.class.isAssignableFrom(obj.getClass())) {
-            Document.class.cast(obj);
+        rootUri = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = rootUri.trim();
+        if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
+            rootUri = rootUri.substring(0, rootUri.length() - 1);
         }
+
     }
 
     @Test(description = "GET Entities", groups = "level-1")

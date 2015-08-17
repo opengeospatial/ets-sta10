@@ -8,9 +8,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opengis.cite.sta10.SuiteAttribute;
+import org.opengis.cite.sta10.TestRunArg;
 import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityType;
 import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.*;
@@ -26,9 +30,9 @@ import java.util.Map;
 /**
  * Includes various tests of capability 2.
  */
-public class Capability2Tests{
+public class Capability2Tests {
 
-    public final String rootUri = "http://192.168.1.13:8080/OGCSensorThings/v1.0";
+    public String rootUri;
 
     List<Long> thingIds = new ArrayList<>();
     List<Long> locationIds = new ArrayList<>();
@@ -40,10 +44,19 @@ public class Capability2Tests{
     List<Long> foiIds = new ArrayList<>();
 
 
+    @BeforeClass
+    public void obtainTestSubject(ITestContext testContext) {
+        rootUri = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = rootUri.trim();
+        if(rootUri.lastIndexOf('/')==rootUri.length()-1){
+            rootUri = rootUri.substring(0,rootUri.length()-1);
+        }
 
+    }
 
     @Test(description = "POST Entities", groups = "level-2", priority = 1)
-    public void createEntities(){
+    public void createEntities() {
         try {
             /** Thing **/
             String urlParameters = "{\"description\":\"This is a Test Thing From TestNG\"}";
@@ -127,7 +140,7 @@ public class Capability2Tests{
             observationIds.add(obsId1);
             //POST Observation without FOI (Automatic creation of FOI)
             //Add location to the Thing
-            urlParameters = "{\"Locations\":[{\"id\":"+locationId+"}]}";
+            urlParameters = "{\"Locations\":[{\"id\":" + locationId + "}]}";
             patchEntity(EntityType.THING, urlParameters, thingId);
 
             urlParameters = "{\n" +
@@ -156,16 +169,16 @@ public class Capability2Tests{
     }
 
     @Test(description = "PATCH Entities", groups = "level-2", priority = 2)
-    public void patchEntities(){
-        try{
+    public void patchEntities() {
+        try {
             /** Thing **/
             long thingId = thingIds.get(0);
             JSONObject entity = getEntity(EntityType.THING, thingId);
             String urlParameters = "{\"description\":\"This is a PATCHED Test Thing From TestNG\"}";
-            Map<String,Object> diffs = new HashMap<>();
+            Map<String, Object> diffs = new HashMap<>();
             diffs.put("description", "This is a PATCHED Test Thing From TestNG");
             JSONObject updatedEntity = patchEntity(EntityType.THING, urlParameters, thingId);
-            checkPatch(EntityType.THING,entity,updatedEntity,diffs);
+            checkPatch(EntityType.THING, entity, updatedEntity, diffs);
 
             /** Location **/
             long locationId = locationIds.get(0);
@@ -201,14 +214,14 @@ public class Capability2Tests{
             diffs = new HashMap<>();
             diffs.put("description", "PATCHED");
             updatedEntity = patchEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
-            checkPatch(EntityType.OBSERVED_PROPERTY,entity,updatedEntity,diffs);
+            checkPatch(EntityType.OBSERVED_PROPERTY, entity, updatedEntity, diffs);
 
             /** FeatureOfInterest **/
             long foiId = foiIds.get(0);
             entity = getEntity(EntityType.FEATURE_OF_INTEREST, foiId);
             urlParameters = "{\"feature\":{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }}";
             diffs = new HashMap<>();
-            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }"));
+            diffs.put("feature", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }"));
             updatedEntity = patchEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
             checkPatch(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
 
@@ -247,13 +260,13 @@ public class Capability2Tests{
     }
 
     @Test(description = "PUT Entities", groups = "level-2", priority = 2)
-    public void putEntities(){
-        try{
+    public void putEntities() {
+        try {
             /** Thing **/
             long thingId = thingIds.get(0);
             JSONObject entity = getEntity(EntityType.THING, thingId);
             String urlParameters = "{\"description\":\"This is a Updated Test Thing From TestNG\"}";
-            Map<String,Object> diffs = new HashMap<>();
+            Map<String, Object> diffs = new HashMap<>();
             diffs.put("description", "This is a Updated Test Thing From TestNG");
             JSONObject updatedEntity = updateEntity(EntityType.THING, urlParameters, thingId);
             checkPut(EntityType.THING, entity, updatedEntity, diffs);
@@ -263,8 +276,8 @@ public class Capability2Tests{
             entity = getEntity(EntityType.LOCATION, locationId);
             urlParameters = "{\"encodingType\":\"UPDATED ENCODING\",\"description\":\"UPDATED DESCRIPTION\", \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
             diffs = new HashMap<>();
-            diffs.put("encodingType","UPDATED ENCODING");
-            diffs.put("description","UPDATED DESCRIPTION");
+            diffs.put("encodingType", "UPDATED ENCODING");
+            diffs.put("description", "UPDATED DESCRIPTION");
             diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
             updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
             checkPut(EntityType.LOCATION, entity, updatedEntity, diffs);
@@ -293,7 +306,7 @@ public class Capability2Tests{
             long obsPropId = obsPropIds.get(0);
             urlParameters = "{\"name\":\"QWERTY\", \"definition\": \"ZXCVB\", \"description\":\"POIUYTREW\"}";
             diffs = new HashMap<>();
-            diffs.put("name","QWERTY");
+            diffs.put("name", "QWERTY");
             diffs.put("definition", "ZXCVB");
             diffs.put("description", "POIUYTREW");
             updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
@@ -305,7 +318,7 @@ public class Capability2Tests{
             urlParameters = "{\"encodingType\":\"SQUARE\",\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, \"description\":\"POIUYTREW\"}";
             diffs = new HashMap<>();
             diffs.put("encodingType", "SQUARE");
-            diffs.put("feature",new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
+            diffs.put("feature", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
             diffs.put("description", "POIUYTREW");
             updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
             checkPut(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
@@ -346,7 +359,7 @@ public class Capability2Tests{
 
 
     @Test(description = "DELETE Entities", groups = "level-2", priority = 3)
-    public void deleteEntities(){
+    public void deleteEntities() {
         for (int i = 0; i < observationIds.size(); i++) {
             deleteEntity(EntityType.OBSERVATION, observationIds.get(i));
         }
@@ -382,8 +395,100 @@ public class Capability2Tests{
         deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
     }
 
+    //TODO: Add invalid PATCH test for other entities when it is implemented in the service
+    @Test(description = "Invalid PATCH Entities", groups = "level-2", priority = 2)
+    public void invalidPatchEntities() {
+        /** Thing **/
+        long thingId = thingIds.get(0);
+        String urlParameters = "{\"Locations\": [\n" +
+                "    {\n" +
+                "      \"description\": \"West Roof\",\n" +
+                "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
+                "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                "    }\n" +
+                "  ]}";
+        invalidPatchEntity(EntityType.THING, urlParameters, thingId);
+        urlParameters = "{\"Datastreams\": [\n" +
+                "    {\n" +
+                "      \"unitOfMeasurement\": {\n" +
+                "        \"name\": \"Lumen\",\n" +
+                "        \"symbol\": \"lm\",\n" +
+                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                "      }]}";
+        invalidPatchEntity(EntityType.THING, urlParameters, thingId);
+
+//        /** Location **/
+//        long locationId = locationIds.get(0);
+//        urlParameters = "{\"Things\":[{\"description\":\"Orange\"}]}";
+//        invalidPatchEntity(EntityType.LOCATION, urlParameters, locationId);
+//
+//        /** HistoricalLocation **/
+//        long histLocId = historicalLocationIds.get(0);
+//        urlParameters = "{\"time\": \"2015-07-01T00:00:00.000Z\"}";
+//        invalidPatchEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
+//
+        /** Sensor **/
+        long sensorId = sensorIds.get(0);
+        urlParameters = "{\"Datastreams\": [\n" +
+                "    {\n" +
+                "      \"unitOfMeasurement\": {\n" +
+                "        \"name\": \"Lumen\",\n" +
+                "        \"symbol\": \"lm\",\n" +
+                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"}\n" +
+                "        ,\"Thing\":{\"id\":"+thingId+"}"+
+                "      }]}";
+        invalidPatchEntity(EntityType.SENSOR, urlParameters, sensorId);
+
+        /** ObserverdProperty **/
+        long obsPropId = obsPropIds.get(0);
+        urlParameters = "{\"Datastreams\": [\n" +
+                "    {\n" +
+                "      \"unitOfMeasurement\": {\n" +
+                "        \"name\": \"Lumen\",\n" +
+                "        \"symbol\": \"lm\",\n" +
+                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"}\n" +
+                "        ,\"Thing\":{\"id\":"+thingId+"}"+
+                "      }]}";
+        invalidPatchEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
+
+//        /** FeatureOfInterest **/
+//        long foiId = foiIds.get(0);
+//        urlParameters = "{\"feature\":{ \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }}";
+//        invalidPatchEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
+
+        /** Datastream **/
+        long datastreamId = datastreamIds.get(0);
+        urlParameters = "{\"ObservedProperty\": {\n" +
+                "  \t\"name\": \"Count\",\n" +
+                "\t\"definition\": \"http://qudt.org/vocab/unit#Dimensionless\",\n" +
+                "\t\"description\": \"Count is a dimensionless property.\"\n" +
+                "  } }";
+        invalidPatchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+        urlParameters = "{\"Sensor\": {\n" +
+                "  \t\"description\": \"Acme Traffic 2000\",  \n" +
+                "  \t\"encodingType\": \"http://schema.org/description\",\n" +
+                "  \t\"metadata\": \"Traffic counting device\"\n" +
+                "  }}";
+        invalidPatchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+        urlParameters = "{\"Thing\": { \"description\": \"test\" }}";
+        invalidPatchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+        urlParameters = "{\"Observations\": [\n" +
+                "    {\n" +
+                "      \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                "      \"result\": 92122,\n" +
+                "      \"resultQuality\": \"High\"\n" +
+                "    }\n" +
+                "  ]}";
+        invalidPatchEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
+
+//        /** Observation **/
+//        long obsId1 = observationIds.get(0);
+//        urlParameters = "{\"phenomenonTime\": \"2015-07-01T00:40:00.000Z\"}";
+//        invalidPatchEntity(EntityType.OBSERVATION, urlParameters, obsId1);
+    }
+
     @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 3)
-    public void deleteNoneexistentEntities(){
+    public void deleteNoneexistentEntities() {
         deleteNonExsistentEntity(EntityType.THING);
         deleteNonExsistentEntity(EntityType.LOCATION);
         deleteNonExsistentEntity(EntityType.HISTORICAL_LOCATION);
@@ -393,7 +498,6 @@ public class Capability2Tests{
         deleteNonExsistentEntity(EntityType.OBSERVATION);
         deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
     }
-
 
 
     public JSONObject getEntity(EntityType entityType, long id) {
@@ -464,8 +568,8 @@ public class Capability2Tests{
         }
     }
 
-    public JSONObject postEntity(EntityType entityType, String urlParameters){
-        String urlString =  rootUri;
+    public JSONObject postEntity(EntityType entityType, String urlParameters) {
+        String urlString = rootUri;
         switch (entityType) {
             case THING:
                 urlString += "/Things";
@@ -495,13 +599,13 @@ public class Capability2Tests{
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
                 return null;
         }
-        HttpURLConnection conn= null;
+        HttpURLConnection conn = null;
         try {
             //Create connection
             URL url = new URL(urlString);
-            byte[] postData       = urlParameters.getBytes( StandardCharsets.UTF_8 );
-            int    postDataLength = postData.length;
-            conn= (HttpURLConnection) url.openConnection();
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
             conn.setRequestMethod("POST");
@@ -509,8 +613,8 @@ public class Capability2Tests{
             conn.setRequestProperty("charset", "utf-8");
             conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
             conn.setUseCaches(false);
-            try( DataOutputStream wr = new DataOutputStream( conn.getOutputStream())) {
-                wr.write( postData );
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
             }
 
             int responseCode = conn.getResponseCode();
@@ -522,7 +626,7 @@ public class Capability2Tests{
 
             conn.disconnect();
 
-            url = new URL(urlString+"("+id+")");
+            url = new URL(urlString + "(" + id + ")");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type",
@@ -552,44 +656,44 @@ public class Capability2Tests{
             e.printStackTrace();
             return null;
         } finally {
-            if(conn != null) {
+            if (conn != null) {
                 conn.disconnect();
             }
         }
     }
 
-    private void deleteEntity(EntityType entityType, long id){
+    private void deleteEntity(EntityType entityType, long id) {
         String urlString = rootUri;
         switch (entityType) {
             case THING:
-                urlString += "/Things("+id+")";
+                urlString += "/Things(" + id + ")";
                 break;
             case LOCATION:
-                urlString += "/Locations("+id+")";
+                urlString += "/Locations(" + id + ")";
                 break;
             case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations("+id+")";
+                urlString += "/HistoricalLocations(" + id + ")";
                 break;
             case DATASTREAM:
-                urlString += "/Datastreams("+id+")";
+                urlString += "/Datastreams(" + id + ")";
                 break;
             case SENSOR:
-                urlString += "/Sensors("+id+")";
+                urlString += "/Sensors(" + id + ")";
                 break;
             case OBSERVATION:
-                urlString += "/Observations("+id+")";
+                urlString += "/Observations(" + id + ")";
                 break;
             case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties("+id+")";
+                urlString += "/ObservedProperties(" + id + ")";
                 break;
             case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest("+id+")";
+                urlString += "/FeaturesOfInterest(" + id + ")";
                 break;
             default:
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
                 return;
         }
-        HttpURLConnection connection= null;
+        HttpURLConnection connection = null;
         try {
             //Create connection
             URL url = new URL(urlString);
@@ -599,7 +703,7 @@ public class Capability2Tests{
                     "Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestMethod("DELETE");
             connection.connect();
-            int responseCode= connection.getResponseCode();
+            int responseCode = connection.getResponseCode();
             Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
 
             connection.disconnect();
@@ -613,51 +717,51 @@ public class Capability2Tests{
             connection.setDoOutput(false);
 
             responseCode = connection.getResponseCode();
-            Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : "+entityType+"("+id+").");
+            Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
 
         } catch (Exception e) {
             e.printStackTrace();
             return;
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
     }
 
-    private void deleteNonExsistentEntity(EntityType entityType){
+    private void deleteNonExsistentEntity(EntityType entityType) {
         String urlString = rootUri;
         long id = Long.MAX_VALUE;
         switch (entityType) {
             case THING:
-                urlString += "/Things("+id+")";
+                urlString += "/Things(" + id + ")";
                 break;
             case LOCATION:
-                urlString += "/Locations("+id+")";
+                urlString += "/Locations(" + id + ")";
                 break;
             case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations("+id+")";
+                urlString += "/HistoricalLocations(" + id + ")";
                 break;
             case DATASTREAM:
-                urlString += "/Datastreams("+id+")";
+                urlString += "/Datastreams(" + id + ")";
                 break;
             case SENSOR:
-                urlString += "/Sensors("+id+")";
+                urlString += "/Sensors(" + id + ")";
                 break;
             case OBSERVATION:
-                urlString += "/Observations("+id+")";
+                urlString += "/Observations(" + id + ")";
                 break;
             case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties("+id+")";
+                urlString += "/ObservedProperties(" + id + ")";
                 break;
             case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest("+id+")";
+                urlString += "/FeaturesOfInterest(" + id + ")";
                 break;
             default:
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
                 return;
         }
-        HttpURLConnection connection= null;
+        HttpURLConnection connection = null;
         try {
             //Create connection
             URL url = new URL(urlString);
@@ -667,7 +771,7 @@ public class Capability2Tests{
                     "Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestMethod("DELETE");
             connection.connect();
-            int responseCode= connection.getResponseCode();
+            int responseCode = connection.getResponseCode();
             Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
 
             connection.disconnect();
@@ -676,50 +780,50 @@ public class Capability2Tests{
             e.printStackTrace();
             return;
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
     }
 
-    public JSONObject updateEntity(EntityType entityType, String urlParameters, long id){
+    public JSONObject updateEntity(EntityType entityType, String urlParameters, long id) {
         String urlString = rootUri;
         switch (entityType) {
             case THING:
-                urlString += "/Things("+id+")";
+                urlString += "/Things(" + id + ")";
                 break;
             case LOCATION:
-                urlString += "/Locations("+id+")";
+                urlString += "/Locations(" + id + ")";
                 break;
             case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations("+id+")";
+                urlString += "/HistoricalLocations(" + id + ")";
                 break;
             case DATASTREAM:
-                urlString += "/Datastreams("+id+")";
+                urlString += "/Datastreams(" + id + ")";
                 break;
             case SENSOR:
-                urlString += "/Sensors("+id+")";
+                urlString += "/Sensors(" + id + ")";
                 break;
             case OBSERVATION:
-                urlString += "/Observations("+id+")";
+                urlString += "/Observations(" + id + ")";
                 break;
             case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties("+id+")";
+                urlString += "/ObservedProperties(" + id + ")";
                 break;
             case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest("+id+")";
+                urlString += "/FeaturesOfInterest(" + id + ")";
                 break;
             default:
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
                 return null;
         }
-        HttpURLConnection conn= null;
+        HttpURLConnection conn = null;
         try {
             //Create connection
             URL url = new URL(urlString);
-            byte[] postData       = urlParameters.getBytes( StandardCharsets.UTF_8 );
-            int    postDataLength = postData.length;
-            conn= (HttpURLConnection) url.openConnection();
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
             conn.setRequestMethod("PUT");
@@ -727,8 +831,8 @@ public class Capability2Tests{
             conn.setRequestProperty("charset", "utf-8");
             conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
             conn.setUseCaches(false);
-            try( DataOutputStream wr = new DataOutputStream( conn.getOutputStream())) {
-                wr.write( postData );
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
             }
 
             int responseCode = conn.getResponseCode();
@@ -737,7 +841,7 @@ public class Capability2Tests{
 
             conn.disconnect();
 
-         //   url = new URL(urlString+"("+id+")");
+            //   url = new URL(urlString+"("+id+")");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type",
@@ -766,38 +870,38 @@ public class Capability2Tests{
             e.printStackTrace();
             return null;
         } finally {
-            if(conn != null) {
+            if (conn != null) {
                 conn.disconnect();
             }
         }
     }
 
-    public JSONObject patchEntity(EntityType entityType, String urlParameters, long id){
+    public JSONObject patchEntity(EntityType entityType, String urlParameters, long id) {
         String urlString = rootUri;
         switch (entityType) {
             case THING:
-                urlString += "/Things("+id+")";
+                urlString += "/Things(" + id + ")";
                 break;
             case LOCATION:
-                urlString += "/Locations("+id+")";
+                urlString += "/Locations(" + id + ")";
                 break;
             case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations("+id+")";
+                urlString += "/HistoricalLocations(" + id + ")";
                 break;
             case DATASTREAM:
-                urlString += "/Datastreams("+id+")";
+                urlString += "/Datastreams(" + id + ")";
                 break;
             case SENSOR:
-                urlString += "/Sensors("+id+")";
+                urlString += "/Sensors(" + id + ")";
                 break;
             case OBSERVATION:
-                urlString += "/Observations("+id+")";
+                urlString += "/Observations(" + id + ")";
                 break;
             case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties("+id+")";
+                urlString += "/ObservedProperties(" + id + ")";
                 break;
             case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest("+id+")";
+                urlString += "/FeaturesOfInterest(" + id + ")";
                 break;
             default:
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
@@ -849,7 +953,62 @@ public class Capability2Tests{
             e.printStackTrace();
             return null;
         } finally {
-            if(conn != null) {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
+    public void invalidPatchEntity(EntityType entityType, String urlParameters, long id) {
+        String urlString = rootUri;
+        switch (entityType) {
+            case THING:
+                urlString += "/Things(" + id + ")";
+                break;
+            case LOCATION:
+                urlString += "/Locations(" + id + ")";
+                break;
+            case HISTORICAL_LOCATION:
+                urlString += "/HistoricalLocations(" + id + ")";
+                break;
+            case DATASTREAM:
+                urlString += "/Datastreams(" + id + ")";
+                break;
+            case SENSOR:
+                urlString += "/Sensors(" + id + ")";
+                break;
+            case OBSERVATION:
+                urlString += "/Observations(" + id + ")";
+                break;
+            case OBSERVED_PROPERTY:
+                urlString += "/ObservedProperties(" + id + ")";
+                break;
+            case FEATURE_OF_INTEREST:
+                urlString += "/FeaturesOfInterest(" + id + ")";
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+        }
+
+        HttpURLConnection conn = null;
+
+        try {
+
+            //PATCH
+            URI uri = new URI(urlString);
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPatch request = new HttpPatch(uri);
+            StringEntity params = new StringEntity(urlParameters, ContentType.APPLICATION_JSON);
+            request.setEntity(params);
+            CloseableHttpResponse response = httpClient.execute(request);
+            int responseCode = response.getStatusLine().getStatusCode();
+            Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name());
+            httpClient.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
                 conn.disconnect();
             }
         }

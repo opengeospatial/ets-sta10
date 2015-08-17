@@ -38,36 +38,36 @@ public class VerifyETSAssert {
         docBuilder = dbf.newDocumentBuilder();
     }
 
-    @Test
-    public void validateUsingSchemaHints_expect2Errors() throws SAXException {
-        thrown.expect(AssertionError.class);
-        thrown.expectMessage("2 schema validation error(s) detected");
-        URL url = this.getClass().getResource("/Gamma.xml");
-        Schema schema = factory.newSchema();
-        Validator validator = schema.newValidator();
-        ETSAssert
-                .assertSchemaValid(validator, new StreamSource(url.toString()));
-    }
-
-    @Test
-    public void assertXPathWithNamespaceBindings() throws SAXException,
-            IOException {
-        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
-                "/capabilities-simple.xml"));
-        Map<String, String> nsBindings = new HashMap<String, String>();
-        nsBindings.put(WADL_NS, "ns1");
-        String xpath = "//ns1:resources";
-        ETSAssert.assertXPath(xpath, doc, nsBindings);
-    }
-
-    @Test
-    public void assertXPath_expectFalse() throws SAXException, IOException {
-        thrown.expect(AssertionError.class);
-        thrown.expectMessage("Unexpected result evaluating XPath expression");
-        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
-                "/capabilities-simple.xml"));
-        // using built-in namespace binding
-        String xpath = "//ows:OperationsMetadata/ows:Constraint[@name='XMLEncoding']/ows:DefaultValue = 'TRUE'";
-        ETSAssert.assertXPath(xpath, doc, null);
-    }
+//    @Test
+//    public void validateUsingSchemaHints_expect2Errors() throws SAXException {
+//        thrown.expect(AssertionError.class);
+//        thrown.expectMessage("2 schema validation error(s) detected");
+//        URL url = this.getClass().getResource("/Gamma.xml");
+//        Schema schema = factory.newSchema();
+//        Validator validator = schema.newValidator();
+//        ETSAssert
+//                .assertSchemaValid(validator, new StreamSource(url.toString()));
+//    }
+//
+//    @Test
+//    public void assertXPathWithNamespaceBindings() throws SAXException,
+//            IOException {
+//        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
+//                "/capabilities-simple.xml"));
+//        Map<String, String> nsBindings = new HashMap<String, String>();
+//        nsBindings.put(WADL_NS, "ns1");
+//        String xpath = "//ns1:resources";
+//        ETSAssert.assertXPath(xpath, doc, nsBindings);
+//    }
+//
+//    @Test
+//    public void assertXPath_expectFalse() throws SAXException, IOException {
+//        thrown.expect(AssertionError.class);
+//        thrown.expectMessage("Unexpected result evaluating XPath expression");
+//        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
+//                "/capabilities-simple.xml"));
+//        // using built-in namespace binding
+//        String xpath = "//ows:OperationsMetadata/ows:Constraint[@name='XMLEncoding']/ows:DefaultValue = 'TRUE'";
+//        ETSAssert.assertXPath(xpath, doc, null);
+//    }
 }
