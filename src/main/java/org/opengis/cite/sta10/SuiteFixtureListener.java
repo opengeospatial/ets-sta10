@@ -1,11 +1,16 @@
 package org.opengis.cite.sta10;
 
 import com.sun.jersey.api.client.Client;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
+
+import java.io.*;
+import java.net.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opengis.cite.sta10.util.ClientUtils;
 import org.opengis.cite.sta10.util.XMLUtils;
 import org.opengis.cite.sta10.util.TestSuiteLogger;
@@ -53,27 +58,14 @@ public class SuiteFixtureListener implements ISuiteListener {
         TestSuiteLogger.log(Level.CONFIG,
                 "Suite parameters\n" + params.toString());
         String iutParam = params.get(TestRunArg.IUT.toString());
-//        if ((null == iutParam) || iutParam.isEmpty()) {
-//            throw new IllegalArgumentException(
-//                    "Required test run parameter not found: "
-//                            + TestRunArg.IUT.toString());
-//        }
-//        URI iutRef = URI.create(iutParam.trim());
-//        File entityFile = null;
-//        try {
-//            entityFile = URIUtils.dereferenceURI(iutRef);
-//        } catch (IOException iox) {
-//            throw new RuntimeException("Failed to dereference resource located at "
-//                    + iutRef, iox);
-//        }
-//        Document iutDoc = null;
-//        try {
-//            iutDoc = URIUtils.parseURI(entityFile.toURI());
-//        } catch (Exception x) {
-//            throw new RuntimeException("Failed to parse resource retrieved from "
-//                    + iutRef, x);
-//        }
-        suite.setAttribute(SuiteAttribute.TEST_SUBJECT.getName(), params.get(TestRunArg.IUT.toString()));
+
+        String response = checkServiceRootUri(iutParam);
+        if(!response.equals("")){
+            throw new IllegalArgumentException(
+                    response);
+        }
+
+        suite.setAttribute(SuiteAttribute.TEST_SUBJECT.getName(), iutParam);
         if (TestSuiteLogger.isLoggable(Level.FINE)) {
             StringBuilder logMsg = new StringBuilder(
                     "Parsed resource retrieved from ");
@@ -95,5 +87,151 @@ public class SuiteFixtureListener implements ISuiteListener {
         if (null != client) {
             suite.setAttribute(SuiteAttribute.CLIENT.getName(), client);
         }
+    }
+
+
+    private String checkServiceRootUri(String rootUri) {
+        rootUri = rootUri.trim();
+        if(rootUri.lastIndexOf('/')==rootUri.length()-1){
+            rootUri = rootUri.substring(0,rootUri.length()-1);
+        }
+        HttpURLConnection connection = null;
+        String response = null;
+        //Create connection
+        URL url = null;
+        try {
+            url = new URL(rootUri);
+
+             connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type",
+                    "application/json");
+
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
+
+            //Get Response
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                responseBuilder.append(line);
+                responseBuilder.append('\r');
+            }
+            response = responseBuilder.toString();
+            rd.close();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return "Cannot connect to "+rootUri+".";
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            return "Cannot connect to "+rootUri+".";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Cannot connect to "+rootUri+".";
+        }
+        JSONObject jsonResponse = null;
+        JSONArray entities = null;
+        try {
+            jsonResponse = new JSONObject(response);
+            entities = jsonResponse.getJSONArray("value");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "The service response for the root URI \""+rootUri+"\" is not JSON.";
+        }
+        Map<String, Boolean> addedLinks = new HashMap<>();
+        addedLinks.put("Things", false);
+        addedLinks.put("Locations", false);
+        addedLinks.put("HistoricalLocations", false);
+        addedLinks.put("Datastreams", false);
+        addedLinks.put("Sensors", false);
+        addedLinks.put("Observations", false);
+        addedLinks.put("ObservedProperties", false);
+        addedLinks.put("FeaturesOfInterest", false);
+        for (int i = 0; i < entities.length(); i++) {
+            JSONObject entity = null;
+            String name, nameUrl;
+            try {
+                entity = entities.getJSONObject(i);
+                if(entity.get("name") == null){
+                    return "The name component of Service root URI response is not available.";
+                }
+                if(entity.get("url") == null){
+                    return "The name component of Service root URI response is not available.";
+                }
+                name = entity.getString("name");
+                nameUrl = entity.getString("url");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return "The service response for the root URI \""+rootUri+"\" is not JSON.";
+            }
+            switch (name) {
+                case "Things":
+                    if(!nameUrl.equals(rootUri + "/Things") ){
+                    return "The URL for Things in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("Things");
+                    addedLinks.put(name, true);
+                    break;
+                case "Locations":
+                    if(!nameUrl.equals(rootUri + "/Locations")) {
+                        return "The URL for Locations in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("Locations");
+                    addedLinks.put(name, true);
+                    break;
+                case "HistoricalLocations":
+                    if(!nameUrl.equals(rootUri + "/HistoricalLocations")) {
+                        return "The URL for HistoricalLocations in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("HistoricalLocations");
+                    addedLinks.put(name, true);
+                    break;
+                case "Datastreams":
+                    if(!nameUrl.equals(rootUri + "/Datastreams")) {
+                        return "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("Datastreams");
+                    addedLinks.put(name, true);
+                    break;
+                case "Sensors":
+                    if(!nameUrl.equals(rootUri + "/Sensors")) {
+                        return "The URL for Sensors in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("Sensors");
+                    addedLinks.put(name, true);
+                    break;
+                case "Observations":
+                    if(!nameUrl.equals(rootUri + "/Observations")) {
+                        return "The URL for Observations in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("Observations");
+                    addedLinks.put(name, true);
+                    break;
+                case "ObservedProperties":
+                    if(!nameUrl.equals(rootUri + "/ObservedProperties")) {
+                        return "The URL for ObservedProperties in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("ObservedProperties");
+                    addedLinks.put(name, true);
+                    break;
+                case "FeaturesOfInterest":
+                    if(!nameUrl.equals(rootUri + "/FeaturesOfInterest")) {
+                        return "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.remove("FeaturesOfInterest");
+                    addedLinks.put(name, true);
+                    break;
+                default:
+                    return "There is a component in Service Root URI response that is not in SensorThings API : " + name;
+            }
+        }
+        for (String key : addedLinks.keySet()) {
+            if(addedLinks.get(key) == false){
+                 return "The Service Root URI response does not contain ";
+            }
+        }
+        return "";
     }
 }
