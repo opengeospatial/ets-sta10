@@ -278,7 +278,13 @@ public class Capability2Tests {
                     "        \"description\": \"Acme Fluxomatic 1000\",\n" +
                     "        \"encodingType\": \"http://schema.org/description\",\n" +
                     "        \"metadata\": \"Light flux sensor\"\n" +
-                    "   }\n" +
+                    "   },\n" +
+                    "      \"Observations\": [\n" +
+                    "        {\n" +
+                    "          \"phenomenonTime\": \"2015-03-01T00:10:00Z\",\n" +
+                    "          \"result\": 10\n" +
+                    "        }\n" +
+                    "      ]"+
                     "}";
             entity = postEntity(EntityType.DATASTREAM, urlParameters);
             datastreamId = entity.getLong("id");
@@ -296,18 +302,47 @@ public class Capability2Tests {
                     "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
                     "      },\n" );
             obsPropIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.OBSERVED_PROPERTY, deepInsertedObj));
+            //Check Observation
+            deepInsertedObj = new JSONObject(  "{\n" +
+                    "          \"phenomenonTime\": \"2015-03-01T00:10:00.000Z\",\n" +
+                    "          \"result\": 10\n" +
+                    "        }\n");
+            observationIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.OBSERVATION, deepInsertedObj));
             datastreamIds.add(datastreamId);
-//
-//            /** Observation **/
-//            urlParameters = "{\n" +
-//                    "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
-//                    "  \"result\": 8,\n" +
-//                    "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
-//                    "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
-//                    "}";
-//            entity = postEntity(EntityType.OBSERVATION, urlParameters);
-//            long obsId1 = entity.getLong("id");
-//            observationIds.add(obsId1);
+
+            /** Observation **/
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                    "  \"result\": 100,\n" +
+                    "  \"FeatureOfInterest\": {\n" +
+                    "  \t\"description\": \"A weather station.\",\n" +
+                    "  \t\"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                    "    \"feature\": {\n" +
+                    "      \"type\": \"Point\",\n" +
+                    "      \"coordinates\": [\n" +
+                    "        -114.05,\n" +
+                    "        51.05\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"Datastream\":{\"id\": "+datastreamId+"}\n" +
+                    "}";
+            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            long obsId1 = entity.getLong("id");
+            //Check FeaturOfInterest
+            deepInsertedObj = new JSONObject("{\n" +
+                    "  \"description\": \"A weather station.\",\n" +
+                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                    "    \"feature\": {\n" +
+                    "      \"type\": \"Point\",\n" +
+                    "      \"coordinates\": [\n" +
+                    "        -114.05,\n" +
+                    "        51.05\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  }\n");
+            foiIds.add(checkRelatedEntity(EntityType.OBSERVATION, obsId1, EntityType.FEATURE_OF_INTEREST, deepInsertedObj));
+            observationIds.add(obsId1);
 //            //POST Observation without FOI (Automatic creation of FOI)
 //            //Add location to the Thing
 //            urlParameters = "{\"Locations\":[{\"id\":" + locationId + "}]}";
