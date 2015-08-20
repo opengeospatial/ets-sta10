@@ -46,6 +46,14 @@ public class Capability2Tests {
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
+        Object obj = testContext.getSuite().getAttribute(
+                SuiteAttribute.LEVEL.getName());
+        if ((null != obj)) {
+            Integer level = Integer.class.cast(obj);
+            Assert.assertTrue(level.intValue() > 1,
+                    "Conformance level 2 will not be checked since ics = " + level);
+        }
+
         rootUri = testContext.getSuite().getAttribute(
                 SuiteAttribute.TEST_SUBJECT.getName()).toString();
         rootUri = rootUri.trim();

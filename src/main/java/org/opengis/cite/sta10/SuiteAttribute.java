@@ -17,7 +17,13 @@ public enum SuiteAttribute {
     /**
      * A DOM Document representation of the test subject or metadata about it.
      */
-    TEST_SUBJECT("testSubject", Document.class);
+    TEST_SUBJECT("testSubject", Document.class),
+    /**
+     * An integer denoting the conformance level to check. A given conformance
+     * level includes all lower levels.
+     */
+    LEVEL("level", Integer.class);
+
     private final Class attrType;
     private final String attrName;
 

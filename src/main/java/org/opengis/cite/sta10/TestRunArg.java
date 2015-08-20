@@ -9,7 +9,12 @@ public enum TestRunArg {
      * An absolute URI that refers to a representation of the test subject or
      * metadata about it.
      */
-    IUT;
+    IUT,
+    /**
+     * An integer value denoting the conformance level to check. A given
+     * conformance level includes all lower levels.
+     */
+    ICS;
 
     @Override
     public String toString() {

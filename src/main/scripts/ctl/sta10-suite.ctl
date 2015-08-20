@@ -50,7 +50,7 @@
                    <h4 style="margin-bottom: 0.5em">Location of SensorThings IUT (absolute http: or file: URI)</h4>
                  </label>
 
-               </p><input id="uri" name="uri" size="128" type="text" value="http://www.w3schools.com/xml/note.xml" />
+               </p><input id="uri" name="uri" size="128" type="text" value="http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0" />
                <p>
                  <label for="doc">
                    <h4 style="margin-bottom: 0.5em">Upload IUT</h4>
@@ -59,10 +59,10 @@
                </p>
                <p>
                  <label for="level">Conformance class: </label>
-                 <input id="level-1" type="radio" name="level" value="1" checked="checked" />
-                 <label for="level-1"> Level 1 | </label>
-                 <input id="level-2" type="radio" name="level" value="2" />
-                 <label class="form-label" for="level-2"> Level 2</label>
+                 <input id="level-1" type="radio" name="level" value="1"/>
+                 <label for="level-1"> Sensing Core</label>
+                 <input id="level-2" type="radio" name="level" value="2" checked="checked" />
+                 <label class="form-label" for="level-2"> Create-Update-Delete</label>
                </p>
              </fieldset>
              <p>

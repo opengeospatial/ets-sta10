@@ -57,6 +57,16 @@ public class SuiteFixtureListener implements ISuiteListener {
         Map<String, String> params = suite.getXmlSuite().getParameters();
         TestSuiteLogger.log(Level.CONFIG,
                 "Suite parameters\n" + params.toString());
+
+        Integer level = new Integer(1);
+        if (null != params.get(TestRunArg.ICS.toString())) {
+            try {
+                level = Integer.valueOf(params.get(TestRunArg.ICS.toString()));
+            } catch (NumberFormatException nfe) { // use default value instead
+            }
+        }
+        suite.setAttribute(SuiteAttribute.LEVEL.getName(), level);
+
         String iutParam = params.get(TestRunArg.IUT.toString());
 
         String response = checkServiceRootUri(iutParam);
@@ -64,7 +74,6 @@ public class SuiteFixtureListener implements ISuiteListener {
             throw new IllegalArgumentException(
                     response);
         }
-
         suite.setAttribute(SuiteAttribute.TEST_SUBJECT.getName(), iutParam);
         if (TestSuiteLogger.isLoggable(Level.FINE)) {
             StringBuilder logMsg = new StringBuilder(
