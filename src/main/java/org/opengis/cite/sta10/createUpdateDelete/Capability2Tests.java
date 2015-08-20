@@ -259,69 +259,44 @@ public class Capability2Tests {
             obsPropIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.OBSERVED_PROPERTY, deepInsertedObj));
             thingIds.add(thingId);
 
-//            /** Location **/
-//            urlParameters = "{\n" +
-//                    "  \"description\": \"bow river\",\n" +
-//                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
-//                    "  \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }\n" +
-//                    "}";
-//            entity = postEntity(EntityType.LOCATION, urlParameters);
-//            long locationId = entity.getLong("id");
-//            locationIds.add(locationId);
-//            JSONObject locationEntity = entity;
-//
-//            /** Sensor **/
-//            urlParameters = "{\n" +
-//                    "  \"description\": \"Fuguro Barometer\",\n" +
-//                    "  \"encodingType\": \"http://schema.org/description\",\n" +
-//                    "  \"metadata\": \"Barometer\"\n" +
-//                    "}";
-//            entity = postEntity(EntityType.SENSOR, urlParameters);
-//            long sensorId = entity.getLong("id");
-//            sensorIds.add(sensorId);
-//
-//            /** ObservedProperty **/
-//            urlParameters = "{\n" +
-//                    "  \"name\": \"DewPoint Temperature\",\n" +
-//                    "  \"definition\": \"http://dbpedia.org/page/Dew_point\",\n" +
-//                    "  \"description\": \"The dewpoint temperature is the temperature to which the air must be cooled, at constant pressure, for dew to form. As the grass and other objects near the ground cool to the dewpoint, some of the water vapor in the atmosphere condenses into liquid water on the objects.\"\n" +
-//                    "}";
-//            entity = postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
-//            long obsPropId = entity.getLong("id");
-//            obsPropIds.add(obsPropId);
-//
-//            /** FeatureOfInterest **/
-//            urlParameters = "{\n" +
-//                    "  \"description\": \"A weather station.\",\n" +
-//                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
-//                    "  \"feature\": {\n" +
-//                    "    \"type\": \"Point\",\n" +
-//                    "    \"coordinates\": [\n" +
-//                    "      10,\n" +
-//                    "      10\n" +
-//                    "    ]\n" +
-//                    "  }\n" +
-//                    "}";
-//            entity = postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
-//            long foiId = entity.getLong("id");
-//            foiIds.add(foiId);
-//
-//            /** Datastream **/
-//            urlParameters = "{\n" +
-//                    "  \"unitOfMeasurement\": {\n" +
-//                    "    \"name\": \"Celsius\",\n" +
-//                    "    \"symbol\": \"degC\",\n" +
-//                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
-//                    "  },\n" +
-//                    "  \"description\": \"test datastream.\",\n" +
-//                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-//                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
-//                    "  \"ObservedProperty\":{ \"id\":" + obsPropId + "},\n" +
-//                    "  \"Sensor\": { \"id\": " + sensorId + " }\n" +
-//                    "}";
-//            entity = postEntity(EntityType.DATASTREAM, urlParameters);
-//            long datastreamId = entity.getLong("id");
-//            datastreamIds.add(datastreamId);
+            /** Datastream **/
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
+                    "   \"ObservedProperty\": {\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "   },\n" +
+                    "   \"Sensor\": {        \n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "   }\n" +
+                    "}";
+            entity = postEntity(EntityType.DATASTREAM, urlParameters);
+            datastreamId = entity.getLong("id");
+            //Check Sensor
+            deepInsertedObj = new JSONObject( "{\n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "      }\n");
+            sensorIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.SENSOR, deepInsertedObj));
+            //Check ObservedProperty
+            deepInsertedObj = new JSONObject("{\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "      },\n" );
+            obsPropIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.OBSERVED_PROPERTY, deepInsertedObj));
+            datastreamIds.add(datastreamId);
 //
 //            /** Observation **/
 //            urlParameters = "{\n" +
