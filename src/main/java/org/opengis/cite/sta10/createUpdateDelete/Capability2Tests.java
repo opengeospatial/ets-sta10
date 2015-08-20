@@ -9,7 +9,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
-import org.opengis.cite.sta10.TestRunArg;
 import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityType;
 import org.testng.Assert;
@@ -343,41 +342,6 @@ public class Capability2Tests {
                     "  }\n");
             foiIds.add(checkRelatedEntity(EntityType.OBSERVATION, obsId1, EntityType.FEATURE_OF_INTEREST, deepInsertedObj));
             observationIds.add(obsId1);
-//            //POST Observation without FOI (Automatic creation of FOI)
-//            //Add location to the Thing
-//            urlParameters = "{\"Locations\":[{\"id\":" + locationId + "}]}";
-//            patchEntity(EntityType.THING, urlParameters, thingId);
-//
-//            urlParameters = "{\n" +
-//                    "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
-//                    "  \"result\": 100,\n" +
-//                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
-//                    "}";
-//            entity = postEntity(EntityType.OBSERVATION, urlParameters);
-//            long obsId2 = entity.getLong("id");
-//            observationIds.add(obsId2);
-//            long automatedFOIId = checkAutomaticInsertionOfFOI(obsId2, locationEntity, -1);
-//            foiIds.add(automatedFOIId);
-//            //POST another Observation to make sure it is linked to the previously created FOI
-//            urlParameters = "{\n" +
-//                    "  \"phenomenonTime\": \"2015-05-01T00:00:00.000Z\",\n" +
-//                    "  \"result\": 105,\n" +
-//                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
-//                    "}";
-//            entity = postEntity(EntityType.OBSERVATION, urlParameters);
-//            long obsId3 = entity.getLong("id");
-//            observationIds.add(obsId3);
-//            checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
-//
-//            /** HistoricalLocation **/
-//            urlParameters = "{\n" +
-//                    "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
-//                    "  \"Thing\":{\"id\": " + thingId + "},\n" +
-//                    "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
-//                    "}";
-//            entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
-//            long histLocId = entity.getLong("id");
-//            historicalLocationIds.add(histLocId);
 
         } catch (JSONException e) {
             e.printStackTrace();
