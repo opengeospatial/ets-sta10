@@ -47,16 +47,11 @@
                        border-width: medium; padding:4px">Implementation under test</legend>
                <p>
                  <label for="uri">
-                   <h4 style="margin-bottom: 0.5em">Location of SensorThings IUT (absolute http: or file: URI)</h4>
+                   <h4 style="margin-bottom: 0.5em">Location of SensorThings IUT</h4>
                  </label>
 
                </p><input id="uri" name="uri" size="128" type="text" value="http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0" />
-               <p>
-                 <label for="doc">
-                   <h4 style="margin-bottom: 0.5em">Upload IUT</h4>
-                 </label>
-                 <input name="doc" id="doc" size="128" type="file" />
-               </p>
+                 <input id="doc" type="hidden" name="doc" value="" />
                <p>
                  <label for="level">Conformance class: </label>
                  <input id="level-1" type="radio" name="level" value="1"/>
