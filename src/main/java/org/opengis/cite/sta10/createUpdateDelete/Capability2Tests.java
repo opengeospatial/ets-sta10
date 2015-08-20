@@ -159,7 +159,18 @@ public class Capability2Tests {
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
             long obsId2 = entity.getLong("id");
             observationIds.add(obsId2);
-            checkAutomaticInsertionOfFOI(obsId2, locationEntity);
+            long automatedFOIId = checkAutomaticInsertionOfFOI(obsId2, locationEntity, -1);
+            foiIds.add(automatedFOIId);
+            //POST another Observation to make sure it is linked to the previously created FOI
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-05-01T00:00:00.000Z\",\n" +
+                    "  \"result\": 105,\n" +
+                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                    "}";
+            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            long obsId3 = entity.getLong("id");
+            observationIds.add(obsId3);
+            checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
 
             /** HistoricalLocation **/
             urlParameters = "{\n" +
@@ -1188,7 +1199,7 @@ public class Capability2Tests {
         }
     }
 
-    private void checkAutomaticInsertionOfFOI(long obsId, JSONObject locationObj){
+    private long checkAutomaticInsertionOfFOI(long obsId, JSONObject locationObj, long expectedFOIId){
         String urlString = rootUri+"/Observations("+obsId+")/FeatureOfInterest";
         HttpURLConnection conn = null;
         try {
@@ -1212,7 +1223,12 @@ public class Capability2Tests {
             }
             rd.close();
             JSONObject result = new JSONObject(responseBuilder.toString());
+            long id = result.getLong("id");
+            if(expectedFOIId != -1){
+                Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: "+expectedFOIId+" , but it is linked for FeatureOfInterest with Id: "+id+".");
+            }
             Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing.");
+            return id;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1220,5 +1236,6 @@ public class Capability2Tests {
                 conn.disconnect();
             }
         }
+        return -1;
     }
 }
