@@ -187,7 +187,91 @@ public class Capability2Tests {
         }
     }
 
-    @Test(description = "PATCH Entities", groups = "level-2", priority = 2)
+    @Test(description = "POST Invalid Entities", groups = "level-2", priority = 2)
+    public void createInvalidEntities() {
+        try {
+            /** Datastream **/
+            // Without Sensor
+            String urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"id\": " + thingIds.get(0) + " },\n" +
+                    "  \"ObservedProperty\":{ \"id\":" + obsPropIds.get(0) + "},\n" +
+                    "}";
+            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+            //Without ObservedProperty
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"id\": " + thingIds.get(0) + " },\n" +
+                    "  \"Sensor\": { \"id\": " + sensorIds.get(0) + " }\n" +
+                    "}";
+            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+            //Without Things
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"ObservedProperty\":{ \"id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"Sensor\": { \"id\": " + sensorIds.get(0) + " }\n" +
+                    "}";
+            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+
+            /** Observation **/
+            //Create Thing and Datastream
+            urlParameters = "{\"description\":\"This is a Test Thing From TestNG\"}";
+            long thingId = postEntity(EntityType.THING, urlParameters).getLong("id");
+            thingIds.add(thingId);
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
+                    "  \"ObservedProperty\":{ \"id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"Sensor\": { \"id\": " + sensorIds.get(0) + " }\n" +
+                    "}";
+            long datastreamId = postEntity(EntityType.DATASTREAM, urlParameters).getLong("id");
+            datastreamIds.add(datastreamId);
+            //Without Datastream
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
+                    "  \"result\": 8,\n" +
+                    "  \"FeatureOfInterest\": {\"id\": " + foiIds.get(0) + "}  \n" +
+                    "}";
+            postInvalidEntity(EntityType.OBSERVATION, urlParameters);
+            //Without FOI and without Thing's Location
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
+                    "  \"result\": 100,\n" +
+                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                    "}";
+            postInvalidEntity(EntityType.OBSERVATION, urlParameters);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test(description = "PATCH Entities", groups = "level-2", priority = 3)
     public void patchEntities() {
         try {
             /** Thing **/
@@ -278,7 +362,7 @@ public class Capability2Tests {
         }
     }
 
-    @Test(description = "PUT Entities", groups = "level-2", priority = 2)
+    @Test(description = "PUT Entities", groups = "level-2", priority = 3)
     public void putEntities() {
         try {
             /** Thing **/
@@ -377,7 +461,7 @@ public class Capability2Tests {
     }
 
 
-    @Test(description = "DELETE Entities", groups = "level-2", priority = 3)
+    @Test(description = "DELETE Entities", groups = "level-2", priority = 4)
     public void deleteEntities() {
         for (int i = 0; i < observationIds.size(); i++) {
             deleteEntity(EntityType.OBSERVATION, observationIds.get(i));
@@ -415,7 +499,7 @@ public class Capability2Tests {
     }
 
     //TODO: Add invalid PATCH test for other entities when it is implemented in the service
-    @Test(description = "Invalid PATCH Entities", groups = "level-2", priority = 2)
+    @Test(description = "Invalid PATCH Entities", groups = "level-2", priority = 3)
     public void invalidPatchEntities() {
         /** Thing **/
         long thingId = thingIds.get(0);
@@ -506,7 +590,7 @@ public class Capability2Tests {
 //        invalidPatchEntity(EntityType.OBSERVATION, urlParameters, obsId1);
     }
 
-    @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 3)
+    @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 4)
     public void deleteNoneexistentEntities() {
         deleteNonExsistentEntity(EntityType.THING);
         deleteNonExsistentEntity(EntityType.LOCATION);
@@ -674,6 +758,68 @@ public class Capability2Tests {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
+    public void postInvalidEntity(EntityType entityType, String urlParameters) {
+        String urlString = rootUri;
+        switch (entityType) {
+            case THING:
+                urlString += "/Things";
+                break;
+            case LOCATION:
+                urlString += "/Locations";
+                break;
+            case HISTORICAL_LOCATION:
+                urlString += "/HistoricalLocations";
+                break;
+            case DATASTREAM:
+                urlString += "/Datastreams";
+                break;
+            case SENSOR:
+                urlString += "/Sensors";
+                break;
+            case OBSERVATION:
+                urlString += "/Observations";
+                break;
+            case OBSERVED_PROPERTY:
+                urlString += "/ObservedProperties";
+                break;
+            case FEATURE_OF_INTEREST:
+                urlString += "/FeaturesOfInterest";
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+                return;
+        }
+        HttpURLConnection conn = null;
+        try {
+            //Create connection
+            URL url = new URL(urlString);
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("charset", "utf-8");
+            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            conn.setUseCaches(false);
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
+            }
+
+            int responseCode = conn.getResponseCode();
+
+            Assert.assertEquals(responseCode, 400, "The  " + entityType.name()+" should not be created due to integrity constraints.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (conn != null) {
                 conn.disconnect();
