@@ -22,10 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Includes various tests of capability 2.
@@ -181,6 +178,196 @@ public class Capability2Tests {
             entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
             long histLocId = entity.getLong("id");
             historicalLocationIds.add(histLocId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(description = "POST Entities using Deep Insert", groups = "level-2", priority = 1)
+    public void createEntitiesWithDeepInsert() {
+        try {
+            /** Thing **/
+            String urlParameters = "{\n" +
+                    "  \"description\": \"Office Building\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"reference\": \"Third Floor\"\n" +
+                    "  },\n" +
+                    "  \"Locations\": [\n" +
+                    "    {\n" +
+                    "      \"description\": \"West Roof\",\n" +
+                    "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
+                    "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "    }\n" +
+                    "  ],\n" +
+                    "  \"Datastreams\": [\n" +
+                    "    {\n" +
+                    "      \"unitOfMeasurement\": {\n" +
+                    "        \"name\": \"Lumen\",\n" +
+                    "        \"symbol\": \"lm\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "      },\n" +
+                    "      \"description\": \"Light exposure.\",\n" +
+                    "      \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "      \"ObservedProperty\": {\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "      },\n" +
+                    "      \"Sensor\": {        \n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
+            JSONObject entity = postEntity(EntityType.THING, urlParameters);
+            long thingId = entity.getLong("id");
+            //Check Datastream
+            JSONObject deepInsertedObj = new JSONObject("{\n" +
+                    "      \"unitOfMeasurement\": {\n" +
+                    "        \"name\": \"Lumen\",\n" +
+                    "        \"symbol\": \"lm\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "      },\n" +
+                    "      \"description\": \"Light exposure.\",\n" +
+                    "      \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\"\n" +
+                    "    }\n");
+            long datastreamId = checkRelatedEntity(EntityType.THING, thingId, EntityType.DATASTREAM, deepInsertedObj);
+            datastreamIds.add(datastreamId);
+            //Check Location
+            deepInsertedObj = new JSONObject("{\n" +
+                    "      \"description\": \"West Roof\",\n" +
+                    "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
+                    "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "    }\n");
+            locationIds.add(checkRelatedEntity(EntityType.THING, thingId, EntityType.LOCATION, deepInsertedObj));
+            //Check Sensor
+            deepInsertedObj = new JSONObject( "{\n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "      }\n");
+            sensorIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.SENSOR, deepInsertedObj));
+            //Check ObservedProperty
+            deepInsertedObj = new JSONObject("{\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "      },\n" );
+            obsPropIds.add(checkRelatedEntity(EntityType.DATASTREAM, datastreamId, EntityType.OBSERVED_PROPERTY, deepInsertedObj));
+            thingIds.add(thingId);
+
+//            /** Location **/
+//            urlParameters = "{\n" +
+//                    "  \"description\": \"bow river\",\n" +
+//                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+//                    "  \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }\n" +
+//                    "}";
+//            entity = postEntity(EntityType.LOCATION, urlParameters);
+//            long locationId = entity.getLong("id");
+//            locationIds.add(locationId);
+//            JSONObject locationEntity = entity;
+//
+//            /** Sensor **/
+//            urlParameters = "{\n" +
+//                    "  \"description\": \"Fuguro Barometer\",\n" +
+//                    "  \"encodingType\": \"http://schema.org/description\",\n" +
+//                    "  \"metadata\": \"Barometer\"\n" +
+//                    "}";
+//            entity = postEntity(EntityType.SENSOR, urlParameters);
+//            long sensorId = entity.getLong("id");
+//            sensorIds.add(sensorId);
+//
+//            /** ObservedProperty **/
+//            urlParameters = "{\n" +
+//                    "  \"name\": \"DewPoint Temperature\",\n" +
+//                    "  \"definition\": \"http://dbpedia.org/page/Dew_point\",\n" +
+//                    "  \"description\": \"The dewpoint temperature is the temperature to which the air must be cooled, at constant pressure, for dew to form. As the grass and other objects near the ground cool to the dewpoint, some of the water vapor in the atmosphere condenses into liquid water on the objects.\"\n" +
+//                    "}";
+//            entity = postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
+//            long obsPropId = entity.getLong("id");
+//            obsPropIds.add(obsPropId);
+//
+//            /** FeatureOfInterest **/
+//            urlParameters = "{\n" +
+//                    "  \"description\": \"A weather station.\",\n" +
+//                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+//                    "  \"feature\": {\n" +
+//                    "    \"type\": \"Point\",\n" +
+//                    "    \"coordinates\": [\n" +
+//                    "      10,\n" +
+//                    "      10\n" +
+//                    "    ]\n" +
+//                    "  }\n" +
+//                    "}";
+//            entity = postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
+//            long foiId = entity.getLong("id");
+//            foiIds.add(foiId);
+//
+//            /** Datastream **/
+//            urlParameters = "{\n" +
+//                    "  \"unitOfMeasurement\": {\n" +
+//                    "    \"name\": \"Celsius\",\n" +
+//                    "    \"symbol\": \"degC\",\n" +
+//                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+//                    "  },\n" +
+//                    "  \"description\": \"test datastream.\",\n" +
+//                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+//                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
+//                    "  \"ObservedProperty\":{ \"id\":" + obsPropId + "},\n" +
+//                    "  \"Sensor\": { \"id\": " + sensorId + " }\n" +
+//                    "}";
+//            entity = postEntity(EntityType.DATASTREAM, urlParameters);
+//            long datastreamId = entity.getLong("id");
+//            datastreamIds.add(datastreamId);
+//
+//            /** Observation **/
+//            urlParameters = "{\n" +
+//                    "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
+//                    "  \"result\": 8,\n" +
+//                    "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
+//                    "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
+//                    "}";
+//            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+//            long obsId1 = entity.getLong("id");
+//            observationIds.add(obsId1);
+//            //POST Observation without FOI (Automatic creation of FOI)
+//            //Add location to the Thing
+//            urlParameters = "{\"Locations\":[{\"id\":" + locationId + "}]}";
+//            patchEntity(EntityType.THING, urlParameters, thingId);
+//
+//            urlParameters = "{\n" +
+//                    "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
+//                    "  \"result\": 100,\n" +
+//                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+//                    "}";
+//            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+//            long obsId2 = entity.getLong("id");
+//            observationIds.add(obsId2);
+//            long automatedFOIId = checkAutomaticInsertionOfFOI(obsId2, locationEntity, -1);
+//            foiIds.add(automatedFOIId);
+//            //POST another Observation to make sure it is linked to the previously created FOI
+//            urlParameters = "{\n" +
+//                    "  \"phenomenonTime\": \"2015-05-01T00:00:00.000Z\",\n" +
+//                    "  \"result\": 105,\n" +
+//                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+//                    "}";
+//            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+//            long obsId3 = entity.getLong("id");
+//            observationIds.add(obsId3);
+//            checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
+//
+//            /** HistoricalLocation **/
+//            urlParameters = "{\n" +
+//                    "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
+//                    "  \"Thing\":{\"id\": " + thingId + "},\n" +
+//                    "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
+//                    "}";
+//            entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
+//            long histLocId = entity.getLong("id");
+//            historicalLocationIds.add(histLocId);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1375,6 +1562,166 @@ public class Capability2Tests {
             }
             Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing.");
             return id;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(conn != null) {
+                conn.disconnect();
+            }
+        }
+        return -1;
+    }
+
+    private long checkRelatedEntity(EntityType parentEntityType, long parentId, EntityType relationEntityType, JSONObject relationObj){
+        String urlString = rootUri;
+        boolean isCollection = true;
+        switch (parentEntityType) {
+            case THING:
+                urlString += "/Things(" + parentId + ")";
+                switch (relationEntityType) {
+                    case LOCATION:
+                        urlString += "/Locations";
+                        break;
+                    case HISTORICAL_LOCATION:
+                        urlString += "/HistoricalLocations";
+                        break;
+                    case DATASTREAM:
+                        urlString += "/Datastreams";
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case LOCATION:
+                urlString += "/Locations(" + parentId + ")";
+                switch (relationEntityType) {
+                    case THING:
+                        urlString += "/Things";
+                        break;
+                    case HISTORICAL_LOCATION:
+                        urlString += "/HistoricalLocations";
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case HISTORICAL_LOCATION:
+                urlString += "/HistoricalLocations(" + parentId + ")";
+                switch (relationEntityType) {
+                    case THING:
+                        urlString += "/Thing";
+                        isCollection = false;
+                        break;
+                    case LOCATION:
+                        urlString += "/Locations";
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case DATASTREAM:
+                urlString += "/Datastreams(" + parentId + ")";
+                switch (relationEntityType) {
+                    case THING:
+                        urlString += "/Thing";
+                        isCollection = false;
+                        break;
+                    case SENSOR:
+                        urlString += "/Sensor";
+                        isCollection = false;
+                        break;
+                    case OBSERVATION:
+                        urlString += "/Observations";
+                        break;
+                    case OBSERVED_PROPERTY:
+                        urlString += "/ObservedProperty";
+                        isCollection = false;
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case SENSOR:
+                urlString += "/Sensors(" + parentId + ")";
+                switch (relationEntityType) {
+                    case DATASTREAM:
+                        urlString += "/Datastreams";
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case OBSERVATION:
+                urlString += "/Observations(" + parentId + ")";
+                switch (relationEntityType) {
+                    case THING:
+                    case DATASTREAM:
+                        urlString += "/Datastream";
+                        isCollection = false;
+                        break;
+                    case FEATURE_OF_INTEREST:
+                        urlString += "/FeatureOfInterest";
+                        isCollection = false;
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case OBSERVED_PROPERTY:
+                urlString += "/ObservedProperties(" + parentId + ")";
+                switch (relationEntityType) {
+                    case DATASTREAM:
+                        urlString += "/Datastreams";
+                        break;
+                   default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            case FEATURE_OF_INTEREST:
+                urlString += "/FeaturesOfInterest(" + parentId + ")";
+                switch (relationEntityType) {
+                    case OBSERVATION:
+                        urlString += "/Observations";
+                        break;
+                    default:
+                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                }
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + parentEntityType);
+        }
+
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type",
+                    "application/json");
+            conn.setUseCaches(false);
+            conn.setDoOutput(true);
+            int responseCode = conn.getResponseCode();
+            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted "+relationEntityType+" does not created or linked to "+parentEntityType);
+            //Get Response
+            InputStream is = conn.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                responseBuilder.append(line);
+                responseBuilder.append('\r');
+            }
+            rd.close();
+            JSONObject result = new JSONObject(responseBuilder.toString());
+            if(isCollection == true){
+                result = result.getJSONArray("value").getJSONObject(0);
+            }
+            Iterator iterator = relationObj.keys();
+            while(iterator.hasNext()){
+                String key = iterator.next().toString();
+                Assert.assertEquals(result.get(key).toString(), relationObj.get(key).toString(), "ERROR: Deep inserted "+relationEntityType+" is not created correctly.");
+            }
+            return result.getLong("id");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

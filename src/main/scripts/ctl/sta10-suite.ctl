@@ -50,7 +50,7 @@
                    <h4 style="margin-bottom: 0.5em">Location of SensorThings IUT</h4>
                  </label>
 
-               </p><input id="uri" name="uri" size="128" type="text" value="http://chashuhotpot.sensorup.com/OGCSensorThings/v1.0" />
+               </p><input id="uri" name="uri" size="128" type="text" value="http://192.168.1.13:8080/OGCSensorThings/v1.0" />
                  <input id="doc" type="hidden" name="doc" value="" />
                <p>
                  <label for="level">Conformance class: </label>
