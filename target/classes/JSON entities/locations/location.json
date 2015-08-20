@@ -1,5 +1,0 @@
-{
-  "description": "bow river",
-  "encodingType": "http://example.org/location_types#GeoJSON",
-  "location": { "type": "Point", "coordinates": [-114.05, 51.05] }
-}

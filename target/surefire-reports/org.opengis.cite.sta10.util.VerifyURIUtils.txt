@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.opengis.cite.sta10.util.VerifyURIUtils
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 0.101 sec - in org.opengis.cite.sta10.util.VerifyURIUtils

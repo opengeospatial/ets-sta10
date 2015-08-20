@@ -1,9 +1,0 @@
-{
-  "description": "Data coming from sensor on ISS.",
-  "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation",
-  "unitOfMeasurement": {
-    "name": "Entropy",
-    "symbol": "S",
-    "definition": "http://qudt.org/vocab/unit#Entropy"
-  }
-}

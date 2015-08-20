@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.opengis.cite.sta10.util.VerifyXMLUtils
--------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.055 sec - in org.opengis.cite.sta10.util.VerifyXMLUtils

@@ -1,5 +1,0 @@
-{
-  "description": "Santa Marta Aeropuerto",
-  "encodingType": "http://example.org/location_types#GeoJSON",
-  "location": {"type": "Point", "coordinates": [-81.301882, 23.123503]}
-}

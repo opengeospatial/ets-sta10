@@ -1,9 +1,0 @@
-{
-  "phenomenonTime": "2015-03-01T00:00:00Z/2015-03-01T23:59:59Z",
-  "result": 92122, 
-  "resultQuality":"High",
-  "resultTime": "2015-03-01T00:00:10Z",
-  "validTime": "2015-03-01T00:00:00.000Z/2015-03-01T01:00:00.000Z",
-  "Datastream":{"id": $DATASTREAM-ID},
-  "FeatureOfInterest": {"id": $FOI-ID}
-}
