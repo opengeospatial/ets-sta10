@@ -149,10 +149,12 @@ public class Capability2Tests {
 
             urlParameters = "{\n" +
                     "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
+                    "  \"resultTime\": \"2015-03-01T01:00:00.000Z\",\n" +
                     "  \"result\": 100,\n" +
                     "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            checkForObservationResultTime(entity, "2015-03-01T01:00:00.000Z");
             long obsId2 = entity.getLong("id");
             observationIds.add(obsId2);
             long automatedFOIId = checkAutomaticInsertionOfFOI(obsId2, locationEntity, -1);
@@ -164,6 +166,7 @@ public class Capability2Tests {
                     "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            checkForObservationResultTime(entity, null);
             long obsId3 = entity.getLong("id");
             observationIds.add(obsId3);
             checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
@@ -1704,5 +1707,17 @@ public class Capability2Tests {
             }
         }
         return -1;
+    }
+
+    private void checkForObservationResultTime(JSONObject observation, String resultTimeValue){
+        try {
+            if(resultTimeValue == null){
+                    Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong("id")+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
+            } else {
+                Assert.assertEquals(observation.get("resultTime").toString(),resultTimeValue,"The resultTime of the Observation "+observation.getLong("id")+" should have been \""+resultTimeValue+"\" but it is now \""+observation.get("resultTime").toString()+"\".");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
