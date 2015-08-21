@@ -57,6 +57,8 @@ public class Capability2Tests {
             rootUri = rootUri.substring(0,rootUri.length()-1);
         }
 
+        deleteEverythings();
+
     }
 
     @Test(description = "POST Entities", groups = "level-2", priority = 1)
@@ -1719,5 +1721,9 @@ public class Capability2Tests {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void deleteEverythings(){
+
     }
 }

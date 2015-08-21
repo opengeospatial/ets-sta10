@@ -1,8 +1,5 @@
 package org.opengis.cite.sta10.sensingCore;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,17 +7,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
-import org.opengis.cite.sta10.TestRunArg;
-import org.opengis.cite.sta10.util.ControlInformation;
-import org.opengis.cite.sta10.util.EntityProperties;
-import org.opengis.cite.sta10.util.EntityRelations;
-import org.opengis.cite.sta10.util.EntityType;
+import org.opengis.cite.sta10.util.*;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.swing.text.Document;
 
 /**
  * Includes various tests of capability 1.
@@ -176,9 +168,10 @@ public class Capability1Tests {
 
     public void checkGetPropertyOfEntity(EntityType entityType, long id, String property){
         try {
-            int responseCode = getEntityResponseCode(entityType, id, property);
+            Map<String,Object> responseMap = getEntity(entityType, id, property);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-            String response = getEntityResponse(entityType, id, property);
+            String response = responseMap.get("response").toString();
             JSONObject entity = null;
             entity = new JSONObject(response);
             Assert.assertTrue(entity.get(property)!=null, "Reading property \""+ property+"\"of \"" +entityType+"\" fails.");
@@ -189,9 +182,10 @@ public class Capability1Tests {
     }
 
     public void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
-        int responseCode = getEntityResponseCode(entityType, id, property+"/$value");
+        Map<String,Object> responseMap = getEntity(entityType, id, property+"/$value");
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-        String response = getEntityResponse(entityType, id, property+"/$value");
+        String response = responseMap.get("response").toString();
         if(!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
             Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
         } else {
@@ -274,7 +268,7 @@ public class Capability1Tests {
     }
 
     public void checkGetNavigationLinkOfEntity(EntityType entityType, long id, String relation){
-        int responseCode = getEntityResponseCode(entityType, id, relation);
+        int responseCode = Integer.parseInt(getEntity(entityType, id, relation).get("response-code").toString());
         Assert.assertTrue(responseCode==200 /*|| (relation.lastIndexOf("s")!= relation.length()-1 && responseCode==404)*/ , "Reading relation \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
     }
 
@@ -283,9 +277,10 @@ public class Capability1Tests {
             return;
         }
         try {
-            int responseCode = getEntityResponseCode(entityType, id, relation + "/$ref");
-            Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-            String response = getEntityResponse(entityType, id, relation + "/$ref");
+            Map<String,Object> responseMap = getEntity(entityType, id, relation + "/$ref");
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+                    Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+            String response = responseMap.get("response").toString();
             Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for "+entityType+"("+id+")/"+relation+" does not match SensorThings API : missing \"value\" in response.");
             JSONArray value = new JSONObject(response).getJSONArray("value");
             for (int i = 0; i < value.length() ; i++) {
@@ -302,9 +297,10 @@ public class Capability1Tests {
         try {
             String response = getEntities(entityType);
             Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
-            int responseCode = getEntityResponseCode(entityType, id, null);
+            Map<String,Object> responseMap = getEntity(entityType, id, null);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading exitixting " + entityType.name() + " with id " + id + " failed.");
-            response = getEntityResponse(entityType, id, null);
+            response = responseMap.get("response").toString();
             return response;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -314,7 +310,7 @@ public class Capability1Tests {
 
     public void readNonexistentEntityWithEntityType(EntityType entityType) {
         long id = Long.MAX_VALUE;
-        int responseCode = getEntityResponseCode(entityType, id, null);
+        int responseCode = Integer.parseInt(getEntity(entityType, id, null).get("response-code").toString());
         Assert.assertEquals(responseCode, 404, "Reading non-exitixting " + entityType.name() + " with id " + id + " failed.");
     }
 
@@ -427,109 +423,19 @@ public class Capability1Tests {
                     return null;
             }
         }
-        HttpURLConnection connection = null;
-        try {
-            //Create connection
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
-
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
-
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            if (entityType != null) {
-                Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
-            } else { // GET Service Base URI
-                Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
-            }
-            return response.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+        Map<String,Object> responseMap = HTTPMethods.doGet(urlString);
+        String response = responseMap.get("response").toString();
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + entityType.name());
+        if (entityType != null) {
+            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
+        } else { // GET Service Base URI
+            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
         }
+        return response.toString();
     }
 
-    public int getEntityResponseCode(EntityType entityType, long id, String property) {
-        String urlString = rootUri;
-        if (id == -1) {
-            return -1;
-        }
-        if (entityType != null) { // It is not Service Root URI
-            switch (entityType) {
-                case THING:
-                    urlString += "/Things(" + id + ")";
-                    break;
-                case LOCATION:
-                    urlString += "/Locations(" + id + ")";
-                    break;
-                case HISTORICAL_LOCATION:
-                    urlString += "/HistoricalLocations(" + id + ")";
-                    break;
-                case DATASTREAM:
-                    urlString += "/Datastreams(" + id + ")";
-                    break;
-                case SENSOR:
-                    urlString += "/Sensors(" + id + ")";
-                    break;
-                case OBSERVATION:
-                    urlString += "/Observations(" + id + ")";
-                    break;
-                case OBSERVED_PROPERTY:
-                    urlString += "/ObservedProperties(" + id + ")";
-                    break;
-                case FEATURE_OF_INTEREST:
-                    urlString += "/FeaturesOfInterest(" + id + ")";
-                    break;
-                default:
-                    Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                    return -1;
-            }
-        }
-        if(property != null){
-            urlString = urlString + "/" + property;
-        }
-        HttpURLConnection connection = null;
-        int result = -1;
-        try {
-            //Create connection
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
-
-            connection.setUseCaches(false);
-            connection.setDoOutput(false);
-
-            result = connection.getResponseCode();
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return result;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-    }
-
-    public String getEntityResponse(EntityType entityType, long id, String property) {
+    public Map<String,Object> getEntity(EntityType entityType, long id, String property) {
         String urlString = rootUri;
         if (id == -1) {
             return null;
@@ -566,42 +472,11 @@ public class Capability1Tests {
             }
         }
         if(property != null){
-            urlString = urlString + "/" +property;
+            urlString = urlString + "/" + property;
         }
-        HttpURLConnection connection = null;
-        try {
-            //Create connection
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
-
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
+        int result = -1;
+        return HTTPMethods.doGet(urlString);
     }
-
-
-
 
     public void checkEntitiesAllAspectsForResponse(EntityType entityType, String response){
         checkEntitiesControlInformation(response);
