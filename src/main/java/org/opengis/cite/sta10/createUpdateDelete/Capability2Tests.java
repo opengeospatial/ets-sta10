@@ -1,26 +1,18 @@
 package org.opengis.cite.sta10.createUpdateDelete;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityType;
+import org.opengis.cite.sta10.util.HTTPMethods;
+import org.opengis.cite.sta10.util.ServiceURLBuilder;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -770,579 +762,111 @@ public class Capability2Tests {
 
 
     public JSONObject getEntity(EntityType entityType, long id) {
-        String urlString = rootUri;
         if (id == -1) {
             return null;
         }
-        if (entityType != null) { // It is not Service Root URI
-            switch (entityType) {
-                case THING:
-                    urlString += "/Things(" + id + ")";
-                    break;
-                case LOCATION:
-                    urlString += "/Locations(" + id + ")";
-                    break;
-                case HISTORICAL_LOCATION:
-                    urlString += "/HistoricalLocations(" + id + ")";
-                    break;
-                case DATASTREAM:
-                    urlString += "/Datastreams(" + id + ")";
-                    break;
-                case SENSOR:
-                    urlString += "/Sensors(" + id + ")";
-                    break;
-                case OBSERVATION:
-                    urlString += "/Observations(" + id + ")";
-                    break;
-                case OBSERVED_PROPERTY:
-                    urlString += "/ObservedProperties(" + id + ")";
-                    break;
-                case FEATURE_OF_INTEREST:
-                    urlString += "/FeaturesOfInterest(" + id + ")";
-                    break;
-                default:
-                    Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                    return null;
-            }
-        }
-        HttpURLConnection connection = null;
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         try {
-            //Create connection
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
-
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return new JSONObject(response.toString());
-        } catch (Exception e) {
+            return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString());
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
         }
     }
 
     public JSONObject postEntity(EntityType entityType, String urlParameters) {
-        String urlString = rootUri;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things";
-                break;
-            case LOCATION:
-                urlString += "/Locations";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams";
-                break;
-            case SENSOR:
-                urlString += "/Sensors";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return null;
-        }
-        HttpURLConnection conn = null;
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,-1,null,null);
         try {
-            //Create connection
-            URL url = new URL(urlString);
-            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-            int postDataLength = postData.length;
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("charset", "utf-8");
-            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-            conn.setUseCaches(false);
-            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                wr.write(postData);
-            }
-
-            int responseCode = conn.getResponseCode();
-
+            Map<String,Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 201, "Error during creation of entity " + entityType.name());
-
-            String response = conn.getHeaderField("location");
+            String response = responseMap.get("response").toString();
             long id = Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")")));
 
-            conn.disconnect();
 
-            url = new URL(urlString + "(" + id + ")");
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type",
-                    "application/json");
-
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-
-            responseCode = conn.getResponseCode();
+            urlString = urlString + "(" + id + ")";
+            responseMap = HTTPMethods.doGet(urlString);
+            responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "The POSTed entity is not created.");
 
-            //Get Response
-            InputStream is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                responseBuilder.append(line);
-                responseBuilder.append('\r');
-            }
-            rd.close();
-
-            JSONObject result = new JSONObject(responseBuilder.toString());
+            JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
-
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
         }
     }
 
     public void postInvalidEntity(EntityType entityType, String urlParameters) {
-        String urlString = rootUri;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things";
-                break;
-            case LOCATION:
-                urlString += "/Locations";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams";
-                break;
-            case SENSOR:
-                urlString += "/Sensors";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return;
-        }
-        HttpURLConnection conn = null;
-        try {
-            //Create connection
-            URL url = new URL(urlString);
-            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-            int postDataLength = postData.length;
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("charset", "utf-8");
-            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-            conn.setUseCaches(false);
-            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                wr.write(postData);
-            }
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,-1,null,null);
 
-            int responseCode = conn.getResponseCode();
+        Map<String,Object> responseMap = HTTPMethods.doPost(urlString,urlParameters);
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 400, "The  " + entityType.name()+" should not be created due to integrity constraints.");
 
-            Assert.assertEquals(responseCode, 400, "The  " + entityType.name()+" should not be created due to integrity constraints.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
     }
 
     private void deleteEntity(EntityType entityType, long id) {
-        String urlString = rootUri;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things(" + id + ")";
-                break;
-            case LOCATION:
-                urlString += "/Locations(" + id + ")";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations(" + id + ")";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams(" + id + ")";
-                break;
-            case SENSOR:
-                urlString += "/Sensors(" + id + ")";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations(" + id + ")";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties(" + id + ")";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest(" + id + ")";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return;
-        }
-        HttpURLConnection connection = null;
-        try {
-            //Create connection
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestProperty(
-                    "Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestMethod("DELETE");
-            connection.connect();
-            int responseCode = connection.getResponseCode();
-            Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
+        Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
 
-            connection.disconnect();
-
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type",
-                    "application/json");
-
-            connection.setUseCaches(false);
-            connection.setDoOutput(false);
-
-            responseCode = connection.getResponseCode();
-            Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
+        responseMap = HTTPMethods.doGet(urlString);
+        responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
     }
 
     private void deleteNonExsistentEntity(EntityType entityType) {
-        String urlString = rootUri;
         long id = Long.MAX_VALUE;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things(" + id + ")";
-                break;
-            case LOCATION:
-                urlString += "/Locations(" + id + ")";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations(" + id + ")";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams(" + id + ")";
-                break;
-            case SENSOR:
-                urlString += "/Sensors(" + id + ")";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations(" + id + ")";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties(" + id + ")";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest(" + id + ")";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return;
-        }
-        HttpURLConnection connection = null;
-        try {
-            //Create connection
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestProperty(
-                    "Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestMethod("DELETE");
-            connection.connect();
-            int responseCode = connection.getResponseCode();
-            Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
+        Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
 
-            connection.disconnect();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
     }
 
     public JSONObject updateEntity(EntityType entityType, String urlParameters, long id) {
-        String urlString = rootUri;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things(" + id + ")";
-                break;
-            case LOCATION:
-                urlString += "/Locations(" + id + ")";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations(" + id + ")";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams(" + id + ")";
-                break;
-            case SENSOR:
-                urlString += "/Sensors(" + id + ")";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations(" + id + ")";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties(" + id + ")";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest(" + id + ")";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return null;
-        }
-        HttpURLConnection conn = null;
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         try {
-            //Create connection
-            URL url = new URL(urlString);
-            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-            int postDataLength = postData.length;
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("charset", "utf-8");
-            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-            conn.setUseCaches(false);
-            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                wr.write(postData);
-            }
-
-            int responseCode = conn.getResponseCode();
-
+            Map<String,Object> responseMap = HTTPMethods.doPut(urlString, urlParameters);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Error during updating(PUT) of entity " + entityType.name());
 
-            conn.disconnect();
-
-            //   url = new URL(urlString+"("+id+")");
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type",
-                    "application/json");
-
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-
-            responseCode = conn.getResponseCode();
-
-            //Get Response
-            InputStream is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-
-            JSONObject result = new JSONObject(response.toString());
+            responseMap = HTTPMethods.doGet(urlString);
+            JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
 
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
         }
     }
 
     public JSONObject patchEntity(EntityType entityType, String urlParameters, long id) {
-        String urlString = rootUri;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things(" + id + ")";
-                break;
-            case LOCATION:
-                urlString += "/Locations(" + id + ")";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations(" + id + ")";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams(" + id + ")";
-                break;
-            case SENSOR:
-                urlString += "/Sensors(" + id + ")";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations(" + id + ")";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties(" + id + ")";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest(" + id + ")";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                return null;
-        }
-
-        HttpURLConnection conn = null;
-
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         try {
 
-            //PATCH
-            URI uri = new URI(urlString);
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPatch request = new HttpPatch(uri);
-            StringEntity params = new StringEntity(urlParameters, ContentType.APPLICATION_JSON);
-            request.setEntity(params);
-            CloseableHttpResponse response = httpClient.execute(request);
-            int responseCode = response.getStatusLine().getStatusCode();
+            Map<String,Object> responseMap = HTTPMethods.doPatch(urlString,urlParameters);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name());
-            httpClient.close();
-
-            //GET patched entity for return
-            URL url = new URL(urlString);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type",
-                    "application/json");
-
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-
-            responseCode = conn.getResponseCode();
-
-            //Get Response
-            InputStream is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                responseBuilder.append(line);
-                responseBuilder.append('\r');
-            }
-            rd.close();
-
-            JSONObject result = new JSONObject(responseBuilder.toString());
+            responseMap = HTTPMethods.doGet(urlString);
+            JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
 
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
         }
     }
 
     public void invalidPatchEntity(EntityType entityType, String urlParameters, long id) {
-        String urlString = rootUri;
-        switch (entityType) {
-            case THING:
-                urlString += "/Things(" + id + ")";
-                break;
-            case LOCATION:
-                urlString += "/Locations(" + id + ")";
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations(" + id + ")";
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams(" + id + ")";
-                break;
-            case SENSOR:
-                urlString += "/Sensors(" + id + ")";
-                break;
-            case OBSERVATION:
-                urlString += "/Observations(" + id + ")";
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties(" + id + ")";
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest(" + id + ")";
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-        }
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
 
-        HttpURLConnection conn = null;
+        Map<String,Object> responseMap = HTTPMethods.doPatch(urlString,urlParameters);
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name());
 
-        try {
-
-            //PATCH
-            URI uri = new URI(urlString);
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPatch request = new HttpPatch(uri);
-            StringEntity params = new StringEntity(urlParameters, ContentType.APPLICATION_JSON);
-            request.setEntity(params);
-            CloseableHttpResponse response = httpClient.execute(request);
-            int responseCode = response.getStatusLine().getStatusCode();
-            Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name());
-            httpClient.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
     }
 
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs){
@@ -1513,185 +1037,35 @@ public class Capability2Tests {
 
     private long checkAutomaticInsertionOfFOI(long obsId, JSONObject locationObj, long expectedFOIId){
         String urlString = rootUri+"/Observations("+obsId+")/FeatureOfInterest";
-        HttpURLConnection conn = null;
         try {
-            URL url = new URL(urlString);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type",
-                    "application/json");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            int responseCode = conn.getResponseCode();
+            Map<String,Object> responseMap = HTTPMethods.doGet(urlString);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "ERROR: FeatureOfInterest was not automatically create.");
-            //Get Response
-            InputStream is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                responseBuilder.append(line);
-                responseBuilder.append('\r');
-            }
-            rd.close();
-            JSONObject result = new JSONObject(responseBuilder.toString());
+            JSONObject result = new JSONObject(responseMap.get("response").toString());
             long id = result.getLong("id");
             if(expectedFOIId != -1){
                 Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: "+expectedFOIId+" , but it is linked for FeatureOfInterest with Id: "+id+".");
             }
             Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing.");
             return id;
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
-        } finally {
-            if(conn != null) {
-                conn.disconnect();
-            }
         }
         return -1;
     }
 
     private long checkRelatedEntity(EntityType parentEntityType, long parentId, EntityType relationEntityType, JSONObject relationObj){
-        String urlString = rootUri;
         boolean isCollection = true;
-        switch (parentEntityType) {
-            case THING:
-                urlString += "/Things(" + parentId + ")";
-                switch (relationEntityType) {
-                    case LOCATION:
-                        urlString += "/Locations";
-                        break;
-                    case HISTORICAL_LOCATION:
-                        urlString += "/HistoricalLocations";
-                        break;
-                    case DATASTREAM:
-                        urlString += "/Datastreams";
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case LOCATION:
-                urlString += "/Locations(" + parentId + ")";
-                switch (relationEntityType) {
-                    case THING:
-                        urlString += "/Things";
-                        break;
-                    case HISTORICAL_LOCATION:
-                        urlString += "/HistoricalLocations";
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case HISTORICAL_LOCATION:
-                urlString += "/HistoricalLocations(" + parentId + ")";
-                switch (relationEntityType) {
-                    case THING:
-                        urlString += "/Thing";
-                        isCollection = false;
-                        break;
-                    case LOCATION:
-                        urlString += "/Locations";
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case DATASTREAM:
-                urlString += "/Datastreams(" + parentId + ")";
-                switch (relationEntityType) {
-                    case THING:
-                        urlString += "/Thing";
-                        isCollection = false;
-                        break;
-                    case SENSOR:
-                        urlString += "/Sensor";
-                        isCollection = false;
-                        break;
-                    case OBSERVATION:
-                        urlString += "/Observations";
-                        break;
-                    case OBSERVED_PROPERTY:
-                        urlString += "/ObservedProperty";
-                        isCollection = false;
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case SENSOR:
-                urlString += "/Sensors(" + parentId + ")";
-                switch (relationEntityType) {
-                    case DATASTREAM:
-                        urlString += "/Datastreams";
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case OBSERVATION:
-                urlString += "/Observations(" + parentId + ")";
-                switch (relationEntityType) {
-                    case THING:
-                    case DATASTREAM:
-                        urlString += "/Datastream";
-                        isCollection = false;
-                        break;
-                    case FEATURE_OF_INTEREST:
-                        urlString += "/FeatureOfInterest";
-                        isCollection = false;
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case OBSERVED_PROPERTY:
-                urlString += "/ObservedProperties(" + parentId + ")";
-                switch (relationEntityType) {
-                    case DATASTREAM:
-                        urlString += "/Datastreams";
-                        break;
-                   default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            case FEATURE_OF_INTEREST:
-                urlString += "/FeaturesOfInterest(" + parentId + ")";
-                switch (relationEntityType) {
-                    case OBSERVATION:
-                        urlString += "/Observations";
-                        break;
-                    default:
-                        Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
-                }
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + parentEntityType);
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,parentEntityType,parentId,relationEntityType,null);
+        if(urlString.trim().charAt(urlString.trim().length()-1)!='s'){
+            isCollection = false;
         }
 
-        HttpURLConnection conn = null;
         try {
-            URL url = new URL(urlString);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type",
-                    "application/json");
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            int responseCode = conn.getResponseCode();
-            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted "+relationEntityType+" does not created or linked to "+parentEntityType);
-            //Get Response
-            InputStream is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder responseBuilder = new StringBuilder(); // or StringBuffer if not Java 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                responseBuilder.append(line);
-                responseBuilder.append('\r');
-            }
-            rd.close();
-            JSONObject result = new JSONObject(responseBuilder.toString());
+            Map<String,Object> responseMap = HTTPMethods.doGet(urlString);
+            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted " + relationEntityType + " does not created or linked to " + parentEntityType);
+            JSONObject result = new JSONObject(responseMap.get("response").toString());
             if(isCollection == true){
                 result = result.getJSONArray("value").getJSONObject(0);
             }
@@ -1701,12 +1075,8 @@ public class Capability2Tests {
                 Assert.assertEquals(result.get(key).toString(), relationObj.get(key).toString(), "ERROR: Deep inserted "+relationEntityType+" is not created correctly.");
             }
             return result.getLong("id");
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
-        } finally {
-            if(conn != null) {
-                conn.disconnect();
-            }
         }
         return -1;
     }
@@ -1716,7 +1086,7 @@ public class Capability2Tests {
             if(resultTimeValue == null){
                     Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong("id")+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
             } else {
-                Assert.assertEquals(observation.get("resultTime").toString(),resultTimeValue,"The resultTime of the Observation "+observation.getLong("id")+" should have been \""+resultTimeValue+"\" but it is now \""+observation.get("resultTime").toString()+"\".");
+                Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong("id") + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
             }
         } catch (JSONException e) {
             e.printStackTrace();

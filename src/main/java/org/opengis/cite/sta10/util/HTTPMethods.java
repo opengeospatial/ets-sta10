@@ -85,7 +85,11 @@ public class HTTPMethods {
 
             Map<String, Object> result = new HashMap<String,Object>();
             result.put("response-code",connection.getResponseCode());
-            result.put("response", connection.getHeaderField("location"));
+            if(connection.getResponseCode()==201) {
+                result.put("response", connection.getHeaderField("location"));
+            } else {
+                result.put("response", "");
+            }
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,21 +162,8 @@ public class HTTPMethods {
 
             Map<String, Object> result = new HashMap<String,Object>();
             result.put("response-code",connection.getResponseCode());
-            if(connection.getResponseCode()==200){
-                result.put("response", "");
-            } else{
-                //Get Response
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-                rd.close();
-                result.put("response", response.toString());
-            }
+            result.put("response", "");
+
             return result;
         } catch (Exception e) {
             e.printStackTrace();

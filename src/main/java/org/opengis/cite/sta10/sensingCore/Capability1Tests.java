@@ -392,36 +392,8 @@ public class Capability1Tests {
 
     public String getEntities(EntityType entityType) {
         String urlString = rootUri;
-        if (entityType != null) { // It is not Service Root URI
-            switch (entityType) {
-                case THING:
-                    urlString += "/Things";
-                    break;
-                case LOCATION:
-                    urlString += "/Locations";
-                    break;
-                case HISTORICAL_LOCATION:
-                    urlString += "/HistoricalLocations";
-                    break;
-                case DATASTREAM:
-                    urlString += "/Datastreams";
-                    break;
-                case SENSOR:
-                    urlString += "/Sensors";
-                    break;
-                case OBSERVATION:
-                    urlString += "/Observations";
-                    break;
-                case OBSERVED_PROPERTY:
-                    urlString += "/ObservedProperties";
-                    break;
-                case FEATURE_OF_INTEREST:
-                    urlString += "/FeaturesOfInterest";
-                    break;
-                default:
-                    Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                    return null;
-            }
+        if(entityType!= null) {
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
         }
         Map<String,Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
@@ -436,45 +408,10 @@ public class Capability1Tests {
     }
 
     public Map<String,Object> getEntity(EntityType entityType, long id, String property) {
-        String urlString = rootUri;
         if (id == -1) {
             return null;
         }
-        if (entityType != null) { // It is not Service Root URI
-            switch (entityType) {
-                case THING:
-                    urlString += "/Things(" + id + ")";
-                    break;
-                case LOCATION:
-                    urlString += "/Locations(" + id + ")";
-                    break;
-                case HISTORICAL_LOCATION:
-                    urlString += "/HistoricalLocations(" + id + ")";
-                    break;
-                case DATASTREAM:
-                    urlString += "/Datastreams(" + id + ")";
-                    break;
-                case SENSOR:
-                    urlString += "/Sensors(" + id + ")";
-                    break;
-                case OBSERVATION:
-                    urlString += "/Observations(" + id + ")";
-                    break;
-                case OBSERVED_PROPERTY:
-                    urlString += "/ObservedProperties(" + id + ")";
-                    break;
-                case FEATURE_OF_INTEREST:
-                    urlString += "/FeaturesOfInterest(" + id + ")";
-                    break;
-                default:
-                    Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-                    return null;
-            }
-        }
-        if(property != null){
-            urlString = urlString + "/" + property;
-        }
-        int result = -1;
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,property);
         return HTTPMethods.doGet(urlString);
     }
 
