@@ -5,7 +5,7 @@ package org.opengis.cite.sta10.util;
  */
 public class ControlInformation {
 
-    public static final String ID = "id";
-    public static final String SELF_LINK = "selfLink";
-    public static final String NAVIGATION_LINK = "navigationLink";
+    public static final String ID = "@iot.id";
+    public static final String SELF_LINK = "@iot.selfLink";
+    public static final String NAVIGATION_LINK = "@iot.navigationLink";
 }

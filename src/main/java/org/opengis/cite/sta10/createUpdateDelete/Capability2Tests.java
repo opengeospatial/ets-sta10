@@ -4,10 +4,7 @@ package org.opengis.cite.sta10.createUpdateDelete;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
-import org.opengis.cite.sta10.util.EntityProperties;
-import org.opengis.cite.sta10.util.EntityType;
-import org.opengis.cite.sta10.util.HTTPMethods;
-import org.opengis.cite.sta10.util.ServiceURLBuilder;
+import org.opengis.cite.sta10.util.*;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +56,7 @@ public class Capability2Tests {
             /** Thing **/
             String urlParameters = "{\"description\":\"This is a Test Thing From TestNG\"}";
             JSONObject entity = postEntity(EntityType.THING, urlParameters);
-            long thingId = entity.getLong("id");
+            long thingId = entity.getLong(ControlInformation.ID);
             thingIds.add(thingId);
 
             /** Location **/
@@ -69,7 +66,7 @@ public class Capability2Tests {
                     "  \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }\n" +
                     "}";
             entity = postEntity(EntityType.LOCATION, urlParameters);
-            long locationId = entity.getLong("id");
+            long locationId = entity.getLong(ControlInformation.ID);
             locationIds.add(locationId);
             JSONObject locationEntity = entity;
 
@@ -80,7 +77,7 @@ public class Capability2Tests {
                     "  \"metadata\": \"Barometer\"\n" +
                     "}";
             entity = postEntity(EntityType.SENSOR, urlParameters);
-            long sensorId = entity.getLong("id");
+            long sensorId = entity.getLong(ControlInformation.ID);
             sensorIds.add(sensorId);
 
             /** ObservedProperty **/
@@ -90,7 +87,7 @@ public class Capability2Tests {
                     "  \"description\": \"The dewpoint temperature is the temperature to which the air must be cooled, at constant pressure, for dew to form. As the grass and other objects near the ground cool to the dewpoint, some of the water vapor in the atmosphere condenses into liquid water on the objects.\"\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVED_PROPERTY, urlParameters);
-            long obsPropId = entity.getLong("id");
+            long obsPropId = entity.getLong(ControlInformation.ID);
             obsPropIds.add(obsPropId);
 
             /** FeatureOfInterest **/
@@ -106,7 +103,7 @@ public class Capability2Tests {
                     "  }\n" +
                     "}";
             entity = postEntity(EntityType.FEATURE_OF_INTEREST, urlParameters);
-            long foiId = entity.getLong("id");
+            long foiId = entity.getLong(ControlInformation.ID);
             foiIds.add(foiId);
 
             /** Datastream **/
@@ -118,38 +115,38 @@ public class Capability2Tests {
                     "  },\n" +
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
-                    "  \"ObservedProperty\":{ \"id\":" + obsPropId + "},\n" +
-                    "  \"Sensor\": { \"id\": " + sensorId + " }\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
+                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropId + "},\n" +
+                    "  \"Sensor\": { \"@iot.id\": " + sensorId + " }\n" +
                     "}";
             entity = postEntity(EntityType.DATASTREAM, urlParameters);
-            long datastreamId = entity.getLong("id");
+            long datastreamId = entity.getLong(ControlInformation.ID);
             datastreamIds.add(datastreamId);
 
             /** Observation **/
             urlParameters = "{\n" +
                     "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
                     "  \"result\": 8,\n" +
-                    "  \"Datastream\":{\"id\": " + datastreamId + "},\n" +
-                    "  \"FeatureOfInterest\": {\"id\": " + foiId + "}  \n" +
+                    "  \"Datastream\":{\"@iot.id\": " + datastreamId + "},\n" +
+                    "  \"FeatureOfInterest\": {\"@iot.id\": " + foiId + "}  \n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
-            long obsId1 = entity.getLong("id");
+            long obsId1 = entity.getLong(ControlInformation.ID);
             observationIds.add(obsId1);
             //POST Observation without FOI (Automatic creation of FOI)
             //Add location to the Thing
-            urlParameters = "{\"Locations\":[{\"id\":" + locationId + "}]}";
+            urlParameters = "{\"Locations\":[{\"@iot.id\":" + locationId + "}]}";
             patchEntity(EntityType.THING, urlParameters, thingId);
 
             urlParameters = "{\n" +
                     "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
                     "  \"resultTime\": \"2015-03-01T01:00:00.000Z\",\n" +
                     "  \"result\": 100,\n" +
-                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                    "  \"Datastream\":{\"@iot.id\": " + datastreamId + "}\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
             checkForObservationResultTime(entity, "2015-03-01T01:00:00.000Z");
-            long obsId2 = entity.getLong("id");
+            long obsId2 = entity.getLong(ControlInformation.ID);
             observationIds.add(obsId2);
             long automatedFOIId = checkAutomaticInsertionOfFOI(obsId2, locationEntity, -1);
             foiIds.add(automatedFOIId);
@@ -157,22 +154,22 @@ public class Capability2Tests {
             urlParameters = "{\n" +
                     "  \"phenomenonTime\": \"2015-05-01T00:00:00.000Z\",\n" +
                     "  \"result\": 105,\n" +
-                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                    "  \"Datastream\":{\"@iot.id\": " + datastreamId + "}\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
             checkForObservationResultTime(entity, null);
-            long obsId3 = entity.getLong("id");
+            long obsId3 = entity.getLong(ControlInformation.ID);
             observationIds.add(obsId3);
             checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
 
             /** HistoricalLocation **/
             urlParameters = "{\n" +
                     "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
-                    "  \"Thing\":{\"id\": " + thingId + "},\n" +
-                    "  \"Locations\": [{\"id\": " + locationId + "}]  \n" +
+                    "  \"Thing\":{\"@iot.id\": " + thingId + "},\n" +
+                    "  \"Locations\": [{\"@iot.id\": " + locationId + "}]  \n" +
                     "}";
             entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
-            long histLocId = entity.getLong("id");
+            long histLocId = entity.getLong(ControlInformation.ID);
             historicalLocationIds.add(histLocId);
 
         } catch (JSONException e) {
@@ -219,7 +216,7 @@ public class Capability2Tests {
                     "  ]\n" +
                     "}";
             JSONObject entity = postEntity(EntityType.THING, urlParameters);
-            long thingId = entity.getLong("id");
+            long thingId = entity.getLong(ControlInformation.ID);
             //Check Datastream
             JSONObject deepInsertedObj = new JSONObject("{\n" +
                     "      \"unitOfMeasurement\": {\n" +
@@ -264,7 +261,7 @@ public class Capability2Tests {
                     "  },\n" +
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
                     "   \"ObservedProperty\": {\n" +
                     "        \"name\": \"Luminous Flux\",\n" +
                     "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
@@ -283,7 +280,7 @@ public class Capability2Tests {
                     "      ]"+
                     "}";
             entity = postEntity(EntityType.DATASTREAM, urlParameters);
-            datastreamId = entity.getLong("id");
+            datastreamId = entity.getLong(ControlInformation.ID);
             //Check Sensor
             deepInsertedObj = new JSONObject( "{\n" +
                     "        \"description\": \"Acme Fluxomatic 1000\",\n" +
@@ -321,10 +318,10 @@ public class Capability2Tests {
                     "      ]\n" +
                     "    }\n" +
                     "  },\n" +
-                    "  \"Datastream\":{\"id\": "+datastreamId+"}\n" +
+                    "  \"Datastream\":{\"@iot.id\": "+datastreamId+"}\n" +
                     "}";
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
-            long obsId1 = entity.getLong("id");
+            long obsId1 = entity.getLong(ControlInformation.ID);
             //Check FeaturOfInterest
             deepInsertedObj = new JSONObject("{\n" +
                     "  \"description\": \"A weather station.\",\n" +
@@ -358,8 +355,8 @@ public class Capability2Tests {
                     "  },\n" +
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "  \"Thing\": { \"id\": " + thingIds.get(0) + " },\n" +
-                    "  \"ObservedProperty\":{ \"id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingIds.get(0) + " },\n" +
+                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "},\n" +
                     "}";
             postInvalidEntity(EntityType.DATASTREAM, urlParameters);
             //Without ObservedProperty
@@ -371,8 +368,8 @@ public class Capability2Tests {
                     "  },\n" +
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "  \"Thing\": { \"id\": " + thingIds.get(0) + " },\n" +
-                    "  \"Sensor\": { \"id\": " + sensorIds.get(0) + " }\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingIds.get(0) + " },\n" +
+                    "  \"Sensor\": { \"@iot.id\": " + sensorIds.get(0) + " }\n" +
                     "}";
             postInvalidEntity(EntityType.DATASTREAM, urlParameters);
             //Without Things
@@ -384,15 +381,15 @@ public class Capability2Tests {
                     "  },\n" +
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "  \"ObservedProperty\":{ \"id\":" + obsPropIds.get(0) + "},\n" +
-                    "  \"Sensor\": { \"id\": " + sensorIds.get(0) + " }\n" +
+                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"Sensor\": { \"@iot.id\": " + sensorIds.get(0) + " }\n" +
                     "}";
             postInvalidEntity(EntityType.DATASTREAM, urlParameters);
 
             /** Observation **/
             //Create Thing and Datastream
             urlParameters = "{\"description\":\"This is a Test Thing From TestNG\"}";
-            long thingId = postEntity(EntityType.THING, urlParameters).getLong("id");
+            long thingId = postEntity(EntityType.THING, urlParameters).getLong(ControlInformation.ID);
             thingIds.add(thingId);
             urlParameters = "{\n" +
                     "  \"unitOfMeasurement\": {\n" +
@@ -402,24 +399,24 @@ public class Capability2Tests {
                     "  },\n" +
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "  \"Thing\": { \"id\": " + thingId + " },\n" +
-                    "  \"ObservedProperty\":{ \"id\":" + obsPropIds.get(0) + "},\n" +
-                    "  \"Sensor\": { \"id\": " + sensorIds.get(0) + " }\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
+                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"Sensor\": { \"@iot.id\": " + sensorIds.get(0) + " }\n" +
                     "}";
-            long datastreamId = postEntity(EntityType.DATASTREAM, urlParameters).getLong("id");
+            long datastreamId = postEntity(EntityType.DATASTREAM, urlParameters).getLong(ControlInformation.ID);
             datastreamIds.add(datastreamId);
             //Without Datastream
             urlParameters = "{\n" +
                     "  \"phenomenonTime\": \"2015-03-01T00:40:00.000Z\",\n" +
                     "  \"result\": 8,\n" +
-                    "  \"FeatureOfInterest\": {\"id\": " + foiIds.get(0) + "}  \n" +
+                    "  \"FeatureOfInterest\": {\"@iot.id\": " + foiIds.get(0) + "}  \n" +
                     "}";
             postInvalidEntity(EntityType.OBSERVATION, urlParameters);
             //Without FOI and without Thing's Location
             urlParameters = "{\n" +
                     "  \"phenomenonTime\": \"2015-03-01T00:00:00.000Z\",\n" +
                     "  \"result\": 100,\n" +
-                    "  \"Datastream\":{\"id\": " + datastreamId + "}\n" +
+                    "  \"Datastream\":{\"@iot.id\": " + datastreamId + "}\n" +
                     "}";
             postInvalidEntity(EntityType.OBSERVATION, urlParameters);
 
@@ -696,7 +693,7 @@ public class Capability2Tests {
                 "        \"name\": \"Lumen\",\n" +
                 "        \"symbol\": \"lm\",\n" +
                 "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"}\n" +
-                "        ,\"Thing\":{\"id\":"+thingId+"}"+
+                "        ,\"Thing\":{\"@iot.id\":"+thingId+"}"+
                 "      }]}";
         invalidPatchEntity(EntityType.SENSOR, urlParameters, sensorId);
 
@@ -708,7 +705,7 @@ public class Capability2Tests {
                 "        \"name\": \"Lumen\",\n" +
                 "        \"symbol\": \"lm\",\n" +
                 "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"}\n" +
-                "        ,\"Thing\":{\"id\":"+thingId+"}"+
+                "        ,\"Thing\":{\"@iot.id\":"+thingId+"}"+
                 "      }]}";
         invalidPatchEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
 
@@ -1042,7 +1039,7 @@ public class Capability2Tests {
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "ERROR: FeatureOfInterest was not automatically create.");
             JSONObject result = new JSONObject(responseMap.get("response").toString());
-            long id = result.getLong("id");
+            long id = result.getLong(ControlInformation.ID);
             if(expectedFOIId != -1){
                 Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: "+expectedFOIId+" , but it is linked for FeatureOfInterest with Id: "+id+".");
             }
@@ -1074,7 +1071,7 @@ public class Capability2Tests {
                 String key = iterator.next().toString();
                 Assert.assertEquals(result.get(key).toString(), relationObj.get(key).toString(), "ERROR: Deep inserted "+relationEntityType+" is not created correctly.");
             }
-            return result.getLong("id");
+            return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1084,9 +1081,9 @@ public class Capability2Tests {
     private void checkForObservationResultTime(JSONObject observation, String resultTimeValue){
         try {
             if(resultTimeValue == null){
-                    Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong("id")+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
+                    Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong(ControlInformation.ID)+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
             } else {
-                Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong("id") + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
+                Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
             }
         } catch (JSONException e) {
             e.printStackTrace();

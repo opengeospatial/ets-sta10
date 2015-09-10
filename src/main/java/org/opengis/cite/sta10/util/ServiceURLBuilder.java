@@ -150,7 +150,7 @@ public class ServiceURLBuilder {
             }
         }
         if(property!=null){
-            urlString += "/"+property;
+            urlString +="/"+ property;
         }
         return urlString;
     }
