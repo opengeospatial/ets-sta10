@@ -173,7 +173,7 @@ public class Capability1Tests {
             Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
             String response = responseMap.get("response").toString();
             JSONObject entity = null;
-            entity = new JSONObject(response);
+            entity = new JSONObject(response.toString());
             Assert.assertTrue(entity.get(property)!=null, "Reading property \""+ property+"\"of \"" +entityType+"\" fails.");
             Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
         } catch (JSONException e) {
@@ -208,7 +208,7 @@ public class Capability1Tests {
     public void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
         try {
             String response = getEntities(entityType);
-            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
             switch (entityType){
                 case THING:
                     for (String relation : EntityRelations.THING_RELATIONS) {
@@ -279,11 +279,13 @@ public class Capability1Tests {
         try {
             Map<String,Object> responseMap = getEntity(entityType, id, relation + "/$ref");
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-                    Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+            Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
             String response = responseMap.get("response").toString();
             Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for "+entityType+"("+id+")/"+relation+" does not match SensorThings API : missing \"value\" in response.");
-            JSONArray value = new JSONObject(response).getJSONArray("value");
-            for (int i = 0; i < value.length() ; i++) {
+            JSONArray value = new JSONObject(response.toString()).getJSONArray("value");
+            int count = 0;
+            for (int i = 0; i < value.length()&& count < 2 ; i++) {
+                count ++;
                 JSONObject obj = value.getJSONObject(i);
                 Assert.assertTrue(obj.get(ControlInformation.SELF_LINK)!=null, "The Association Link for "+entityType+"("+id+")/"+relation+" does not contain self-links.");
                 Assert.assertEquals(obj.length(), 1, "The Association Link for "+entityType+"("+id+")/"+relation+" contains properties other than self-link.");
@@ -296,7 +298,7 @@ public class Capability1Tests {
     public String readEntityWithEntityType(EntityType entityType) {
         try {
             String response = getEntities(entityType);
-            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
             Map<String,Object> responseMap = getEntity(entityType, id, null);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading exitixting " + entityType.name() + " with id " + id + " failed.");
@@ -318,7 +320,7 @@ public class Capability1Tests {
     public void checkServiceRootUri() {
         try {
             String response = getEntities(null);
-            JSONObject jsonResponse = new JSONObject(response);
+            JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
             Map<String, Boolean> addedLinks = new HashMap<>();
             addedLinks.put("Things", false);
@@ -398,7 +400,7 @@ public class Capability1Tests {
         Map<String,Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + entityType.name());
+        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + ((entityType!=null)?entityType.name():"root URI"));
         if (entityType != null) {
             Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
         } else { // GET Service Base URI
@@ -431,9 +433,11 @@ public class Capability1Tests {
 
     public void checkEntitiesControlInformation(String response){
         try {
-            JSONObject jsonResponse = new JSONObject(response);
+            JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
-            for (int i = 0; i < entities.length(); i++) {
+            int count = 0;
+            for (int i = 0; i < entities.length() && count <2; i++) {
+                count ++;
                 JSONObject entity = entities.getJSONObject(i);
                 checkEntityControlInformation(entity);
             }
@@ -447,8 +451,6 @@ public class Capability1Tests {
             JSONObject entity = new JSONObject(response.toString());
             Assert.assertTrue(entity.get(ControlInformation.ID)!=null , "The entity does not have mandatory control information : "+ControlInformation.ID);
             Assert.assertTrue(entity.get(ControlInformation.SELF_LINK)!=null , "The entity does not have mandatory control information : "+ControlInformation.SELF_LINK);
-            //TODO: This line should be un-commented when the navigationLink is changed to annotation
-            // Assert.assertTrue(entity.get(ControlInformation.NAVIGATION_LINK)!=null , "The entity does not have mandatory control information : "+ControlInformation.NAVIGATION_LINK);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -458,7 +460,9 @@ public class Capability1Tests {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
-            for (int i = 0; i < entities.length(); i++) {
+            int count = 0;
+            for (int i = 0; i < entities.length() && count<2; i++) {
+                count++;
                 JSONObject entity = entities.getJSONObject(i);
                 checkEntityProperties(entityType, entity);
             }
@@ -526,7 +530,9 @@ public class Capability1Tests {
         try {
             JSONObject jsonResponse = new JSONObject(response);
             JSONArray entities = jsonResponse.getJSONArray("value");
-            for (int i = 0; i < entities.length(); i++) {
+            int count = 0;
+            for (int i = 0; i < entities.length() && count < 2; i++) {
+                count ++;
                 JSONObject entity = entities.getJSONObject(i);
                 checkEntityRelations(entityType, entity);
             }
@@ -538,68 +544,52 @@ public class Capability1Tests {
 
     public void checkEntityRelations(EntityType entityType, Object response){
         try {
-            JSONObject entity = new JSONObject(response);
+            JSONObject entity = new JSONObject(response.toString());
             switch (entityType){
                 case THING:
                         for (String relation : EntityRelations.THING_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
 
                     break;
                 case LOCATION:
                         for (String relation : EntityRelations.LOCATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
 
                     break;
                 case HISTORICAL_LOCATION:
                         for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
 
                     break;
                 case DATASTREAM:
                         for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
 
                     break;
                 case SENSOR:
                         for (String relation : EntityRelations.SENSOR_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
                     break;
                 case OBSERVATION:
 
                         for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
 
                     break;
                 case OBSERVED_PROPERTY:
                         for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
                     break;
                 case FEATURE_OF_INTEREST:
                         for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
                         }
                     break;
                 default:

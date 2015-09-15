@@ -11,7 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,384 +21,195 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri="http://192.168.1.13:8080/OGCSensorThings/v1.0";
+    public String rootUri;
 
-//    @BeforeClass
-//    public void obtainTestSubject(ITestContext testContext) {
-//        Object obj = testContext.getSuite().getAttribute(
-//                SuiteAttribute.LEVEL.getName());
-//        if ((null != obj)) {
-//            Integer level = Integer.class.cast(obj);
-//            Assert.assertTrue(level.intValue() >= 3,
-//                    "Conformance level 3 will not be checked since ics = " + level);
-//        }
-//
-//        rootUri = testContext.getSuite().getAttribute(
-//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-//        rootUri = rootUri.trim();
-//        if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
-//            rootUri = rootUri.substring(0, rootUri.length() - 1);
-//        }
-//
-//    }
+    @BeforeClass
+    public void obtainTestSubject(ITestContext testContext) {
+        Object obj = testContext.getSuite().getAttribute(
+                SuiteAttribute.LEVEL.getName());
+        if ((null != obj)) {
+            Integer level = Integer.class.cast(obj);
+            Assert.assertTrue(level.intValue() > 2,
+                    "Conformance level 3 will not be checked since ics = " + level);
+        }
+
+        rootUri = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = rootUri.trim();
+        if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
+            rootUri = rootUri.substring(0, rootUri.length() - 1);
+        }
+
+    }
 
     @Test(description = "GET Entities with $select", groups = "level-3")
-    public void readEntitiesAndCheckResponse() {
-        List<String> selectedProperties = new ArrayList<>();
-        selectedProperties.add("description");
-        String response = getEntities(EntityType.THING);
-        checkEntitiesAllAspectsForResponse(EntityType.THING, response, selectedProperties);
-//        response = getEntities(EntityType.LOCATION);
-//        checkEntitiesAllAspectsForResponse(EntityType.LOCATION, response, selectedProperties);
-//        response = getEntities(EntityType.HISTORICAL_LOCATION);
-//        checkEntitiesAllAspectsForResponse(EntityType.HISTORICAL_LOCATION, response, selectedProperties);
-//        response = getEntities(EntityType.DATASTREAM);
-//        checkEntitiesAllAspectsForResponse(EntityType.DATASTREAM, response, selectedProperties);
-//        response = getEntities(EntityType.SENSOR);
-//        checkEntitiesAllAspectsForResponse(EntityType.SENSOR, response, selectedProperties);
-//        response = getEntities(EntityType.OBSERVATION);
-//        checkEntitiesAllAspectsForResponse(EntityType.OBSERVATION, response, selectedProperties);
-//        response = getEntities(EntityType.OBSERVED_PROPERTY);
-//        checkEntitiesAllAspectsForResponse(EntityType.OBSERVED_PROPERTY, response, selectedProperties);
-//        response = getEntities(EntityType.FEATURE_OF_INTEREST);
-//        checkEntitiesAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST, response, selectedProperties);
+    public void readEntitiesWithSelectQO() {
+        checkSelectForEntityType(EntityType.THING);
+        checkSelectForEntityType(EntityType.LOCATION);
+        checkSelectForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkSelectForEntityType(EntityType.DATASTREAM);
+        checkSelectForEntityType(EntityType.SENSOR);
+        checkSelectForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkSelectForEntityType(EntityType.OBSERVATION);
+        checkSelectForEntityType(EntityType.FEATURE_OF_INTEREST);
+
     }
 
-//    @Test(description = "GET nonexistent Entity", groups = "level-1")
-//    public void readNonexistentEntity() {
-//        readNonexistentEntityWithEntityType(EntityType.THING);
-//        readNonexistentEntityWithEntityType(EntityType.LOCATION);
-//        readNonexistentEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
-//        readNonexistentEntityWithEntityType(EntityType.DATASTREAM);
-//        readNonexistentEntityWithEntityType(EntityType.SENSOR);
-//        readNonexistentEntityWithEntityType(EntityType.OBSERVATION);
-//        readNonexistentEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
-//        readNonexistentEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
-//    }
-//
-//    @Test(description = "GET Specific Entity", groups = "level-1")
-//    public void readEntityAndCheckResponse() {
-//        List<String> selectedProperties = new ArrayList<>();
-//        String response = readEntityWithEntityType(EntityType.THING);
-//        checkEntityAllAspectsForResponse(EntityType.THING, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.LOCATION);
-//        checkEntityAllAspectsForResponse(EntityType.LOCATION, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
-//        checkEntityAllAspectsForResponse(EntityType.HISTORICAL_LOCATION, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.DATASTREAM);
-//        checkEntityAllAspectsForResponse(EntityType.DATASTREAM, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.SENSOR);
-//        checkEntityAllAspectsForResponse(EntityType.SENSOR, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.OBSERVATION);
-//        checkEntityAllAspectsForResponse(EntityType.OBSERVATION, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
-//        checkEntityAllAspectsForResponse(EntityType.OBSERVED_PROPERTY, response, selectedProperties);
-//        response = readEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
-//        checkEntityAllAspectsForResponse(EntityType.FEATURE_OF_INTEREST, response, selectedProperties);
-//    }
+    @Test(description = "GET Entities with $expand", groups = "level-3")
+    public void readEntitiesWithExpandQO() {
+        checkExpandtForEntityType(EntityType.THING);
+        checkExpandtForEntityType(EntityType.LOCATION);
+        checkExpandtForEntityType(EntityType.HISTORICAL_LOCATION);
+//        checkExpandtForEntityType(EntityType.DATASTREAM);
+        checkExpandtForEntityType(EntityType.SENSOR);
+        checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkExpandtForEntityType(EntityType.OBSERVATION);
+//        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
 
-//    @Test(description = "GET Propety of an Entity", groups = "level-1")
-//    public void readPropertyOfEntityAndCheckResponse(){
-//        readPropertyOfEntityWithEntityType(EntityType.THING);
-//        readPropertyOfEntityWithEntityType(EntityType.LOCATION);
-//        readPropertyOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
-//        readPropertyOfEntityWithEntityType(EntityType.DATASTREAM);
-//        readPropertyOfEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
-//        readPropertyOfEntityWithEntityType(EntityType.SENSOR);
-//        readPropertyOfEntityWithEntityType(EntityType.OBSERVATION);
-//        readPropertyOfEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
-//    }
+    }
 
-    public void readPropertyOfEntityWithEntityType(EntityType entityType) {
-        try {
-            String response = getEntities(entityType);
-            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
-            switch (entityType){
-                case THING:
-                    for (String property : EntityProperties.THING_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case LOCATION:
-                    for (String property : EntityProperties.LOCATION_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case HISTORICAL_LOCATION:
-                    for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case DATASTREAM:
-                    for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case SENSOR:
-                    for (String property : EntityProperties.SENSOR_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case OBSERVATION:
-                    for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case OBSERVED_PROPERTY:
-                    for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                case FEATURE_OF_INTEREST:
-                    for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
-                        checkGetPropertyOfEntity(entityType, id, property);
-                        checkGetPropertyValueOfEntity(entityType, id, property);
-                    }
-                    break;
-                default:
-                    break;
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    private void checkSelectForEntityType(EntityType entityType){
+        List<String> selectedProperties;
+        switch(entityType){
+            case THING:
+                for (String property: EntityProperties.THING_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.THING, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.THING, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.THING_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.THING, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.THING, response, selectedProperties);
+                }
+                break;
+            case LOCATION:
+                for (String property: EntityProperties.LOCATION_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.LOCATION, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.LOCATION, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.LOCATION_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.LOCATION, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.LOCATION, response, selectedProperties);
+                }
+                break;
+            case HISTORICAL_LOCATION:
+                for (String property: EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.HISTORICAL_LOCATION, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.HISTORICAL_LOCATION, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.HISTORICAL_LOCATION, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.HISTORICAL_LOCATION, response, selectedProperties);
+                }
+                break;
+            case DATASTREAM:
+                for (String property: EntityProperties.DATASTREAM_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.DATASTREAM, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.DATASTREAM, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.DATASTREAM_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.DATASTREAM, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.DATASTREAM, response, selectedProperties);
+                }
+                break;
+            case SENSOR:
+                for (String property: EntityProperties.SENSOR_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.SENSOR, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.SENSOR, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.SENSOR_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.SENSOR, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.SENSOR, response, selectedProperties);
+                }
+                break;
+            case OBSERVED_PROPERTY:
+                for (String property: EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.OBSERVED_PROPERTY, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.OBSERVED_PROPERTY, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.OBSERVED_PROPERTY, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.OBSERVED_PROPERTY, response, selectedProperties);
+                }
+                break;
+            case OBSERVATION:
+                for (String property: EntityProperties.OBSERVATION_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.OBSERVATION, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.OBSERVATION, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.OBSERVATION_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.OBSERVATION, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.OBSERVATION, response, selectedProperties);
+                }
+                break;
+            case FEATURE_OF_INTEREST:
+                for (String property: EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.FEATURE_OF_INTEREST, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.FEATURE_OF_INTEREST, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property: EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
+                    selectedProperties.add(property);
+                    String response = getEntities(EntityType.FEATURE_OF_INTEREST, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(EntityType.FEATURE_OF_INTEREST, response, selectedProperties);
+                }
+                break;
         }
     }
 
-    public void checkGetPropertyOfEntity(EntityType entityType, long id, String property){
-        try {
-            Map<String,Object> responseMap = getEntity(entityType, id, property);
-            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-            String response = responseMap.get("response").toString();
-            JSONObject entity = null;
-            entity = new JSONObject(response);
-            Assert.assertTrue(entity.get(property)!=null, "Reading property \""+ property+"\"of \"" +entityType+"\" fails.");
-            Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
-        Map<String,Object> responseMap = getEntity(entityType, id, property+"/$value");
-        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-        String response = responseMap.get("response").toString();
-        if(!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
-            Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
-        } else {
-            Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
-        }
-    }
-//
-//    @Test(description = "GET Related Entity of an Entity", groups = "level-1")
-//    public void readRelatedEntityOfEntityAndCheckResponse(){
-//        readRelatedEntityOfEntityWithEntityType(EntityType.THING);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.LOCATION);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.DATASTREAM);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.OBSERVED_PROPERTY);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.SENSOR);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.OBSERVATION);
-//        readRelatedEntityOfEntityWithEntityType(EntityType.FEATURE_OF_INTEREST);
-//    }
-
-    public void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
-        try {
-            String response = getEntities(entityType);
-            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
-            switch (entityType){
-                case THING:
-                    for (String relation : EntityRelations.THING_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case LOCATION:
-                    for (String relation : EntityRelations.LOCATION_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case HISTORICAL_LOCATION:
-                    for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case DATASTREAM:
-                    for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case SENSOR:
-                    for (String relation : EntityRelations.SENSOR_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case OBSERVATION:
-                    for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case OBSERVED_PROPERTY:
-                    for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                case FEATURE_OF_INTEREST:
-                    for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
-                        checkGetNavigationLinkOfEntity(entityType, id, relation);
-                        checkGetAssociationOfEntity(entityType, id, relation);
-                    }
-                    break;
-                default:
-                    break;
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void checkGetNavigationLinkOfEntity(EntityType entityType, long id, String relation){
-        int responseCode = Integer.parseInt(getEntity(entityType, id, relation).get("response-code").toString());
-        Assert.assertTrue(responseCode==200 /*|| (relation.lastIndexOf("s")!= relation.length()-1 && responseCode==404)*/ , "Reading relation \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-    }
-
-    public void checkGetAssociationOfEntity(EntityType entityType, long id, String relation) {
-        if(!relation.endsWith("s")){
-            return;
-        }
-        try {
-            Map<String,Object> responseMap = getEntity(entityType, id, relation + "/$ref");
-            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-                    Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-            String response = responseMap.get("response").toString();
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for "+entityType+"("+id+")/"+relation+" does not match SensorThings API : missing \"value\" in response.");
-            JSONArray value = new JSONObject(response).getJSONArray("value");
-            for (int i = 0; i < value.length() ; i++) {
-                JSONObject obj = value.getJSONObject(i);
-                Assert.assertTrue(obj.get(ControlInformation.SELF_LINK)!=null, "The Association Link for "+entityType+"("+id+")/"+relation+" does not contain self-links.");
-                Assert.assertEquals(obj.length(), 1, "The Association Link for "+entityType+"("+id+")/"+relation+" contains properties other than self-link.");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String readEntityWithEntityType(EntityType entityType) {
-        try {
-            String response = getEntities(entityType);
-            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong("id");
-            Map<String,Object> responseMap = getEntity(entityType, id, null);
-            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Reading exitixting " + entityType.name() + " with id " + id + " failed.");
-            response = responseMap.get("response").toString();
-            return response;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void readNonexistentEntityWithEntityType(EntityType entityType) {
-        long id = Long.MAX_VALUE;
-        int responseCode = Integer.parseInt(getEntity(entityType, id, null).get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "Reading non-exitixting " + entityType.name() + " with id " + id + " failed.");
-    }
-
-//    @Test(description = "Check Service Root UI", groups = "level-1")
-//    public void checkServiceRootUri() {
-//        try {
-//            String response = getEntities(null);
-//            JSONObject jsonResponse = new JSONObject(response);
-//            JSONArray entities = jsonResponse.getJSONArray("value");
-//            Map<String, Boolean> addedLinks = new HashMap<>();
-//            addedLinks.put("Things", false);
-//            addedLinks.put("Locations", false);
-//            addedLinks.put("HistoricalLocations", false);
-//            addedLinks.put("Datastreams", false);
-//            addedLinks.put("Sensors", false);
-//            addedLinks.put("Observations", false);
-//            addedLinks.put("ObservedProperties", false);
-//            addedLinks.put("FeaturesOfInterest", false);
-//            for (int i = 0; i < entities.length(); i++) {
-//                JSONObject entity = entities.getJSONObject(i);
-//                Assert.assertTrue(entity.get("name") != null);
-//                Assert.assertTrue(entity.get("url") != null);
-//                String name = entity.getString("name");
-//                String nameUrl = entity.getString("url");
-//                switch (name) {
-//                    case "Things":
-//                        Assert.assertEquals(nameUrl, rootUri + "/Things", "The URL for Things in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("Things");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "Locations":
-//                        Assert.assertEquals(nameUrl, rootUri + "/Locations", "The URL for Locations in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("Locations");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "HistoricalLocations":
-//                        Assert.assertEquals(nameUrl, rootUri + "/HistoricalLocations", "The URL for HistoricalLocations in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("HistoricalLocations");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "Datastreams":
-//                        Assert.assertEquals(nameUrl, rootUri + "/Datastreams", "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("Datastreams");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "Sensors":
-//                        Assert.assertEquals(nameUrl, rootUri + "/Sensors", "The URL for Sensors in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("Sensors");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "Observations":
-//                        Assert.assertEquals(nameUrl, rootUri + "/Observations", "The URL for Observations in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("Observations");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "ObservedProperties":
-//                        Assert.assertEquals(nameUrl, rootUri + "/ObservedProperties", "The URL for ObservedProperties in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("ObservedProperties");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    case "FeaturesOfInterest":
-//                        Assert.assertEquals(nameUrl, rootUri + "/FeaturesOfInterest", "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.");
-//                        addedLinks.remove("FeaturesOfInterest");
-//                        addedLinks.put(name, true);
-//                        break;
-//                    default:
-//                        Assert.fail("There is a component in Service Root URI response that is not in SensorThings API : " + name);
-//                        break;
-//                }
-//            }
-//            for (String key : addedLinks.keySet()) {
-//                Assert.assertTrue(addedLinks.get(key), "The Service Root URI response does not contain " + key);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    public String getEntities(EntityType entityType) {
+    public String getEntities(EntityType entityType, List<String> selectedProperties, List<String> expandedRelations) {
         String urlString = rootUri;
+        String selectString="";
+        if(selectedProperties!=null && selectedProperties.size()>0) {
+            selectString = "?$select=";
+            for (String select : selectedProperties) {
+                if (selectString.charAt(selectString.length() - 1) != '=') {
+                    selectString += ',';
+                }
+                selectString += select;
+            }
+        }
+        String expandString="";
+        if(expandedRelations!=null && expandedRelations.size()>0) {
+            expandString = selectString.equals("") ? "?$expand=" : "&$expand=";
+            for (String expand : expandedRelations) {
+                if (expandString.charAt(expandString.length() - 1) != '=') {
+                    expandString += ',';
+                }
+                expandString += expand;
+            }
+        }
         if (entityType != null) {
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$select=description");
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, selectString+expandString);
         }
         Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
@@ -412,66 +223,36 @@ public class Capability3Tests {
         return response;
     }
 
-    public Map<String,Object> getEntity(EntityType entityType, long id, String property) {
-        if (id == -1) {
-            return null;
-        }
-        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,property);
-        return HTTPMethods.doGet(urlString);
-    }
-
-    public void checkEntitiesAllAspectsForResponse(EntityType entityType, String response, List<String> selectedProperties){
-        //checkEntitiesControlInformation(response);
+    public void checkEntitiesAllAspectsForSelectResponse(EntityType entityType, String response, List<String> selectedProperties){
         checkEntitiesProperties(entityType, response, selectedProperties);
-        checkEntitiesRelations(entityType, response, selectedProperties);
+        checkEntitiesRelations(entityType, response, selectedProperties, null);
     }
 
-    public void checkEntityAllAspectsForResponse(EntityType entityType, String response, List<String> selectedProperties){
-        checkEntityControlInformation(response);
-        checkEntityProperties(entityType, response, selectedProperties);
-        checkEntityRelations(entityType, response, selectedProperties);
-    }
-
-
-
-    public void checkEntitiesControlInformation(String response){
-        try {
-            JSONObject jsonResponse = new JSONObject(response);
-            JSONArray entities = jsonResponse.getJSONArray("value");
-            for (int i = 0; i < entities.length(); i++) {
-                JSONObject entity = entities.getJSONObject(i);
-                checkEntityControlInformation(entity);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void checkEntityControlInformation(Object response){
-        try {
-            JSONObject entity = new JSONObject(response);
-            Assert.assertTrue(entity.get(ControlInformation.ID)!=null , "The entity does not have mandatory control information : "+ControlInformation.ID);
-            Assert.assertTrue(entity.get(ControlInformation.SELF_LINK)!=null , "The entity does not have mandatory control information : "+ControlInformation.SELF_LINK);
-            //TODO: This line should be un-commented when the navigationLink is changed to annotation
-            // Assert.assertTrue(entity.get(ControlInformation.NAVIGATION_LINK)!=null , "The entity does not have mandatory control information : "+ControlInformation.NAVIGATION_LINK);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void checkEntitiesProperties(EntityType entityType, String response, List<String> selectedProperties){
         try {
-            JSONObject jsonResponse = new JSONObject(response);
+            JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
-            for (int i = 0; i < entities.length(); i++) {
-                JSONObject entity = entities.getJSONObject(i);
-                checkEntityProperties(entityType, entity, selectedProperties);
-            }
+            checkPropertiesForEntityArray(entityType, entities, selectedProperties);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public void checkPropertiesForEntityArray(EntityType entityType, JSONArray entities, List<String> selectedProperties){
+        int count = 0;
+        for (int i = 0; i < entities.length() && count<2; i++) {
+            count ++;
+            JSONObject entity = null;
+            try {
+                entity = entities.getJSONObject(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            checkEntityProperties(entityType, entity, selectedProperties);
+        }
     }
 
     public void checkEntityProperties(EntityType entityType, Object response, List<String> selectedProperties){
@@ -481,63 +262,93 @@ public class Capability3Tests {
                 case THING:
                         for (String property : EntityProperties.THING_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have selected property: \""+property+"\".");
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
                             }else{
-                                Assert.assertTrue(entity.get(property)==null, "Entity type \""+entityType+"\" contains not-selected property: \""+property+"\".");
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
                             }
                         }
                     break;
                 case LOCATION:
                         for (String property : EntityProperties.LOCATION_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 case HISTORICAL_LOCATION:
                         for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 case DATASTREAM:
                         for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 case SENSOR:
                         for (String property : EntityProperties.SENSOR_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 case OBSERVATION:
                         for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 case OBSERVED_PROPERTY:
                         for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 case FEATURE_OF_INTEREST:
                         for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            if(selectedProperties.contains(property)){
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                            }else{
+                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                            }
                         }
                     break;
                 default:
                     break;
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            //The program reachs here in normal state, because it tries to check the non-existense of some navigation properties.
         }
 
     }
 
-    public void checkEntitiesRelations(EntityType entityType, String response, List<String> selectedProperties){
+    public void checkEntitiesRelations(EntityType entityType, String response, List<String> selectedProperties , List<String> expandedRelations){
         try {
-            JSONObject jsonResponse = new JSONObject(response);
+            JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
-            for (int i = 0; i < entities.length(); i++) {
+            int count = 0;
+            for (int i = 0; i < entities.length()&& count <2; i++) {
+                count ++;
                 JSONObject entity = entities.getJSONObject(i);
-                checkEntityRelations(entityType, entity, selectedProperties);
+                checkEntityRelations(entityType, entity, selectedProperties, expandedRelations);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -545,82 +356,332 @@ public class Capability3Tests {
 
     }
 
-    public void checkEntityRelations(EntityType entityType, Object response, List<String> selectedProperties){
+    public void checkEntityRelations(EntityType entityType, Object response, List<String> selectedProperties, List<String> expandedRelations){
         try {
-            JSONObject entity = new JSONObject(response);
+            JSONObject entity = new JSONObject(response.toString());
             switch (entityType){
                 case THING:
                         for (String relation : EntityRelations.THING_RELATIONS) {
-                            if (selectedProperties.contains(relation)) {
-                                Assert.assertTrue(entity.get(relation) != null, "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
-                                //TODO: this line must be deleted after adding annotations
-                                Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK) != null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
                             } else {
-                                Assert.assertTrue(entity.get(relation) == null, "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
                             }
                         }
 
                     break;
                 case LOCATION:
                         for (String relation : EntityRelations.LOCATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case HISTORICAL_LOCATION:
                         for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case DATASTREAM:
                         for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case SENSOR:
                         for (String relation : EntityRelations.SENSOR_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
                     break;
                 case OBSERVATION:
 
                         for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case OBSERVED_PROPERTY:
                         for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
                     break;
                 case FEATURE_OF_INTEREST:
                         for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
-                            //TODO: this line must be deleted after adding annotations
-                            Assert.assertTrue(entity.getJSONObject(relation).get(ControlInformation.NAVIGATION_LINK)!=null);
+                            if (selectedProperties == null || selectedProperties.contains(relation)) {
+                                if(expandedRelations == null || !expandedRelations.contains(relation)) {
+                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                }else{
+                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                }
+                            } else {
+                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                            }
                         }
                     break;
                 default:
                     break;
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            //The program reachs here in normal state, because it tries to check the non-existense of some navigation properties.
         }
+    }
+
+    private void checkExpandtForEntityType(EntityType entityType){
+        List<String> expandedRelations;
+        switch(entityType){
+            case THING:
+                for (String relation: EntityRelations.THING_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.THING, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.THING, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.THING_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.THING, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.THING, response, expandedRelations);
+                }
+                break;
+            case LOCATION:
+                for (String relation: EntityRelations.LOCATION_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.LOCATION, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.LOCATION, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.LOCATION_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.LOCATION, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.LOCATION, response, expandedRelations);
+                }
+                break;
+            case HISTORICAL_LOCATION:
+                for (String relation: EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.HISTORICAL_LOCATION, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.HISTORICAL_LOCATION, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.HISTORICAL_LOCATION, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.HISTORICAL_LOCATION, response, expandedRelations);
+                }
+                break;
+            case DATASTREAM:
+                for (String relation: EntityRelations.DATASTREAM_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.DATASTREAM, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.DATASTREAM, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.DATASTREAM_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.DATASTREAM, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.DATASTREAM, response, expandedRelations);
+                }
+                break;
+            case SENSOR:
+                for (String relation: EntityRelations.SENSOR_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.SENSOR, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.SENSOR, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.SENSOR_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.SENSOR, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.SENSOR, response, expandedRelations);
+                }
+                break;
+            case OBSERVED_PROPERTY:
+                for (String relation: EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.OBSERVED_PROPERTY, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.OBSERVED_PROPERTY, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.OBSERVED_PROPERTY, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.OBSERVED_PROPERTY, response, expandedRelations);
+                }
+                break;
+            case OBSERVATION:
+                for (String relation: EntityRelations.OBSERVATION_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.OBSERVATION, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.OBSERVATION, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.OBSERVATION_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.OBSERVATION, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.OBSERVATION, response, expandedRelations);
+                }
+                break;
+            case FEATURE_OF_INTEREST:
+                for (String relation: EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.FEATURE_OF_INTEREST, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.FEATURE_OF_INTEREST, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation: EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
+                    expandedRelations.add(relation);
+                    String response = getEntities(EntityType.FEATURE_OF_INTEREST, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(EntityType.FEATURE_OF_INTEREST, response, expandedRelations);
+                }
+                break;
+        }
+    }
+
+    public void checkEntitiesAllAspectsForExpandResponse(EntityType entityType, String response, List<String> expandedRelations){
+        checkEntitiesRelations(entityType, response, null, expandedRelations);
+    }
+
+    private EntityType getEntityTypeFor(String name){
+        switch (name.toLowerCase()){
+            case "thing":
+            case "things":
+                return EntityType.THING;
+            case "location":
+            case "locations":
+                return EntityType.LOCATION;
+            case "historicallocation":
+            case "historicallocations":
+                return EntityType.HISTORICAL_LOCATION;
+            case "datastream":
+            case "datastreams":
+                return EntityType.DATASTREAM;
+            case "sensor":
+            case "sensors":
+                return EntityType.SENSOR;
+            case "observedpropery":
+            case "observedproperties":
+                return EntityType.OBSERVED_PROPERTY;
+            case "observation":
+            case "observations":
+                return EntityType.OBSERVATION;
+            case "featureofinterest":
+            case "featuresofinterest":
+                return EntityType.FEATURE_OF_INTEREST;
+        }
+        return null;
+    }
+
+    private String[] getPropertiesListFor(String name){
+        switch (name.toLowerCase()){
+            case "thing":
+            case "things":
+                return EntityProperties.THING_PROPERTIES;
+            case "location":
+            case "locations":
+                return EntityProperties.LOCATION_PROPERTIES;
+            case "historicallocation":
+            case "historicallocations":
+                return EntityProperties.HISTORICAL_LOCATION_PROPERTIES;
+            case "datastream":
+            case "datastreams":
+                return EntityProperties.DATASTREAM_PROPERTIES;
+            case "sensor":
+            case "sensors":
+                return EntityProperties.SENSOR_PROPERTIES;
+            case "observedpropery":
+            case "observedproperties":
+                return EntityProperties.OBSERVED_PROPETY_PROPERTIES;
+            case "observation":
+            case "observations":
+                return EntityProperties.OBSERVATION_PROPERTIES;
+            case "featureofinterest":
+            case "featuresofinterest":
+                return EntityProperties.FEATURE_OF_INTEREST_PROPERTIES;
+        }
+        return null;
     }
 
 }

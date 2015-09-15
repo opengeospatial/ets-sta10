@@ -35,10 +35,11 @@
                  <li><a href="http://www.opengeospatial.org/projects/groups/sensorthings">OGC SensorThings 1.0</a>,
 				 First Edition</li>
                </ul>
-               <p>Two conformance levels are defined:</p>
+               <p>Three conformance levels are defined:</p>
                <ul>
                  <li>Sensing Core</li>
                  <li>Create-Update-Delete</li>
+                 <li>Filtering Extension</li>
                </ul>
              </div>
              <fieldset style="background:#ccffff">
@@ -50,14 +51,16 @@
                    <h4 style="margin-bottom: 0.5em">Location of SensorThings IUT</h4>
                  </label>
 
-               </p><input id="uri" name="uri" size="128" type="text" value="http://192.168.1.13:8080/OGCSensorThings/v1.0" />
+               </p><input id="uri" name="uri" size="128" type="text" value="" />
                  <input id="doc" type="hidden" name="doc" value="" />
                <p>
                  <label for="level">Conformance class: </label>
                  <input id="level-1" type="radio" name="level" value="1"/>
-                 <label for="level-1"> Sensing Core</label>
-                 <input id="level-2" type="radio" name="level" value="2" checked="checked" />
+                 <label class="form-label" for="level-1"> Sensing Core</label>
+                 <input id="level-2" type="radio" name="level" value="2"/>
                  <label class="form-label" for="level-2"> Create-Update-Delete</label>
+                <input id="level-3" type="radio" name="level" value="3" checked="checked" />
+                 <label class="form-label" for="level-3"> Filtering Extension</label>
                </p>
              </fieldset>
              <p>
