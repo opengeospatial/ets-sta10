@@ -7,6 +7,7 @@ import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.*;
 import org.testng.Assert;
 import org.testng.ITestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -21,7 +22,17 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri;
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
+
+    long thingId1, thingId2,
+            datastreamId1, datastreamId2, datastreamId3, datastreamId4,
+            locationId1, locationId2, historicalLocationId1,
+            historicalLocationId2, historicalLocationId3, historicalLocationId4,
+            sensorId1, sensorId2, sensorId3, sensorId4,
+            observedPropertyId1, observedPropertyId2, observedPropertyId3,
+            observationId1, observationId2, observationId3, observationId4, observationId5, observationId6, observationId7, observationId8, observationId9, observationId10, observationId11, observationId12,
+            featureOfInterestId1, featureOfInterestId2;
+
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -39,8 +50,9 @@ public class Capability3Tests {
         if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
             rootUri = rootUri.substring(0, rootUri.length() - 1);
         }
-
+        createEntities();
     }
+
 
     @Test(description = "GET Entities with $select", groups = "level-3")
     public void readEntitiesWithSelectQO() {
@@ -66,6 +78,262 @@ public class Capability3Tests {
         checkExpandtForEntityType(EntityType.OBSERVATION);
 //        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
 
+    }
+
+    @Test(description = "GET Entities with $top", groups = "level-3")
+    public void readEntitiesWithTopQO() {
+        checkTopForEntityType(EntityType.THING);
+        checkTopForEntityType(EntityType.LOCATION);
+        checkTopForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkTopForEntityType(EntityType.DATASTREAM);
+        checkTopForEntityType(EntityType.SENSOR);
+        checkTopForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkTopForEntityType(EntityType.OBSERVATION);
+        checkTopForEntityType(EntityType.FEATURE_OF_INTEREST);
+
+    }
+
+    private void checkTopForEntityType(EntityType entityType){
+        try {
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=1");
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            Assert.assertEquals(array.length(), 1, "Query requested 1 entity but response contains "+array.length());
+            try {
+                Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+            } catch (JSONException e){
+                Assert.fail("The response does not have nextLink");
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=2");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            Assert.assertEquals(array.length(), 2, "Query requested 2 entities but response contains "+array.length());
+            switch (entityType){
+                case THING:
+                case LOCATION:
+                case FEATURE_OF_INTEREST:
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                default:
+                    try {
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                        Assert.fail("The response does not have nextLink");
+                    }
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=3");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            switch (entityType){
+                case THING:
+                    Assert.assertEquals(array.length(), 2, "Query requested 3 Things, there are only 2 Things,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case LOCATION:
+                    Assert.assertEquals(array.length(), 2, "Query requested 3 Locations, there are only 2 Locations,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case FEATURE_OF_INTEREST:
+                    Assert.assertEquals(array.length(), 2, "Query requested 3 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 3, "Query requested 3 entities but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                default:
+                    Assert.assertEquals(array.length(), 3, "Query requested 3 entities but response contains "+array.length());
+                    try {
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                        Assert.fail("The response does not have nextLink");
+                    }
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=4");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            switch (entityType){
+                case THING:
+                    Assert.assertEquals(array.length(), 2, "Query requested 4 Things, there are only 2 Things,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case LOCATION:
+                    Assert.assertEquals(array.length(), 2, "Query requested 4 Locations, there are only 2 Locations,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case FEATURE_OF_INTEREST:
+                    Assert.assertEquals(array.length(), 2, "Query requested 4 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 3, "Query requested 4 ObservedProperties, there are only 3 ObservedProperties,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case SENSOR:
+                case HISTORICAL_LOCATION:
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 4, "Query requested 4 entities but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                default:
+                    Assert.assertEquals(array.length(), 4, "Query requested 4 entities but response contains "+array.length());
+                    try {
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                        Assert.fail("The response does not have nextLink");
+                    }
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=5");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            switch (entityType){
+                case THING:
+                    Assert.assertEquals(array.length(), 2, "Query requested 5 Things, there are only 2 Things,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case LOCATION:
+                    Assert.assertEquals(array.length(), 2, "Query requested 5 Locations, there are only 2 Locations,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case FEATURE_OF_INTEREST:
+                    Assert.assertEquals(array.length(), 2, "Query requested 5 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 3, "Query requested 5 ObservedProperties, there are only 3 ObservedProperties,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case SENSOR:
+                    Assert.assertEquals(array.length(), 4, "Query requested 5 Sensors, there are only 4 Sensors,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case HISTORICAL_LOCATION:
+                    Assert.assertEquals(array.length(), 4, "Query requested 5 HistoricalLocations, there are only 4 HistoricalLocations,  but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 4, "Query requested 5 Datastreams, there are only 4 Datastreams, but response contains "+array.length());
+                    try {
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                    }
+                    break;
+                default:
+                    Assert.assertEquals(array.length(), 5, "Query requested 5 entities but response contains "+array.length());
+                    try {
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                    } catch (JSONException e){
+                        Assert.fail("The response does not have nextLink");
+                    }
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=12");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+            } catch (JSONException e){
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=13");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+            } catch (JSONException e){
+            }
+            switch (entityType){
+                case THING:
+                    Assert.assertEquals(array.length(), 2, "Query requested 13 Things, there are only 2 Things,  but response contains "+array.length());
+                    break;
+                case LOCATION:
+                    Assert.assertEquals(array.length(), 2, "Query requested 13 Locations, there are only 2 Locations,  but response contains "+array.length());
+                    break;
+                case FEATURE_OF_INTEREST:
+                    Assert.assertEquals(array.length(), 2, "Query requested 13 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains "+array.length());
+                    break;
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 3, "Query requested 13 ObservedProperties, there are only 3 ObservedProperties,  but response contains "+array.length());
+                    break;
+                case SENSOR:
+                    Assert.assertEquals(array.length(), 4, "Query requested 13 Sensors, there are only 4 Sensors,  but response contains "+array.length());
+                    break;
+                case HISTORICAL_LOCATION:
+                    Assert.assertEquals(array.length(), 4, "Query requested 13 HistoricalLocations, there are only 4 HistoricalLocations,  but response contains "+array.length());
+                    break;
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 4, "Query requested 13 Datastreams, there are only 4 Datastreams, but response contains "+array.length());
+                    break;
+                case OBSERVATION:
+                    Assert.assertEquals(array.length(), 12, "Query requested 13 Observations, there are only 12 Observations, but response contains "+array.length());
+                    break;
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkSelectForEntityType(EntityType entityType){
@@ -262,72 +530,120 @@ public class Capability3Tests {
                 case THING:
                         for (String property : EntityProperties.THING_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case LOCATION:
                         for (String property : EntityProperties.LOCATION_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case HISTORICAL_LOCATION:
                         for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case DATASTREAM:
                         for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case SENSOR:
                         for (String property : EntityProperties.SENSOR_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case OBSERVATION:
                         for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case OBSERVED_PROPERTY:
                         for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
                 case FEATURE_OF_INTEREST:
                         for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
                             if(selectedProperties.contains(property)){
-                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }catch (JSONException e){
+                                    Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                                }
                             }else{
-                                Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \""+property+"\".");
+                                try {
+                                    Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                                }catch(JSONException e){}
                             }
                         }
                     break;
@@ -364,15 +680,27 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.THING_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
 
@@ -381,15 +709,27 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.LOCATION_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
 
@@ -398,15 +738,33 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray ;
+                                        if(!relation.equals("Thing")) {
+                                            expandedEntityArray = entity.getJSONArray(relation);
+                                        }else{
+                                            expandedEntityArray = new JSONArray();
+                                            expandedEntityArray.put(entity.getJSONObject(relation));
+                                        }
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
 
@@ -415,15 +773,33 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray ;
+                                        if(relation.equals("Observations")) {
+                                            expandedEntityArray = new JSONArray();
+                                            expandedEntityArray.put(entity.getJSONObject(relation));
+                                        }else{
+                                            expandedEntityArray = entity.getJSONArray(relation);
+                                        }
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
 
@@ -432,15 +808,27 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.SENSOR_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
                     break;
@@ -449,15 +837,28 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray = new JSONArray();
+                                        expandedEntityArray.put(entity.getJSONObject(relation));
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
 
@@ -466,15 +867,27 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
                     break;
@@ -482,15 +895,27 @@ public class Capability3Tests {
                         for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
                             if (selectedProperties == null || selectedProperties.contains(relation)) {
                                 if(expandedRelations == null || !expandedRelations.contains(relation)) {
-                                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }catch (JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                                    }
                                 }else{
-                                    Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                                    JSONArray expandedEntityArray = entity.getJSONArray(relation);
-                                    checkPropertiesForEntityArray(getEntityTypeFor(relation),expandedEntityArray,new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    try {
+                                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                        JSONArray expandedEntityArray = entity.getJSONArray(relation);
+                                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(getPropertiesListFor(relation))));
+                                    } catch(JSONException e){
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                                    }
                                 }
                             } else {
-                                Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
-                                Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                try {
+                                    Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch(JSONException e){}
+                                try {
+                                    Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                                }catch (JSONException e){}
                             }
                         }
                     break;
@@ -682,6 +1107,337 @@ public class Capability3Tests {
                 return EntityProperties.FEATURE_OF_INTEREST_PROPERTIES;
         }
         return null;
+    }
+
+    private void createEntities(){
+        try {
+            //First Thing
+            String urlParameters = "{\n" +
+                    "    \"description\": \"thing 1\",\n" +
+                    "    \"properties\": {\n" +
+                    "        \"reference\": \"first\"\n" +
+                    "    },\n" +
+                    "    \"Locations\": [\n" +
+                    "        {\n" +
+                    "            \"description\": \"location 1\",\n" +
+                    "            \"location\": {\n" +
+                    "                \"type\": \"Point\",\n" +
+                    "                \"coordinates\": [\n" +
+                    "                    -117.05,\n" +
+                    "                    51.05\n" +
+                    "                ]\n" +
+                    "            },\n" +
+                    "            \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "        }\n" +
+                    "    ],\n" +
+                    "    \"Datastreams\": [\n" +
+                    "        {\n" +
+                    "            \"unitOfMeasurement\": {\n" +
+                    "                \"name\": \"Lumen\",\n" +
+                    "                \"symbol\": \"lm\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "            },\n" +
+                    "            \"description\": \"datastream 1\",\n" +
+                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "            \"ObservedProperty\": {\n" +
+                    "                \"name\": \"Luminous Flux\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "                \"description\": \"observedProperty 1\"\n" +
+                    "            },\n" +
+                    "            \"Sensor\": {\n" +
+                    "                \"description\": \"sensor 1\",\n" +
+                    "                \"encodingType\": \"http://schema.org/description\",\n" +
+                    "                \"metadata\": \"Light flux sensor\"\n" +
+                    "            }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "            \"unitOfMeasurement\": {\n" +
+                    "                \"name\": \"Centigrade\",\n" +
+                    "                \"symbol\": \"C\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "            },\n" +
+                    "            \"description\": \"datastream 2\",\n" +
+                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "            \"ObservedProperty\": {\n" +
+                    "                \"name\": \"Tempretaure\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#Tempreture\",\n" +
+                    "                \"description\": \"observedProperty 2\"\n" +
+                    "            },\n" +
+                    "            \"Sensor\": {\n" +
+                    "                \"description\": \"sensor 2\",\n" +
+                    "                \"encodingType\": \"http://schema.org/description\",\n" +
+                    "                \"metadata\": \"Tempreture sensor\"\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    ]\n" +
+                    "}";
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            String response = responseMap.get("response").toString();
+            thingId1 = Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")")));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, EntityType.LOCATION, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            locationId1 = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, EntityType.DATASTREAM, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            datastreamId1 = array.getJSONObject(0).getLong(ControlInformation.ID);
+            datastreamId2 = array.getJSONObject(1).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.SENSOR, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            sensorId1 = new JSONObject(response).getLong(ControlInformation.ID);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.OBSERVED_PROPERTY, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            observedPropertyId1 = new JSONObject(response).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId2, EntityType.SENSOR, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            sensorId2 = new JSONObject(response).getLong(ControlInformation.ID);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.OBSERVED_PROPERTY, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            observedPropertyId2 = new JSONObject(response).getLong(ControlInformation.ID);
+
+
+            //Second Thing
+            urlParameters = "{\n" +
+                    "    \"description\": \"thing 2\",\n" +
+                    "    \"properties\": {\n" +
+                    "        \"reference\": \"second\"\n" +
+                    "    },\n" +
+                    "    \"Locations\": [\n" +
+                    "        {\n" +
+                    "            \"description\": \"location 2\",\n" +
+                    "            \"location\": {\n" +
+                    "                \"type\": \"Point\",\n" +
+                    "                \"coordinates\": [\n" +
+                    "                    -100.05,\n" +
+                    "                    50.05\n" +
+                    "                ]\n" +
+                    "            },\n" +
+                    "            \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "        }\n" +
+                    "    ],\n" +
+                    "    \"Datastreams\": [\n" +
+                    "        {\n" +
+                    "            \"unitOfMeasurement\": {\n" +
+                    "                \"name\": \"Lumen\",\n" +
+                    "                \"symbol\": \"lm\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "            },\n" +
+                    "            \"description\": \"datastream 3\",\n" +
+                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "            \"ObservedProperty\": {\n" +
+                    "                \"name\": \"Second Luminous Flux\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "                \"description\": \"observedProperty 3\"\n" +
+                    "            },\n" +
+                    "            \"Sensor\": {\n" +
+                    "                \"description\": \"sensor 3\",\n" +
+                    "                \"encodingType\": \"http://schema.org/description\",\n" +
+                    "                \"metadata\": \"Second Light flux sensor\"\n" +
+                    "            }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "            \"unitOfMeasurement\": {\n" +
+                    "                \"name\": \"Centigrade\",\n" +
+                    "                \"symbol\": \"C\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "            },\n" +
+                    "            \"description\": \"datastream 2\",\n" +
+                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "            \"ObservedProperty\": {\n" +
+                    "                \"@iot.id\": "+observedPropertyId2+"\n" +
+                    "            },\n" +
+                    "            \"Sensor\": {\n" +
+                    "                \"description\": \"sensor 4 \",\n" +
+                    "                \"encodingType\": \"http://schema.org/description\",\n" +
+                    "                \"metadata\": \"Second Tempreture sensor\"\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    ]\n" +
+                    "}";
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            thingId2 = Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")")));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, EntityType.LOCATION, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            locationId2 = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, EntityType.DATASTREAM, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            datastreamId3 = array.getJSONObject(0).getLong(ControlInformation.ID);
+            datastreamId4 = array.getJSONObject(1).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.SENSOR, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            sensorId3 = new JSONObject(response).getLong(ControlInformation.ID);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.OBSERVED_PROPERTY, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            observedPropertyId3 = new JSONObject(response).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId4, EntityType.SENSOR, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            sensorId4 = new JSONObject(response).getLong(ControlInformation.ID);
+
+            //HistoricalLocations
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, null, null);
+            urlParameters = "{\"Locations\": [\n" +
+                    "    {\n" +
+                    "      \"@iot.id\": "+locationId2+"\n" +
+                    "    }\n" +
+                    "  ]}";
+            HTTPMethods.doPatch(urlString, urlParameters);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, null, null);
+            urlParameters = "{\"Locations\": [\n" +
+                    "    {\n" +
+                    "      \"@iot.id\": "+locationId1+"\n" +
+                    "    }\n" +
+                    "  ]}";
+            HTTPMethods.doPatch(urlString, urlParameters);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, EntityType.HISTORICAL_LOCATION, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            historicalLocationId1 = array.getJSONObject(0).getLong(ControlInformation.ID);
+            historicalLocationId2 = array.getJSONObject(1).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, EntityType.HISTORICAL_LOCATION, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            historicalLocationId3 = array.getJSONObject(0).getLong(ControlInformation.ID);
+            historicalLocationId4 = array.getJSONObject(1).getLong(ControlInformation.ID);
+
+            //Observations
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.OBSERVATION, null);
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                    "  \"result\": 1 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId1 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-02T00:00:00Z\",\n" +
+                    "  \"result\": 2 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId2 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-03T00:00:00Z\",\n" +
+                    "  \"result\": 3 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId3 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId2, EntityType.OBSERVATION, null);
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-04T00:00:00Z\",\n" +
+                    "  \"result\": 4 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId4 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-05T00:00:00Z\",\n" +
+                    "  \"result\": 5 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId5 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-06T00:00:00Z\",\n" +
+                    "  \"result\": 6 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId6 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.OBSERVATION, null);
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-07T00:00:00Z\",\n" +
+                    "  \"result\": 7 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId7 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-08T00:00:00Z\",\n" +
+                    "  \"result\": 8 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId8 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-09T00:00:00Z\",\n" +
+                    "  \"result\": 9 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId9 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId4, EntityType.OBSERVATION, null);
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-10T00:00:00Z\",\n" +
+                    "  \"result\": 10 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId10 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-11T00:00:00Z\",\n" +
+                    "  \"result\": 11 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId11 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-12T00:00:00Z\",\n" +
+                    "  \"result\": 12 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationId12 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+
+            //FeatureOfInterest
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, observationId1, EntityType.FEATURE_OF_INTEREST, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            featureOfInterestId1 = new JSONObject(response).getLong(ControlInformation.ID);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, observationId7, EntityType.FEATURE_OF_INTEREST, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            featureOfInterestId2 = new JSONObject(response).getLong(ControlInformation.ID);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 }

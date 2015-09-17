@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
  */
 public class Capability1Tests {
 
-    public String rootUri;
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -174,7 +174,11 @@ public class Capability1Tests {
             String response = responseMap.get("response").toString();
             JSONObject entity = null;
             entity = new JSONObject(response.toString());
-            Assert.assertTrue(entity.get(property)!=null, "Reading property \""+ property+"\"of \"" +entityType+"\" fails.");
+            try {
+                Assert.assertNotNull(entity.get(property), "Reading property \"" + property + "\"of \"" + entityType + "\" fails.");
+            } catch (JSONException e){
+                Assert.fail("Reading property \"" + property + "\"of \"" + entityType + "\" fails.");
+            }
             Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -281,13 +285,17 @@ public class Capability1Tests {
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
             String response = responseMap.get("response").toString();
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for "+entityType+"("+id+")/"+relation+" does not match SensorThings API : missing \"value\" in response.");
+            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for " + entityType + "(" + id + ")/" + relation + " does not match SensorThings API : missing \"value\" in response.");
             JSONArray value = new JSONObject(response.toString()).getJSONArray("value");
             int count = 0;
             for (int i = 0; i < value.length()&& count < 2 ; i++) {
                 count ++;
                 JSONObject obj = value.getJSONObject(i);
-                Assert.assertTrue(obj.get(ControlInformation.SELF_LINK)!=null, "The Association Link for "+entityType+"("+id+")/"+relation+" does not contain self-links.");
+                try {
+                    Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link for " + entityType + "(" + id + ")/" + relation + " does not contain self-links.");
+                }catch (JSONException e){
+                    Assert.fail("The Association Link for " + entityType + "(" + id + ")/" + relation + " does not contain self-links.");
+                }
                 Assert.assertEquals(obj.length(), 1, "The Association Link for "+entityType+"("+id+")/"+relation+" contains properties other than self-link.");
             }
         } catch (JSONException e) {
@@ -333,8 +341,12 @@ public class Capability1Tests {
             addedLinks.put("FeaturesOfInterest", false);
             for (int i = 0; i < entities.length(); i++) {
                 JSONObject entity = entities.getJSONObject(i);
-                Assert.assertTrue(entity.get("name") != null);
-                Assert.assertTrue(entity.get("url") != null);
+                try {
+                    Assert.assertNotNull(entity.get("name"));
+                    Assert.assertNotNull(entity.get("url"));
+                } catch (JSONException e){
+                    Assert.fail("Service root URI does not have proper JSON keys: name and value.");
+                }
                 String name = entity.getString("name");
                 String nameUrl = entity.getString("url");
                 switch (name) {
@@ -449,8 +461,16 @@ public class Capability1Tests {
     public void checkEntityControlInformation(Object response){
         try {
             JSONObject entity = new JSONObject(response.toString());
-            Assert.assertTrue(entity.get(ControlInformation.ID)!=null , "The entity does not have mandatory control information : "+ControlInformation.ID);
-            Assert.assertTrue(entity.get(ControlInformation.SELF_LINK)!=null , "The entity does not have mandatory control information : "+ControlInformation.SELF_LINK);
+            try {
+                Assert.assertNotNull(entity.get(ControlInformation.ID), "The entity does not have mandatory control information : " + ControlInformation.ID);
+            } catch (JSONException e){
+                Assert.fail("The entity does not have mandatory control information : " + ControlInformation.ID);
+            }
+            try {
+                Assert.assertNotNull(entity.get(ControlInformation.SELF_LINK), "The entity does not have mandatory control information : " + ControlInformation.SELF_LINK);
+            }catch (JSONException e){
+                Assert.fail("The entity does not have mandatory control information : " + ControlInformation.SELF_LINK);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -479,42 +499,74 @@ public class Capability1Tests {
             switch (entityType){
                 case THING:
                         for (String property : EntityProperties.THING_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case LOCATION:
                         for (String property : EntityProperties.LOCATION_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case HISTORICAL_LOCATION:
                         for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case DATASTREAM:
                         for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case SENSOR:
                         for (String property : EntityProperties.SENSOR_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case OBSERVATION:
                         for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case OBSERVED_PROPERTY:
                         for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 case FEATURE_OF_INTEREST:
                         for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
-                            Assert.assertTrue(entity.get(property)!=null, "Entity type \""+entityType+"\" does not have mandatory property: \""+property+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                            }
                         }
                     break;
                 default:
@@ -548,48 +600,79 @@ public class Capability1Tests {
             switch (entityType){
                 case THING:
                         for (String relation : EntityRelations.THING_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
-
                     break;
                 case LOCATION:
                         for (String relation : EntityRelations.LOCATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case HISTORICAL_LOCATION:
                         for (String relation : EntityRelations.HISTORICAL_LOCATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case DATASTREAM:
                         for (String relation : EntityRelations.DATASTREAM_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case SENSOR:
                         for (String relation : EntityRelations.SENSOR_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
                     break;
                 case OBSERVATION:
 
                         for (String relation : EntityRelations.OBSERVATION_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
 
                     break;
                 case OBSERVED_PROPERTY:
                         for (String relation : EntityRelations.OBSERVED_PROPERTY_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
                     break;
                 case FEATURE_OF_INTEREST:
                         for (String relation : EntityRelations.FEATURE_OF_INTEREST_RELATIONS) {
-                            Assert.assertTrue(entity.get(relation + ControlInformation.NAVIGATION_LINK)!=null, "Entity type \""+entityType+"\" does not have mandatory relation: \""+relation+"\".");
+                            try {
+                                Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            } catch (JSONException e){
+                                Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                            }
                         }
                     break;
                 default:

@@ -1,12 +1,14 @@
 package org.opengis.cite.sta10.createUpdateDelete;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.*;
 import org.testng.Assert;
 import org.testng.ITestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -17,7 +19,7 @@ import java.util.*;
  */
 public class Capability2Tests {
 
-    public String rootUri;
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
 
     List<Long> thingIds = new ArrayList<>();
     List<Long> locationIds = new ArrayList<>();
@@ -45,9 +47,7 @@ public class Capability2Tests {
         if(rootUri.lastIndexOf('/')==rootUri.length()-1){
             rootUri = rootUri.substring(0,rootUri.length()-1);
         }
-
         deleteEverythings();
-
     }
 
     @Test(description = "POST Entities", groups = "level-2", priority = 1)
@@ -816,7 +816,7 @@ public class Capability2Tests {
 
     private void deleteNonExsistentEntity(EntityType entityType) {
         long id = Long.MAX_VALUE;
-        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
@@ -844,7 +844,7 @@ public class Capability2Tests {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         try {
 
-            Map<String,Object> responseMap = HTTPMethods.doPatch(urlString,urlParameters);
+            Map<String,Object> responseMap = HTTPMethods.doPatch(urlString, urlParameters);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name());
             responseMap = HTTPMethods.doGet(urlString);
@@ -1090,7 +1090,34 @@ public class Capability2Tests {
         }
     }
 
+    @AfterClass
     private void deleteEverythings(){
+        deleteEntityType(EntityType.OBSERVATION);
+        deleteEntityType(EntityType.FEATURE_OF_INTEREST);
+        deleteEntityType(EntityType.DATASTREAM);
+        deleteEntityType(EntityType.SENSOR);
+        deleteEntityType(EntityType.OBSERVED_PROPERTY);
+        deleteEntityType(EntityType.HISTORICAL_LOCATION);
+        deleteEntityType(EntityType.LOCATION);
+        deleteEntityType(EntityType.THING);
+    }
 
+    private void deleteEntityType(EntityType entityType){
+        JSONArray array = null;
+        do {
+            try {
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+                int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+                JSONObject result = new JSONObject(responseMap.get("response").toString());
+                array = result.getJSONArray("value");
+                for (int i = 0; i < array.length(); i++) {
+                    long id = array.getJSONObject(i).getLong(ControlInformation.ID);
+                    deleteEntity(entityType, id);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } while (array.length() >0);
     }
 }
