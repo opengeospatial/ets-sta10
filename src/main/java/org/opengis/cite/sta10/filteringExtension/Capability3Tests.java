@@ -64,7 +64,6 @@ public class Capability3Tests {
         checkSelectForEntityType(EntityType.OBSERVED_PROPERTY);
         checkSelectForEntityType(EntityType.OBSERVATION);
         checkSelectForEntityType(EntityType.FEATURE_OF_INTEREST);
-
     }
 
     @Test(description = "GET Entities with $expand", groups = "level-3")
@@ -77,7 +76,6 @@ public class Capability3Tests {
         checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
         checkExpandtForEntityType(EntityType.OBSERVATION);
         checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
-
     }
 
     @Test(description = "GET Entities with $top", groups = "level-3")
@@ -90,7 +88,145 @@ public class Capability3Tests {
         checkTopForEntityType(EntityType.OBSERVED_PROPERTY);
         checkTopForEntityType(EntityType.OBSERVATION);
         checkTopForEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
 
+    @Test(description = "GET Entities with $skip", groups = "level-3")
+    public void readEntitiesWithSkipQO() {
+        checkSkipForEntityType(EntityType.THING);
+        checkSkipForEntityType(EntityType.LOCATION);
+        checkSkipForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkSkipForEntityType(EntityType.DATASTREAM);
+        checkSkipForEntityType(EntityType.SENSOR);
+        checkSkipForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkSkipForEntityType(EntityType.OBSERVATION);
+        checkSkipForEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    private void checkSkipForEntityType(EntityType entityType){
+        try {
+
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=1");
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+            } catch (JSONException e){
+            }
+            switch (entityType){
+                case THING:
+                case LOCATION:
+                case FEATURE_OF_INTEREST:
+                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains "+array.length());
+                    break;
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains "+array.length());
+                    break;
+                case HISTORICAL_LOCATION:
+                case SENSOR:
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 3, "Query requested entities skipping 1, result should have contained 3 entities, but it contains "+array.length());
+                    break;
+                case OBSERVATION:
+                    Assert.assertEquals(array.length(), 11, "Query requested entities skipping 1, result should have contained 11 entities, but it contains "+array.length());
+                    break;
+                default:
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=2");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+            } catch (JSONException e){
+            }
+            switch (entityType){
+                case THING:
+                case LOCATION:
+                case FEATURE_OF_INTEREST:
+                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 2, result should have contained 0 entity, but it contains "+array.length());
+                    break;
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 2, result should have contained 1 entity, but it contains "+array.length());
+                    break;
+                case HISTORICAL_LOCATION:
+                case SENSOR:
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 2, "Query requested entities skipping 2, result should have contained 2 entities, but it contains "+array.length());
+                    break;
+                case OBSERVATION:
+                    Assert.assertEquals(array.length(), 10, "Query requested entities skipping 2, result should have contained 10 entities, but it contains "+array.length());
+                    break;
+                default:
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=3");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+            } catch (JSONException e){
+            }
+            switch (entityType){
+                case THING:
+                case LOCATION:
+                case FEATURE_OF_INTEREST:
+                case OBSERVED_PROPERTY:
+                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 3, result should have contained 0 entity, but it contains "+array.length());
+                    break;
+                case HISTORICAL_LOCATION:
+                case SENSOR:
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 3, result should have contained 1 entity, but it contains "+array.length());
+                    break;
+                case OBSERVATION:
+                    Assert.assertEquals(array.length(), 9, "Query requested entities skipping 3, result should have contained 9 entities, but it contains "+array.length());
+                    break;
+                default:
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=4");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+            } catch (JSONException e){
+            }
+            switch (entityType){
+                case THING:
+                case LOCATION:
+                case FEATURE_OF_INTEREST:
+                case OBSERVED_PROPERTY:
+                case HISTORICAL_LOCATION:
+                case SENSOR:
+                case DATASTREAM:
+                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 4, result should have contained 0 entity, but it contains "+array.length());
+                    break;
+                case OBSERVATION:
+                    Assert.assertEquals(array.length(), 8, "Query requested entities skipping 4, result should have contained 8 entities, but it contains "+array.length());
+                    break;
+                default:
+                    break;
+            }
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=12");
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            try {
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+            } catch (JSONException e){
+            }
+            Assert.assertEquals(array.length(), 0, "Query requested entities skipping 12, result should have contained 0 entity, but it contains "+array.length());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkTopForEntityType(EntityType entityType){
