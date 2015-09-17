@@ -102,6 +102,157 @@ public class Capability3Tests {
         checkSkipForEntityType(EntityType.FEATURE_OF_INTEREST);
     }
 
+    @Test(description = "GET Entities with $orderby", groups = "level-3")
+    public void readEntitiesWithOrderbyQO() {
+        checkOrderbyForEntityType(EntityType.THING);
+        checkOrderbyForEntityType(EntityType.LOCATION);
+        checkOrderbyForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkOrderbyForEntityType(EntityType.DATASTREAM);
+        checkOrderbyForEntityType(EntityType.SENSOR);
+        checkOrderbyForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkOrderbyForEntityType(EntityType.OBSERVATION);
+        checkOrderbyForEntityType(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    private void checkOrderbyForEntityType(EntityType entityType){
+        String[] properties = null;
+        switch (entityType){
+            case THING:
+                properties = EntityProperties.THING_PROPERTIES;
+                break;
+            case LOCATION:
+                properties = EntityProperties.LOCATION_PROPERTIES;
+                break;
+            case FEATURE_OF_INTEREST:
+                properties = EntityProperties.FEATURE_OF_INTEREST_PROPERTIES;
+                break;
+            case OBSERVED_PROPERTY:
+                properties = EntityProperties.OBSERVED_PROPETY_PROPERTIES;
+                break;
+            case HISTORICAL_LOCATION:
+                properties = EntityProperties.HISTORICAL_LOCATION_PROPERTIES;
+                break;
+            case SENSOR:
+                properties = EntityProperties.SENSOR_PROPERTIES;
+                break;
+            case DATASTREAM:
+                properties = EntityProperties.DATASTREAM_PROPERTIES;
+                break;
+            case OBSERVATION:
+                properties = EntityProperties.OBSERVATION_PROPERTIES;
+                break;
+            default:
+                break;
+        }
+        try {
+            //single orderby
+            for (String property : properties) {
+                if(property.equals("unitOfMeasurement")){
+                    continue;
+                }
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property);
+                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+                String response = responseMap.get("response").toString();
+                JSONArray array = new JSONObject(response).getJSONArray("value");
+                for (int i = 1; i < array.length(); i++) {
+                    JSONObject obj1 = array.getJSONObject(i-1);
+                    JSONObject obj2 = array.getJSONObject(i);
+                    Assert.assertTrue(obj2.get(property).toString().compareTo(obj1.get(property).toString())>=0, "The ordering is not correct for EntityType "+ entityType+" orderby property "+property);
+                }
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property+"%20asc");
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                array = new JSONObject(response).getJSONArray("value");
+                for (int i = 1; i < array.length(); i++) {
+                    JSONObject obj1 = array.getJSONObject(i-1);
+                    JSONObject obj2 = array.getJSONObject(i);
+                    Assert.assertTrue(obj2.get(property).toString().compareTo(obj1.get(property).toString())>=0, "The ordering is not correct for EntityType "+ entityType+" orderby asc property "+property);
+                }
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property+"%20desc");
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                array = new JSONObject(response).getJSONArray("value");
+                for (int i = 1; i < array.length(); i++) {
+                    JSONObject obj1 = array.getJSONObject(i-1);
+                    JSONObject obj2 = array.getJSONObject(i);
+                    Assert.assertTrue(obj1.get(property).toString().compareTo(obj2.get(property).toString())>=0, "The ordering is not correct for EntityType "+ entityType+" orderby desc property "+property);
+                }
+            }
+
+            //multiple orderby
+            List<String> orderbyPropeties = new ArrayList<>();
+            String orderby = "?$orderby=";
+            String orderbyAsc = "?$orderby=";
+            String orderbyDesc = "?$orderby=";
+            for (String property : properties) {
+                if(property.equals("unitOfMeasurement")){
+                    continue;
+                }
+                if(orderby.charAt(orderby.length()-1)!='='){
+                    orderby += ",";
+                }
+                orderby += property;
+                orderbyPropeties.add(property);
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderby);
+                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+                String response = responseMap.get("response").toString();
+                JSONArray array = new JSONObject(response).getJSONArray("value");
+                for (int i = 1; i < array.length(); i++) {
+                    JSONObject obj1 = array.getJSONObject(i-1);
+                    JSONObject obj2 = array.getJSONObject(i);
+                    for (int j = 0; j < orderbyPropeties.size() ; j++) {
+                        String orderbyProperty = orderbyPropeties.get(j);
+                        Assert.assertTrue(obj2.get(orderbyProperty).toString().compareTo(obj1.get(orderbyProperty).toString()) >= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + orderbyProperty);
+                        if(obj2.get(orderbyProperty).toString().compareTo(obj1.get(orderbyProperty).toString())!=0){
+                            break;
+                        }
+                    }
+                }
+                if(orderbyAsc.charAt(orderbyAsc.length()-1)!='='){
+                    orderbyAsc += ",";
+                }
+                orderbyAsc += property+"%20asc";
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderbyAsc);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                array = new JSONObject(response).getJSONArray("value");
+                for (int i = 1; i < array.length(); i++) {
+                    JSONObject obj1 = array.getJSONObject(i-1);
+                    JSONObject obj2 = array.getJSONObject(i);
+                    for (int j = 0; j < orderbyPropeties.size() ; j++) {
+                        String orderbyProperty = orderbyPropeties.get(j);
+                        Assert.assertTrue(obj2.get(orderbyProperty).toString().compareTo(obj1.get(orderbyProperty).toString()) >= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + orderbyProperty);
+                        if(obj2.get(orderbyProperty).toString().compareTo(obj1.get(orderbyProperty).toString())!=0){
+                            break;
+                        }
+                    }
+                }
+                if(orderbyDesc.charAt(orderbyDesc.length()-1)!='='){
+                    orderbyDesc += ",";
+                }
+                orderbyDesc += property+"%20desc";
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderbyDesc);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                array = new JSONObject(response).getJSONArray("value");
+                for (int i = 1; i < array.length(); i++) {
+                    JSONObject obj1 = array.getJSONObject(i-1);
+                    JSONObject obj2 = array.getJSONObject(i);
+                    for (int j = 0; j < orderbyPropeties.size() ; j++) {
+                        String orderbyProperty = orderbyPropeties.get(j);
+                        Assert.assertTrue(obj1.get(orderbyProperty).toString().compareTo(obj2.get(orderbyProperty).toString()) >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + orderbyProperty);
+                        if(obj2.get(orderbyProperty).toString().compareTo(obj1.get(orderbyProperty).toString())!=0){
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void checkSkipForEntityType(EntityType entityType){
         try {
 
