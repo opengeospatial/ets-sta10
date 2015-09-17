@@ -72,11 +72,11 @@ public class Capability3Tests {
         checkExpandtForEntityType(EntityType.THING);
         checkExpandtForEntityType(EntityType.LOCATION);
         checkExpandtForEntityType(EntityType.HISTORICAL_LOCATION);
-//        checkExpandtForEntityType(EntityType.DATASTREAM);
+        checkExpandtForEntityType(EntityType.DATASTREAM);
         checkExpandtForEntityType(EntityType.SENSOR);
         checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
         checkExpandtForEntityType(EntityType.OBSERVATION);
-//        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
 
     }
 
@@ -782,7 +782,7 @@ public class Capability3Tests {
                                     try {
                                         Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
                                         JSONArray expandedEntityArray ;
-                                        if(relation.equals("Observations")) {
+                                        if(!relation.equals("Observations")) {
                                             expandedEntityArray = new JSONArray();
                                             expandedEntityArray.put(entity.getJSONObject(relation));
                                         }else{
@@ -1066,7 +1066,7 @@ public class Capability3Tests {
             case "sensor":
             case "sensors":
                 return EntityType.SENSOR;
-            case "observedpropery":
+            case "observedproperty":
             case "observedproperties":
                 return EntityType.OBSERVED_PROPERTY;
             case "observation":
@@ -1096,7 +1096,7 @@ public class Capability3Tests {
             case "sensor":
             case "sensors":
                 return EntityProperties.SENSOR_PROPERTIES;
-            case "observedpropery":
+            case "observedproperty":
             case "observedproperties":
                 return EntityProperties.OBSERVED_PROPETY_PROPERTIES;
             case "observation":
