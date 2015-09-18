@@ -797,7 +797,7 @@ public class Capability2Tests {
     public void postInvalidEntity(EntityType entityType, String urlParameters) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,-1,null,null);
 
-        Map<String,Object> responseMap = HTTPMethods.doPost(urlString,urlParameters);
+        Map<String,Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 400, "The  " + entityType.name()+" should not be created due to integrity constraints.");
 
@@ -868,81 +868,12 @@ public class Capability2Tests {
 
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs){
         try {
-            switch (entityType) {
-                case THING:
-                    for (String property : EntityProperties.THING_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case LOCATION:
-                    for (String property : EntityProperties.LOCATION_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case HISTORICAL_LOCATION:
-                    for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case DATASTREAM:
-                    for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case SENSOR:
-                    for (String property : EntityProperties.SENSOR_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case OBSERVATION:
-                    for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case OBSERVED_PROPERTY:
-                    for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                case FEATURE_OF_INTEREST:
-                    for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        } else{
-                            Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
-                        }
-                    }
-                    break;
-                default:
-                    break;
+            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+                if (diffs.containsKey(property)) {
+                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
+                } else{
+                    Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for "+entityType+"'s "+property+".");
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -951,82 +882,14 @@ public class Capability2Tests {
 
     private void checkPut(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs){
         try {
-            switch (entityType) {
-                case THING:
-                    for (String property : EntityProperties.THING_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case LOCATION:
-                    for (String property : EntityProperties.LOCATION_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case HISTORICAL_LOCATION:
-                    for (String property : EntityProperties.HISTORICAL_LOCATION_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case DATASTREAM:
-                    for (String property : EntityProperties.DATASTREAM_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case SENSOR:
-                    for (String property : EntityProperties.SENSOR_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case OBSERVATION:
-                    for (String property : EntityProperties.OBSERVATION_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case OBSERVED_PROPERTY:
-                    for (String property : EntityProperties.OBSERVED_PROPETY_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                case FEATURE_OF_INTEREST:
-                    for (String property : EntityProperties.FEATURE_OF_INTEREST_PROPERTIES) {
-                        if (diffs.containsKey(property)) {
-                            Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for " + entityType + ".");
-                        } else{
-//                            Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                        }
-                    }
-                    break;
-                default:
-                    break;
+            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+                if (diffs.containsKey(property)) {
+                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for "+entityType+".");
+                } else{
+//                    Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
+                }
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
