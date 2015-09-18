@@ -88,6 +88,15 @@ public class Capability3Tests {
         checkTopForEntityType(EntityType.OBSERVED_PROPERTY);
         checkTopForEntityType(EntityType.OBSERVATION);
         checkTopForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkTopForEntityTypeRelation(EntityType.THING);
+        checkTopForEntityTypeRelation(EntityType.LOCATION);
+        checkTopForEntityTypeRelation(EntityType.HISTORICAL_LOCATION);
+        checkTopForEntityTypeRelation(EntityType.DATASTREAM);
+        checkTopForEntityTypeRelation(EntityType.SENSOR);
+        checkTopForEntityTypeRelation(EntityType.OBSERVED_PROPERTY);
+        checkTopForEntityTypeRelation(EntityType.OBSERVATION);
+        checkTopForEntityTypeRelation(EntityType.FEATURE_OF_INTEREST);
+
     }
 
     @Test(description = "GET Entities with $skip", groups = "level-3")
@@ -837,58 +846,83 @@ public class Capability3Tests {
                     continue;
                 }
                 EntityType relationEntityType = getEntityTypeFor(relation);
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$skip=1");
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$top=3");
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
-                try {
-                    Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
-                } catch (JSONException e) {
-                }
                 switch (entityType) {
                     case THING:
+                        try {
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        } catch (JSONException e) {
+                        }
                         switch (relationEntityType) {
                             case LOCATION:
-                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length());
                                 break;
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length());
                                 break;
                             case DATASTREAM:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length());
                                 break;
                         }
                         break;
                     case LOCATION:
+                        try {
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        } catch (JSONException e) {
+                        }
                         switch (relationEntityType) {
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains "+ array.length());
                                 break;
                             case THING:
-                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains" + array.length());
                                 break;
                         }
                         break;
                     case FEATURE_OF_INTEREST:
-                        Assert.assertEquals(array.length(), 5, "Query requested entities skipping 1, result should have contained 5 entities, but it contains " + array.length());
+                        Assert.assertEquals(array.length(), 3, "Query requested entities 3 entities, result should have contained 3 entities, but it contains " + array.length());
+                        try {
+                            Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        } catch (JSONException e) {
+                            Assert.fail("The response does not have nextLink");
+                        }
                         break;
                     case OBSERVED_PROPERTY:
-                        Assert.assertTrue(array.length() == 1 || array.length() == 0, "Query requested entities skipping 1, result should have contained 0 or 1 entity, but it contains " + array.length());
+                        Assert.assertTrue(array.length() == 1 || array.length() == 2, "Query requested entities 3 entities, result should have contained 1 or 2 entities, but it contains " + array.length());
+                        try {
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink");
+                        } catch (JSONException e) {
+                        }
                         break;
                     case HISTORICAL_LOCATION:
+                        try {
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink");
+                        } catch (JSONException e) {
+                        }
                         switch (relationEntityType) {
                             case LOCATION:
-                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length());
                                 break;
                         }
                         break;
                     case SENSOR:
-                        Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                        try {
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink");
+                        } catch (JSONException e) {
+                        }
+                        Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length());
                         break;
                     case DATASTREAM:
+                        try {
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        } catch (JSONException e) {
+                        }
                         switch (relationEntityType) {
                             case OBSERVATION:
-                                Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 3, "Query requested entities 3 entities, result should have contained 3 entities, but it contains " + array.length());
                                 break;
                         }
                         break;
