@@ -100,6 +100,15 @@ public class Capability3Tests {
         checkSkipForEntityType(EntityType.OBSERVED_PROPERTY);
         checkSkipForEntityType(EntityType.OBSERVATION);
         checkSkipForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkSkipForEntityTypeRelation(EntityType.THING);
+        checkSkipForEntityTypeRelation(EntityType.LOCATION);
+        checkSkipForEntityTypeRelation(EntityType.HISTORICAL_LOCATION);
+        checkSkipForEntityTypeRelation(EntityType.DATASTREAM);
+        checkSkipForEntityTypeRelation(EntityType.SENSOR);
+        checkSkipForEntityTypeRelation(EntityType.OBSERVED_PROPERTY);
+        checkSkipForEntityTypeRelation(EntityType.OBSERVATION);
+        checkSkipForEntityTypeRelation(EntityType.FEATURE_OF_INTEREST);
+
     }
 
     @Test(description = "GET Entities with $orderby", groups = "level-3")
@@ -122,7 +131,7 @@ public class Capability3Tests {
         checkOrderbyForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
-    private void checkOrderbyForEntityType(EntityType entityType){
+    private void checkOrderbyForEntityTypeRelations(EntityType entityType){
         String[] relations = null;
         switch (entityType){
             case THING:
@@ -153,19 +162,20 @@ public class Capability3Tests {
                 break;
         }
         try {
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            if(array.length()==0){
+                return;
+            }
+            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+
             for(String relation: relations) {
                 if(relation.charAt(relation.length()-1)!='s' && !relation.equals("FeaturesOfInteret")){
                     continue;
                 }
                 String[] properties = getPropertiesListFor(relation);
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
-                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
-                String response = responseMap.get("response").toString();
-                JSONArray array = new JSONObject(response).getJSONArray("value");
-                if(array.length()==0){
-                    continue;
-                }
-                long id = array.getJSONObject(0).getLong(ControlInformation.ID);
                 EntityType relationEntityType = getEntityTypeFor(relation);
                 //single orderby
                 for (String property : properties) {
@@ -276,7 +286,7 @@ public class Capability3Tests {
 
     }
 
-    private void checkOrderbyForEntityTypeRelations(EntityType entityType){
+    private void checkOrderbyForEntityType(EntityType entityType){
         String[] properties = null;
         switch (entityType){
             case THING:
@@ -537,6 +547,116 @@ public class Capability3Tests {
             } catch (JSONException e){
             }
             Assert.assertEquals(array.length(), 0, "Query requested entities skipping 12, result should have contained 0 entity, but it contains "+array.length());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void checkSkipForEntityTypeRelation(EntityType entityType){
+        try {
+            String[] relations = null;
+            switch (entityType){
+                case THING:
+                    relations = EntityRelations.THING_RELATIONS;
+                    break;
+                case LOCATION:
+                    relations = EntityRelations.LOCATION_RELATIONS;
+                    break;
+                case FEATURE_OF_INTEREST:
+                    relations = EntityRelations.FEATURE_OF_INTEREST_RELATIONS;
+                    break;
+                case OBSERVED_PROPERTY:
+                    relations = EntityRelations.OBSERVED_PROPERTY_RELATIONS;
+                    break;
+                case HISTORICAL_LOCATION:
+                    relations = EntityRelations.HISTORICAL_LOCATION_RELATIONS;
+                    break;
+                case SENSOR:
+                    relations = EntityRelations.SENSOR_RELATIONS;
+                    break;
+                case DATASTREAM:
+                    relations = EntityRelations.DATASTREAM_RELATIONS;
+                    break;
+                case OBSERVATION:
+                    relations = EntityRelations.OBSERVATION_RELATIONS;
+                    break;
+                default:
+                    break;
+            }
+
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            if (array.length() == 0) {
+                return;
+            }
+            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            for (String relation: relations) {
+                if(relation.charAt(relation.length()-1)!='s' && !relation.equals("FeaturesOfInterest")){
+                    continue;
+                }
+                EntityType relationEntityType = getEntityTypeFor(relation);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$skip=1");
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                array = new JSONObject(response).getJSONArray("value");
+                try {
+                    Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                } catch (JSONException e) {
+                }
+                switch (entityType) {
+                    case THING:
+                        switch (relationEntityType){
+                            case LOCATION:
+                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                break;
+                            case HISTORICAL_LOCATION:
+                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                break;
+                            case DATASTREAM:
+                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                break;
+                        }
+                        break;
+                    case LOCATION:
+                        switch (relationEntityType){
+                            case HISTORICAL_LOCATION:
+                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                break;
+                            case THING:
+                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                break;
+                        }
+                        break;
+                    case FEATURE_OF_INTEREST:
+                        Assert.assertEquals(array.length(), 5, "Query requested entities skipping 1, result should have contained 5 entities, but it contains " + array.length());
+                        break;
+                    case OBSERVED_PROPERTY:
+                        Assert.assertTrue(array.length() == 1 || array.length() == 0, "Query requested entities skipping 1, result should have contained 0 or 1 entity, but it contains " + array.length());
+                        break;
+                    case HISTORICAL_LOCATION:
+                        switch (relationEntityType){
+                            case LOCATION:
+                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                break;
+                        }
+                        break;
+                    case SENSOR:
+                        Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                        break;
+                    case DATASTREAM:
+                        switch (relationEntityType){
+                            case OBSERVATION:
+                                Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains " + array.length());
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
