@@ -76,6 +76,14 @@ public class Capability3Tests {
         checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
         checkExpandtForEntityType(EntityType.OBSERVATION);
         checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkExpandtForEntityTypeRelations(EntityType.THING);
+        checkExpandtForEntityTypeRelations(EntityType.LOCATION);
+        checkExpandtForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
+        checkExpandtForEntityTypeRelations(EntityType.DATASTREAM);
+        checkExpandtForEntityTypeRelations(EntityType.SENSOR);
+        checkExpandtForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
+        checkExpandtForEntityType(EntityType.OBSERVATION);
+        checkExpandtForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
     @Test(description = "GET Entities with $top", groups = "level-3")
@@ -941,18 +949,18 @@ public class Capability3Tests {
         for (String property : properties) {
             selectedProperties = new ArrayList<>();
             selectedProperties.add(property);
-            String response = getEntities(entityType, selectedProperties, null);
+            String response = getEntities(entityType, -1, null, selectedProperties, null);
             checkEntitiesAllAspectsForSelectResponse(entityType, response, selectedProperties);
         }
         selectedProperties = new ArrayList<>();
         for (String property : properties) {
             selectedProperties.add(property);
-            String response = getEntities(entityType, selectedProperties, null);
+            String response = getEntities(entityType, -1, null, selectedProperties, null);
             checkEntitiesAllAspectsForSelectResponse(entityType, response, selectedProperties);
         }
     }
 
-    public String getEntities(EntityType entityType, List<String> selectedProperties, List<String> expandedRelations) {
+    public String getEntities(EntityType entityType, long id, EntityType relationEntityType, List<String> selectedProperties, List<String> expandedRelations) {
         String urlString = rootUri;
         String selectString = "";
         if (selectedProperties != null && selectedProperties.size() > 0) {
@@ -975,17 +983,17 @@ public class Capability3Tests {
             }
         }
         if (entityType != null) {
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, selectString + expandString);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, selectString + expandString);
         }
         Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 200, "Error during getting entities: " + entityType.name());
-        if (entityType != null) {
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
-        } else { // GET Service Base URI
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
-        }
+//        if (entityType != null) {
+//            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
+//        } else { // GET Service Base URI
+//            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
+//        }
         return response;
     }
 
@@ -1110,14 +1118,60 @@ public class Capability3Tests {
         for (String relation : relations) {
             expandedRelations = new ArrayList<>();
             expandedRelations.add(relation);
-            String response = getEntities(entityType, null, expandedRelations);
+            String response = getEntities(entityType, -1, null, null, expandedRelations);
             checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
         }
         expandedRelations = new ArrayList<>();
         for (String relation : relations) {
             expandedRelations.add(relation);
-            String response = getEntities(entityType, null, expandedRelations);
+            String response = getEntities(entityType, -1, null, null, expandedRelations);
             checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
+        }
+    }
+
+    private void checkExpandtForEntityTypeRelations(EntityType entityType) {
+        try {
+            String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            if (array.length() == 0) {
+                return;
+            }
+            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            for(String parentRelation: parentRelations) {
+                //When it is one entity and it is not collection, it does not make sense to do expand
+                if(parentRelation.charAt(parentRelation.length()-1)!='s' && !parentRelation.equals("FeaturesOfInterest")){
+                    continue;
+                }
+                EntityType relationEntityType = getEntityTypeFor(parentRelation);
+                List<String> expandedRelations;
+                String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
+                for (String relation : relations) {
+                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                    if(getEntityTypeFor(relation).equals(entityType)){
+                        continue;
+                    }
+                    expandedRelations = new ArrayList<>();
+                    expandedRelations.add(relation);
+                    response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation : relations) {
+                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                    if(getEntityTypeFor(relation).equals(entityType)){
+                        continue;
+                    }
+                    expandedRelations.add(relation);
+                    response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
+                    checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
