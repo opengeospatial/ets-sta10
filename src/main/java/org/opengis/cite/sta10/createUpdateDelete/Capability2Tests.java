@@ -174,6 +174,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -339,6 +340,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -422,6 +424,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -514,6 +517,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -612,6 +616,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -767,6 +772,7 @@ public class Capability2Tests {
             return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString());
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             return null;
         }
     }
@@ -790,6 +796,7 @@ public class Capability2Tests {
             return result;
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             return null;
         }
     }
@@ -836,6 +843,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             return null;
         }
     }
@@ -853,6 +861,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             return null;
         }
     }
@@ -877,6 +886,7 @@ public class Capability2Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -892,6 +902,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -910,6 +921,7 @@ public class Capability2Tests {
             return id;
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
         return -1;
     }
@@ -937,6 +949,7 @@ public class Capability2Tests {
             return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
         return -1;
     }
@@ -950,6 +963,7 @@ public class Capability2Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -980,6 +994,7 @@ public class Capability2Tests {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             }
         } while (array.length() >0);
     }

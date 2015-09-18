@@ -114,6 +114,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -133,6 +134,7 @@ public class Capability1Tests {
             Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -170,6 +172,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -202,6 +205,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -216,6 +220,7 @@ public class Capability1Tests {
             return response;
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             return null;
         }
     }
@@ -303,6 +308,7 @@ public class Capability1Tests {
 
         } catch (Exception e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -357,6 +363,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -375,6 +382,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -391,6 +399,7 @@ public class Capability1Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -408,6 +417,7 @@ public class Capability1Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -424,6 +434,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -440,6 +451,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 

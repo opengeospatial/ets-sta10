@@ -64,6 +64,15 @@ public class Capability3Tests {
         checkSelectForEntityType(EntityType.OBSERVED_PROPERTY);
         checkSelectForEntityType(EntityType.OBSERVATION);
         checkSelectForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkSelectForEntityTypeRelations(EntityType.THING);
+        checkSelectForEntityTypeRelations(EntityType.LOCATION);
+        checkSelectForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
+        checkSelectForEntityTypeRelations(EntityType.DATASTREAM);
+        checkSelectForEntityTypeRelations(EntityType.SENSOR);
+        checkSelectForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
+        checkSelectForEntityTypeRelations(EntityType.OBSERVATION);
+        checkSelectForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+
     }
 
     @Test(description = "GET Entities with $expand", groups = "level-3")
@@ -271,6 +280,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n"+e.getMessage());
         }
 
     }
@@ -382,6 +392,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -510,6 +521,7 @@ public class Capability3Tests {
             Assert.assertEquals(array.length(), 0, "Query requested entities skipping 12, result should have contained 0 entity, but it contains " + array.length());
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -591,6 +603,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -834,6 +847,7 @@ public class Capability3Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -940,6 +954,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -957,6 +972,40 @@ public class Capability3Tests {
             selectedProperties.add(property);
             String response = getEntities(entityType, -1, null, selectedProperties, null);
             checkEntitiesAllAspectsForSelectResponse(entityType, response, selectedProperties);
+        }
+    }
+
+    private void checkSelectForEntityTypeRelations(EntityType entityType) {
+        try {
+            String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            if (array.length() == 0) {
+                return;
+            }
+            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            for (String parentRelation : parentRelations) {
+                EntityType relationEntityType = getEntityTypeFor(parentRelation);
+                List<String> selectedProperties;
+                String[] properties = EntityProperties.getPropertiesListFor(relationEntityType);
+                for (String property : properties) {
+                    selectedProperties = new ArrayList<>();
+                    selectedProperties.add(property);
+                    response = getEntities(entityType, id, relationEntityType, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(relationEntityType, response, selectedProperties);
+                }
+                selectedProperties = new ArrayList<>();
+                for (String property : properties) {
+                    selectedProperties.add(property);response = getEntities(entityType, id, relationEntityType, selectedProperties, null);
+                    checkEntitiesAllAspectsForSelectResponse(relationEntityType, response, selectedProperties);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -1006,11 +1055,18 @@ public class Capability3Tests {
     public void checkEntitiesProperties(EntityType entityType, String response, List<String> selectedProperties) {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
-            JSONArray entities = jsonResponse.getJSONArray("value");
+            JSONArray entities = null;
+            if(response.contains("value")) {
+                entities = jsonResponse.getJSONArray("value");
+            }else{
+                entities = new JSONArray();
+                entities.put(jsonResponse);
+            }
             checkPropertiesForEntityArray(entityType, entities, selectedProperties);
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -1024,6 +1080,7 @@ public class Capability3Tests {
                 entity = entities.getJSONObject(i);
             } catch (JSONException e) {
                 e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             }
             checkEntityProperties(entityType, entity, selectedProperties);
         }
@@ -1048,7 +1105,8 @@ public class Capability3Tests {
                 }
             }
         } catch (JSONException e) {
-            //The program reachs here in normal state, because it tries to check the non-existense of some navigation properties.
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n"+e.getMessage());
         }
 
     }
@@ -1056,7 +1114,13 @@ public class Capability3Tests {
     public void checkEntitiesRelations(EntityType entityType, String response, List<String> selectedProperties, List<String> expandedRelations) {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
-            JSONArray entities = jsonResponse.getJSONArray("value");
+            JSONArray entities = null;
+            if(response.contains("value")) {
+                entities = jsonResponse.getJSONArray("value");
+            }else{
+                entities = new JSONArray();
+                entities.put(jsonResponse);
+            }
             int count = 0;
             for (int i = 0; i < entities.length() && count < 2; i++) {
                 count++;
@@ -1065,6 +1129,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
@@ -1108,7 +1173,8 @@ public class Capability3Tests {
                 }
             }
         } catch (JSONException e) {
-            //The program reachs here in normal state, because it tries to check the non-existense of some navigation properties.
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -1142,10 +1208,6 @@ public class Capability3Tests {
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
             for(String parentRelation: parentRelations) {
-                //When it is one entity and it is not collection, it does not make sense to do expand
-                if(parentRelation.charAt(parentRelation.length()-1)!='s' && !parentRelation.equals("FeaturesOfInterest")){
-                    continue;
-                }
                 EntityType relationEntityType = getEntityTypeFor(parentRelation);
                 List<String> expandedRelations;
                 String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
@@ -1172,6 +1234,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -1538,6 +1601,7 @@ public class Capability3Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
 
