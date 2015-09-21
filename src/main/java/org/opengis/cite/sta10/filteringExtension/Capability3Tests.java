@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri="http://localhost:8080/OGCSensorThings/v1.0";
 
     long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
@@ -33,25 +33,25 @@ public class Capability3Tests {
             observationId1, observationId2, observationId3, observationId4, observationId5, observationId6, observationId7, observationId8, observationId9, observationId10, observationId11, observationId12,
             featureOfInterestId1, featureOfInterestId2;
 
-
-    @BeforeClass
-    public void obtainTestSubject(ITestContext testContext) {
-        Object obj = testContext.getSuite().getAttribute(
-                SuiteAttribute.LEVEL.getName());
-        if ((null != obj)) {
-            Integer level = Integer.class.cast(obj);
-            Assert.assertTrue(level.intValue() > 2,
-                    "Conformance level 3 will not be checked since ics = " + level);
-        }
-
-        rootUri = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-        rootUri = rootUri.trim();
-        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
-            rootUri = rootUri.substring(0, rootUri.length() - 1);
-        }
-        createEntities();
-    }
+//
+//    @BeforeClass
+//    public void obtainTestSubject(ITestContext testContext) {
+//        Object obj = testContext.getSuite().getAttribute(
+//                SuiteAttribute.LEVEL.getName());
+//        if ((null != obj)) {
+//            Integer level = Integer.class.cast(obj);
+//            Assert.assertTrue(level.intValue() > 2,
+//                    "Conformance level 3 will not be checked since ics = " + level);
+//        }
+//
+//        rootUri = testContext.getSuite().getAttribute(
+//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+//        rootUri = rootUri.trim();
+//        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
+//            rootUri = rootUri.substring(0, rootUri.length() - 1);
+//        }
+//        createEntities();
+//    }
 
 
     @Test(description = "GET Entities with $select", groups = "level-3")
@@ -91,8 +91,26 @@ public class Capability3Tests {
         checkExpandtForEntityTypeRelations(EntityType.DATASTREAM);
         checkExpandtForEntityTypeRelations(EntityType.SENSOR);
         checkExpandtForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
-        checkExpandtForEntityType(EntityType.OBSERVATION);
+        checkExpandtForEntityTypeRelations(EntityType.OBSERVATION);
         checkExpandtForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+        checkExpandtForEntityTypeMultilevel(EntityType.THING);
+        checkExpandtForEntityTypeMultilevel(EntityType.LOCATION);
+        checkExpandtForEntityTypeMultilevel(EntityType.HISTORICAL_LOCATION);
+        checkExpandtForEntityTypeMultilevel(EntityType.DATASTREAM);
+        checkExpandtForEntityTypeMultilevel(EntityType.SENSOR);
+        checkExpandtForEntityTypeMultilevel(EntityType.OBSERVED_PROPERTY);
+        checkExpandtForEntityTypeMultilevel(EntityType.OBSERVATION);
+        checkExpandtForEntityTypeMultilevel(EntityType.FEATURE_OF_INTEREST);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.THING);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.LOCATION);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.HISTORICAL_LOCATION);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.DATASTREAM);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.SENSOR);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.OBSERVED_PROPERTY);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.OBSERVATION);
+        checkExpandtForEntityTypeMultilevelRelations(EntityType.FEATURE_OF_INTEREST);
+
+
     }
 
     @Test(description = "GET Entities with $top", groups = "level-3")
@@ -155,6 +173,26 @@ public class Capability3Tests {
         checkOrderbyForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
         checkOrderbyForEntityTypeRelations(EntityType.OBSERVATION);
         checkOrderbyForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    @Test(description = "GET Entities with $count", groups = "level-3")
+    public void readEntitiesWithCountQO() {
+        checkCountForEntityType(EntityType.THING);
+        checkCountForEntityType(EntityType.LOCATION);
+        checkCountForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkCountForEntityType(EntityType.DATASTREAM);
+        checkCountForEntityType(EntityType.SENSOR);
+        checkCountForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkCountForEntityType(EntityType.OBSERVATION);
+        checkCountForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkCountForEntityTypeRelations(EntityType.THING);
+        checkCountForEntityTypeRelations(EntityType.LOCATION);
+        checkCountForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
+        checkCountForEntityTypeRelations(EntityType.DATASTREAM);
+        checkCountForEntityTypeRelations(EntityType.SENSOR);
+        checkCountForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
+        checkCountForEntityTypeRelations(EntityType.OBSERVATION);
+        checkCountForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
@@ -1140,26 +1178,47 @@ public class Capability3Tests {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
             for (String relation : relations) {
                 if (selectedProperties == null || selectedProperties.contains(relation)) {
-                    if (expandedRelations == null || !expandedRelations.contains(relation)) {
+                    if (expandedRelations == null || !listContainsString(expandedRelations, relation)) {
                         try {
                             Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
                         } catch (JSONException e) {
                             Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
                         }
                     } else {
-                        try {
                             Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
                             JSONArray expandedEntityArray = null;
-                            if(relation.charAt(relation.length()-1)!='s' && !relation.equals("FeaturesOfInterest")){
+                        try {
+                            if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInterest")) {
                                 expandedEntityArray = new JSONArray();
                                 expandedEntityArray.put(entity.getJSONObject(relation));
-                            } else{
+                            } else {
                                 expandedEntityArray = entity.getJSONArray(relation);
                             }
-                            checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(relation))));
-                        } catch (JSONException e) {
+                        }catch (JSONException e){
                             Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
                         }
+                            checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(relation))));
+                            if(listContainsString(expandedRelations, "/")) {
+                                String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
+                                JSONObject expandedEntity = expandedEntityArray.getJSONObject(0);
+                                for (String secondLeveleRelation : secondLevelRelations) {
+                                    if (listContainsString(expandedRelations, "/"+secondLeveleRelation)) {
+
+                                        expandedEntityArray = null;
+                                        try {
+                                            if (secondLeveleRelation.charAt(secondLeveleRelation.length() - 1) != 's' && !secondLeveleRelation.equals("FeaturesOfInterest")) {
+                                                expandedEntityArray = new JSONArray();
+                                                expandedEntityArray.put(expandedEntity.getJSONObject(secondLeveleRelation));
+                                            } else {
+                                                expandedEntityArray = expandedEntity.getJSONArray(secondLeveleRelation);
+                                            }
+                                        } catch (JSONException e){
+                                            Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "/"+secondLeveleRelation+"\".");
+                                        }
+                                        checkPropertiesForEntityArray(getEntityTypeFor(secondLeveleRelation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(secondLeveleRelation))));
+                                    }
+                                }
+                            }
                     }
                 } else {
                     try {
@@ -1235,6 +1294,225 @@ public class Capability3Tests {
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+        }
+    }
+
+    private void checkExpandtForEntityTypeMultilevelRelations(EntityType entityType) {
+        try {
+            String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            if (array.length() == 0) {
+                return;
+            }
+            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            for(String parentRelation: parentRelations) {
+                EntityType relationEntityType = getEntityTypeFor(parentRelation);
+                List<String> expandedRelations;
+                String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
+                for (String relation : relations) {
+
+                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                    if(getEntityTypeFor(relation).equals(entityType)){
+                        continue;
+                    }
+
+                    String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
+
+                    for (String secondLevelRelation: secondLevelRelations) {
+                        //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
+                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+                            continue;
+                        }
+                        expandedRelations = new ArrayList<>();
+                        expandedRelations.add(relation + "/" + secondLevelRelation);
+                        response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
+                        checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
+                    }
+                }
+                expandedRelations = new ArrayList<>();
+                for (String relation : relations) {
+                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                    if(getEntityTypeFor(relation).equals(entityType)){
+                        continue;
+                    }
+                    String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
+                    for (String secondLevelRelation: secondLevelRelations) {
+                        //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
+                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+                            continue;
+                        }
+                        expandedRelations.add(relation+"/"+secondLevelRelation);
+                        response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
+                        checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+        }
+    }
+
+    private void checkExpandtForEntityTypeMultilevel(EntityType entityType) {
+
+        List<String> expandedRelations;
+        String[] relations = EntityRelations.getRelationsListFor(entityType);
+        for (String relation : relations) {
+
+            //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+            if(getEntityTypeFor(relation).equals(entityType)){
+                continue;
+            }
+
+            String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
+
+            for (String secondLevelRelation: secondLevelRelations) {
+                //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
+                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+                    continue;
+                }
+                expandedRelations = new ArrayList<>();
+                expandedRelations.add(relation + "/" + secondLevelRelation);
+                String response = getEntities(entityType, -1, null, null, expandedRelations);
+                checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
+            }
+        }
+        expandedRelations = new ArrayList<>();
+        for (String relation : relations) {
+            //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+            if(getEntityTypeFor(relation).equals(entityType)){
+                continue;
+            }
+            String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
+            for (String secondLevelRelation: secondLevelRelations) {
+                //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
+                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
+                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+                    continue;
+                }
+                expandedRelations.add(relation+"/"+secondLevelRelation);
+                String response = getEntities(entityType, -1, null, null, expandedRelations);
+                checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
+            }
+        }
+    }
+
+    private void checkCountForEntityType(EntityType entityType) {
+
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$count=true");
+        Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+        String response = responseMap.get("response").toString();
+        int count = -1;
+        try {
+            count = new JSONObject(response).getInt("@iot.count");
+        } catch (JSONException e){
+            Assert.fail("the query asked for count but the response does not contain count, for getting collection: "+entityType);
+        }
+        switch (entityType) {
+            case THING:
+            case LOCATION:
+            case FEATURE_OF_INTEREST:
+                Assert.assertEquals(count, 2, "The count for "+entityType+"should be 2, but it is " + count);
+                break;
+            case OBSERVED_PROPERTY:
+                Assert.assertEquals(count, 3, "The count for "+entityType+"should be 3, but it is " + count);
+                break;
+            case HISTORICAL_LOCATION:
+            case SENSOR:
+            case DATASTREAM:
+                Assert.assertEquals(count, 4, "The count for "+entityType+"should be 4, but it is " + count);
+                break;
+            case OBSERVATION:
+                Assert.assertEquals(count, 12, "The count for "+entityType+"should be 12, but it is " + count);
+                break;
+            default:
+                break;
+        }
+
+        urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$count=false");
+        responseMap = HTTPMethods.doGet(urlString);
+        response = responseMap.get("response").toString();
+        try {
+            Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: "+entityType);
+            Assert.fail("the query asked for not count but the response does contain count, for getting collection: "+entityType);
+        } catch (JSONException e){
+        }
+    }
+
+    private void checkCountForEntityTypeRelations(EntityType entityType) {
+        try {
+            String[] relations = EntityRelations.getRelationsListFor(entityType);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            if (array.length() == 0) {
+                return;
+            }
+            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+
+            for (String relation : relations) {
+                if(relation.charAt(relation.length()-1)!='s' && !relation.equals("FeatureOfInterest")){
+                    return;
+                }
+                EntityType relationEntityType = getEntityTypeFor(relation);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$count=true");
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                int count = -1;
+                try {
+                    count = new JSONObject(response).getInt("@iot.count");
+                } catch (JSONException e) {
+                    Assert.fail("the query asked for count but the response does not contain count, for getting collection: " + entityType);
+                }
+                switch (relationEntityType) {
+                    case THING:
+                    case LOCATION:
+                        Assert.assertEquals(count, 1, "The count for " + entityType + "should be 1, but it is " + count);
+                        break;
+                    case HISTORICAL_LOCATION:
+                    case DATASTREAM:
+                        switch (entityType) {
+                            case THING:
+                                Assert.assertEquals(count, 2, "The count for " + entityType + "should be 2, but it is " + count);
+                                break;
+                            case SENSOR:
+                                Assert.assertEquals(count, 1, "The count for " + entityType + "should be 1, but it is " + count);
+                                break;
+                            case OBSERVED_PROPERTY:
+                                Assert.assertTrue(count == 2 || count == 1, "The count for " + entityType + "should be 1 or 2, but it is " + count);
+                                break;
+                        }
+                        break;
+                    case OBSERVATION:
+                        if(entityType.equals(EntityType.DATASTREAM)) {
+                            Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count);
+                        } else if(entityType.equals(EntityType.FEATURE_OF_INTEREST)) {
+                            Assert.assertEquals(count, 6, "The count for " + entityType + "should be 6, but it is " + count);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$count=false");
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                try {
+                    Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: " + entityType);
+                    Assert.fail("the query asked for not count but the response does contain count, for getting collection: " + entityType);
+                } catch (JSONException e) {
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1605,6 +1883,21 @@ public class Capability3Tests {
         }
 
 
+    }
+
+    private boolean listContainsString(List<String> list, String entity){
+        for(String item:list) {
+            if (item.toLowerCase().contains(entity.toLowerCase())){
+                if((entity.toLowerCase().equals("locations")||entity.toLowerCase().equals("locations"))&&(item.toLowerCase().equals("historicallocation")||item.toLowerCase().equals("historicallocations"))){
+                    continue;
+                }
+                if(!entity.contains("/")&&item.contains("/"+entity)){
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
 }
