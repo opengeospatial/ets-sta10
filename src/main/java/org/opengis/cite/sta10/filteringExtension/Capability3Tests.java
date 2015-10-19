@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri="http://localhost:8080/OGCSensorThings/v1.0";
 
     long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
@@ -34,24 +34,24 @@ public class Capability3Tests {
             featureOfInterestId1, featureOfInterestId2;
 
 
-    @BeforeClass
-    public void obtainTestSubject(ITestContext testContext) {
-        Object obj = testContext.getSuite().getAttribute(
-                SuiteAttribute.LEVEL.getName());
-        if ((null != obj)) {
-            Integer level = Integer.class.cast(obj);
-            Assert.assertTrue(level.intValue() > 2,
-                    "Conformance level 3 will not be checked since ics = " + level);
-        }
-
-        rootUri = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-        rootUri = rootUri.trim();
-        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
-            rootUri = rootUri.substring(0, rootUri.length() - 1);
-        }
-        createEntities();
-    }
+//    @BeforeClass
+//    public void obtainTestSubject(ITestContext testContext) {
+//        Object obj = testContext.getSuite().getAttribute(
+//                SuiteAttribute.LEVEL.getName());
+//        if ((null != obj)) {
+//            Integer level = Integer.class.cast(obj);
+//            Assert.assertTrue(level.intValue() > 2,
+//                    "Conformance level 3 will not be checked since ics = " + level);
+//        }
+//
+//        rootUri = testContext.getSuite().getAttribute(
+//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+//        rootUri = rootUri.trim();
+//        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
+//            rootUri = rootUri.substring(0, rootUri.length() - 1);
+//        }
+//        createEntities();
+//    }
 
 
     @Test(description = "GET Entities with $select", groups = "level-3")
@@ -193,6 +193,26 @@ public class Capability3Tests {
         checkCountForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
         checkCountForEntityTypeRelations(EntityType.OBSERVATION);
         checkCountForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    @Test(description = "GET Entities with $filter", groups = "level-3")
+    public void readEntitiesWithFilterQO() {
+        checkFilterForEntityType(EntityType.THING);
+//        checkFilterForEntityType(EntityType.LOCATION);
+        checkFilterForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkFilterForEntityType(EntityType.DATASTREAM);
+        checkFilterForEntityType(EntityType.SENSOR);
+        checkFilterForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkFilterForEntityType(EntityType.OBSERVATION);
+        checkFilterForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkFilterForEntityTypeRelations(EntityType.THING);
+        checkFilterForEntityTypeRelations(EntityType.LOCATION);
+        checkFilterForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
+        checkFilterForEntityTypeRelations(EntityType.DATASTREAM);
+        checkFilterForEntityTypeRelations(EntityType.SENSOR);
+        checkFilterForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
+        checkFilterForEntityTypeRelations(EntityType.OBSERVATION);
+        checkFilterForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
@@ -1520,6 +1540,162 @@ public class Capability3Tests {
         checkEntitiesRelations(entityType, response, null, expandedRelations);
     }
 
+    private void checkFilterForEntityType(EntityType entityType){
+        String[] properties = EntityProperties.getPropertiesListFor(entityType);
+        List<String> filteredProperties;
+        List<String> samplePropertyValues;
+        for (int i = 0; i < properties.length; i++) {
+            filteredProperties=new ArrayList<>();
+            samplePropertyValues = new ArrayList<>();
+            String property = properties[i];
+            filteredProperties.add(property);
+            if(property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement") || property.equals("resultTime") || property.equals("encodingType")
+                    || property.equals("definition")  || property.equals("observationType")  || property.equals("description")  || property.equals("metadata")){
+                continue;
+            }
+            String propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(entityType, i);
+            samplePropertyValues.add(propertyValue);
+
+            propertyValue = propertyValue.replaceAll(" ","%20");
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20lt%20" + propertyValue);
+            Map responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
+            checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -2);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20le%20" + propertyValue);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -1);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20eq%20" + propertyValue);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 0);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20ge%20" + propertyValue);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 1);
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20gt%20" + propertyValue);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 2);
+        }
+    }
+
+    private void checkFilterForEntityTypeRelations(EntityType entityType){
+        String[] relations = EntityRelations.getRelationsListFor(entityType);
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+        Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+        String response = responseMap.get("response").toString();
+        JSONArray array = null;
+        try {
+            array = new JSONObject(response).getJSONArray("value");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (array.length() == 0) {
+            return;
+        }
+        long id = 0;
+        try {
+            id = array.getJSONObject(0).getLong(ControlInformation.ID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (String relation : relations) {
+            if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeatureOfInterest")) {
+                return;
+            }
+            EntityType relationEntityType = getEntityTypeFor(relation);
+
+            String[] properties = EntityProperties.getPropertiesListFor(relationEntityType);
+            List<String> filteredProperties;
+            List<String> samplePropertyValues;
+            for (int i = 0; i < properties.length; i++) {
+                filteredProperties = new ArrayList<>();
+                samplePropertyValues = new ArrayList<>();
+                String property = properties[i];
+                filteredProperties.add(property);
+                if (property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement") || property.equals("resultTime") || property.equals("encodingType")
+                        || property.equals("definition") || property.equals("observationType") || property.equals("description") || property.equals("metadata")) {
+                    continue;
+                }
+                String propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(relationEntityType, i);
+                samplePropertyValues.add(propertyValue);
+
+                propertyValue = propertyValue.replaceAll(" ", "%20");
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20lt%20" + propertyValue);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -2);
+
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20le%20" + propertyValue);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -1);
+
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20eq%20" + propertyValue);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 0);
+
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20ge%20" + propertyValue);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 1);
+
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20gt%20" + propertyValue);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 2);
+            }
+        }
+    }
+
+    private void checkPropertiesForFilter(String response, List<String> properties, List<String> values, int operator){
+        try {
+            JSONObject entities = new JSONObject(response);
+            JSONArray entityArray = entities.getJSONArray("value");
+            for (int i = 0; i < entityArray.length(); i++) {
+                JSONObject entity = entityArray.getJSONObject(i);
+                for (int j = 0; j < properties.size(); j++) {
+                    String propertyValue = null;
+                    try {
+                        propertyValue = entity.get(properties.get(j)).toString();
+                    } catch (JSONException e){
+                        Assert.fail("The entity does not have property "+properties.get(j));
+                    }
+                    String value = values.get(j);
+                    if(value.charAt(0)=='\''){
+                        value = value.substring(1,value.length()-1);
+                    }
+                    switch (operator){
+                        case -2:
+                            Assert.assertTrue(propertyValue.compareTo(value)<0,properties.get(j)+" should be less than "+value+". But the property value is "+propertyValue);
+                            break;
+                        case -1:
+                            Assert.assertTrue(propertyValue.compareTo(value)<=0,properties.get(j)+" should be less than or equal to "+value+". But the property value is "+propertyValue);
+                            break;
+                        case 0:
+                            Assert.assertTrue(propertyValue.compareTo(value)==0,properties.get(j)+" should be equal to than "+value+". But the property value is "+propertyValue);
+                            break;
+                        case 1:
+                            Assert.assertTrue(propertyValue.compareTo(value)>=0,properties.get(j)+" should be greate than or equal to "+value+". But the property value is "+propertyValue);
+                            break;
+                        case 2:
+                            Assert.assertTrue(propertyValue.compareTo(value)>0,properties.get(j)+" should be greater than "+value+". But the property value is "+propertyValue);
+                            break;
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private EntityType getEntityTypeFor(String name) {
         switch (name.toLowerCase()) {
             case "thing":
@@ -1898,6 +2074,49 @@ public class Capability3Tests {
             }
         }
         return false;
+    }
+
+//    @AfterClass
+//    private void deleteEverythings(){
+//        deleteEntityType(EntityType.OBSERVATION);
+//        deleteEntityType(EntityType.FEATURE_OF_INTEREST);
+//        deleteEntityType(EntityType.DATASTREAM);
+//        deleteEntityType(EntityType.SENSOR);
+//        deleteEntityType(EntityType.OBSERVED_PROPERTY);
+//        deleteEntityType(EntityType.HISTORICAL_LOCATION);
+//        deleteEntityType(EntityType.LOCATION);
+//        deleteEntityType(EntityType.THING);
+//    }
+
+    private void deleteEntityType(EntityType entityType){
+        JSONArray array = null;
+        do {
+            try {
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+                int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+                JSONObject result = new JSONObject(responseMap.get("response").toString());
+                array = result.getJSONArray("value");
+                for (int i = 0; i < array.length(); i++) {
+                    long id = array.getJSONObject(i).getLong(ControlInformation.ID);
+                    deleteEntity(entityType, id);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            }
+        } while (array.length() >0);
+    }
+
+    private void deleteEntity(EntityType entityType, long id) {
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
+        Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+
+        responseMap = HTTPMethods.doGet(urlString);
+        responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
     }
 
 }
