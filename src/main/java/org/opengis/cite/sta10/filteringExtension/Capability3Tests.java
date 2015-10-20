@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
 
     long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
@@ -34,24 +34,24 @@ public class Capability3Tests {
             featureOfInterestId1, featureOfInterestId2;
 
 
-//    @BeforeClass
-//    public void obtainTestSubject(ITestContext testContext) {
-//        Object obj = testContext.getSuite().getAttribute(
-//                SuiteAttribute.LEVEL.getName());
-//        if ((null != obj)) {
-//            Integer level = Integer.class.cast(obj);
-//            Assert.assertTrue(level.intValue() > 2,
-//                    "Conformance level 3 will not be checked since ics = " + level);
-//        }
-//
-//        rootUri = testContext.getSuite().getAttribute(
-//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-//        rootUri = rootUri.trim();
-//        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
-//            rootUri = rootUri.substring(0, rootUri.length() - 1);
-//        }
-//        createEntities();
-//    }
+    @BeforeClass
+    public void obtainTestSubject(ITestContext testContext) {
+        Object obj = testContext.getSuite().getAttribute(
+                SuiteAttribute.LEVEL.getName());
+        if ((null != obj)) {
+            Integer level = Integer.class.cast(obj);
+            Assert.assertTrue(level.intValue() > 2,
+                    "Conformance level 3 will not be checked since ics = " + level);
+        }
+
+        rootUri = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = rootUri.trim();
+        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
+            rootUri = rootUri.substring(0, rootUri.length() - 1);
+        }
+        createEntities();
+    }
 
 
     @Test(description = "GET Entities with $select", groups = "level-3")
