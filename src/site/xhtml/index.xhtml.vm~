@@ -156,7 +156,8 @@ dt {
         <td>iut</td>
         <td>URI</td>
 		<td>M</td>
-		<td>A URI that refers to the implementation under test.</td>
+		<td>A URI that refers to the implementation under test or metadata about it.
+    Ampersand ('&amp;') characters must be percent-encoded as '%26'.</td>
       </tr>
 	  <tr>
       <td>ics</td>
