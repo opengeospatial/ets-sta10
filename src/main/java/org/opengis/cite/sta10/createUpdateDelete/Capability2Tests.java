@@ -1152,6 +1152,7 @@ public class Capability2Tests {
                 Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't.");
             } catch (JSONException e) {
                 e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             }
         }
     }
@@ -1166,6 +1167,7 @@ public class Capability2Tests {
                 Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't.");
             } catch (JSONException e) {
                 e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             }
         }
     }

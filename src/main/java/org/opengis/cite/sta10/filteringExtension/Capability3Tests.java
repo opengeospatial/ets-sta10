@@ -54,7 +54,7 @@ public class Capability3Tests {
     }
 
 
-    @Test(description = "GET Entities with $select", groups = "level-3")
+    @Test(description = "Check Query Evaluation Priority.", groups = "level-3")
     public void readEntitiesWithSelectQO() {
         checkSelectForEntityType(EntityType.THING);
         checkSelectForEntityType(EntityType.LOCATION);
@@ -213,6 +213,23 @@ public class Capability3Tests {
         checkFilterForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
         checkFilterForEntityTypeRelations(EntityType.OBSERVATION);
         checkFilterForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+    }
+
+    @Test(description = "GET Entities with $filter", groups = "level-3")
+    public void checkQueriesPriorityOrdering() {
+        try{
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code"));
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 9, "The query order of execution is not correct. The expected count is 9, but the service returned "+new JSONObject(response).getLong("@iot.count"));
+            Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned "+array.length()+" entities.");
+            Assert.assertEquals(array.getJSONObject(0).getString("result"),"6", "The query order of execution is not correct. The expected Observation result is 6, but it is "+array.getJSONObject(0).getString("result"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+        }
     }
 
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
@@ -1533,6 +1550,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
@@ -1594,6 +1612,7 @@ public class Capability3Tests {
             array = new JSONObject(response).getJSONArray("value");
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
         if (array.length() == 0) {
             return;
@@ -1603,6 +1622,7 @@ public class Capability3Tests {
             id = array.getJSONObject(0).getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
         for (String relation : relations) {
@@ -1693,6 +1713,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
 
