@@ -2075,6 +2075,49 @@ public class Capability3Tests {
         }
         return false;
     }
+    
+    @AfterClass
+    private void deleteEverythings(){
+        deleteEntityType(EntityType.OBSERVATION);
+        deleteEntityType(EntityType.FEATURE_OF_INTEREST);
+        deleteEntityType(EntityType.DATASTREAM);
+        deleteEntityType(EntityType.SENSOR);
+        deleteEntityType(EntityType.OBSERVED_PROPERTY);
+        deleteEntityType(EntityType.HISTORICAL_LOCATION);
+        deleteEntityType(EntityType.LOCATION);
+        deleteEntityType(EntityType.THING);
+    }
+
+    private void deleteEntityType(EntityType entityType){
+        JSONArray array = null;
+        do {
+            try {
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+                int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+                JSONObject result = new JSONObject(responseMap.get("response").toString());
+                array = result.getJSONArray("value");
+                for (int i = 0; i < array.length(); i++) {
+                    long id = array.getJSONObject(i).getLong(ControlInformation.ID);
+                    deleteEntity(entityType, id);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            }
+        } while (array.length() >0);
+    }
+    
+    private void deleteEntity(EntityType entityType, long id) {
+        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
+        Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
+        int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+
+        responseMap = HTTPMethods.doGet(urlString);
+        responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
+    }
 
 //    @AfterClass
 //    private void deleteEverythings(){
