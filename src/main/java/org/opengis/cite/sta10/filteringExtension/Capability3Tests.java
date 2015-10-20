@@ -2087,7 +2087,7 @@ public class Capability3Tests {
         deleteEntityType(EntityType.LOCATION);
         deleteEntityType(EntityType.THING);
     }
-    
+
 
     private void deleteEntityType(EntityType entityType){
         JSONArray array = null;

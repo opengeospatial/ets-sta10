@@ -50,7 +50,7 @@ public class Capability2Tests {
         deleteEverythings();
     }
 
-    @Test(description = "POST Entities", groups = "level-2", priority = 1)
+    @Test(description = "POST Entities", groups = "level-2", priority = 2)
     public void createEntities() {
         try {
             /** Thing **/
@@ -178,7 +178,7 @@ public class Capability2Tests {
         }
     }
 
-    @Test(description = "POST Entities using Deep Insert", groups = "level-2", priority = 1)
+    @Test(description = "POST Entities using Deep Insert", groups = "level-2", priority = 2)
     public void createEntitiesWithDeepInsert() {
         try {
             /** Thing **/
@@ -344,7 +344,50 @@ public class Capability2Tests {
         }
     }
 
-    @Test(description = "POST Invalid Entities", groups = "level-2", priority = 2)
+//    @Test(description = "POST Invalid Entities using Deep Insert", groups = "level-2", priority = 1)
+//    public void createInvalidEntitiesWithDeepInsert() {
+////        try {
+//            /** Thing **/
+//        String urlParameters = "{\n" +
+//                "  \"description\": \"Office Building\",\n" +
+//                "  \"properties\": {\n" +
+//                "    \"reference\": \"Third Floor\"\n" +
+//                "  },\n" +
+//                "  \"Locations\": [\n" +
+//                "    {\n" +
+//                "      \"description\": \"West Roof\",\n" +
+//                "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
+//                "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+//                "    }\n" +
+//                "  ],\n" +
+//                "  \"Datastreams\": [\n" +
+//                "    {\n" +
+//                "      \"unitOfMeasurement\": {\n" +
+//                "        \"name\": \"Lumen\",\n" +
+//                "        \"symbol\": \"lm\",\n" +
+//                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+//                "      },\n" +
+//                "      \"description\": \"Light exposure.\",\n" +
+//                "      \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+//                "      \"ObservedProperty\": {\n" +
+//                "        \"name\": \"Luminous Flux\",\n" +
+//                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+//                "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+//                "      }\n" +
+//                "    }\n" +
+//                "  ]\n" +
+//                "}";
+//            postInvalidEntity(EntityType.THING, urlParameters);
+//            List<EntityType> entityTypesToCheck = new ArrayList<>();
+//            entityTypesToCheck.add(EntityType.THING);
+//            entityTypesToCheck.add(EntityType.LOCATION);
+//            entityTypesToCheck.add(EntityType.HISTORICAL_LOCATION);
+//            entityTypesToCheck.add(EntityType.DATASTREAM);
+//            entityTypesToCheck.add(EntityType.OBSERVED_PROPERTY);
+//            checkNotExisting(entityTypesToCheck);
+//    }
+
+    @Test(description = "POST Invalid Entities", groups = "level-2", priority = 3)
     public void createInvalidEntities() {
         try {
             /** Datastream **/
@@ -429,7 +472,7 @@ public class Capability2Tests {
 
     }
 
-    @Test(description = "PATCH Entities", groups = "level-2", priority = 3)
+    @Test(description = "PATCH Entities", groups = "level-2", priority = 4)
     public void patchEntities() {
         try {
             /** Thing **/
@@ -521,7 +564,7 @@ public class Capability2Tests {
         }
     }
 
-    @Test(description = "PUT Entities", groups = "level-2", priority = 3)
+    @Test(description = "PUT Entities", groups = "level-2", priority = 4)
     public void putEntities() {
         try {
             /** Thing **/
@@ -621,7 +664,7 @@ public class Capability2Tests {
     }
 
 
-    @Test(description = "DELETE Entities", groups = "level-2", priority = 4)
+    @Test(description = "DELETE Entities", groups = "level-2", priority = 5)
     public void deleteEntities() {
         for (int i = 0; i < observationIds.size(); i++) {
             deleteEntity(EntityType.OBSERVATION, observationIds.get(i));
@@ -656,10 +699,142 @@ public class Capability2Tests {
         deleteNonExsistentEntity(EntityType.DATASTREAM);
         deleteNonExsistentEntity(EntityType.OBSERVATION);
         deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
+
+        checkDeleteIntegrityConstraint();
+    }
+
+    private void checkDeleteIntegrityConstraint(){
+        //Thing
+        createEntitiesForDelete();
+        deleteEntity(EntityType.THING, thingIds.get(0));
+        List<EntityType> entityTypes = new ArrayList<>();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        entityTypes.add(EntityType.OBSERVATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.LOCATION);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        checkExisting(entityTypes);
+
+        //Datastream
+        createEntitiesForDelete();
+        deleteEntity(EntityType.DATASTREAM, datastreamIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.OBSERVATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.LOCATION);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        checkExisting(entityTypes);
+
+        //Loation
+        createEntitiesForDelete();
+        deleteEntity(EntityType.LOCATION, locationIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.LOCATION);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.OBSERVATION);
+        checkExisting(entityTypes);
+
+        //HistoricalLoation
+        createEntitiesForDelete();
+        deleteEntity(EntityType.HISTORICAL_LOCATION, historicalLocationIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.OBSERVATION);
+        entityTypes.add(EntityType.LOCATION);
+        checkExisting(entityTypes);
+
+        //Sensor
+        createEntitiesForDelete();
+        deleteEntity(EntityType.SENSOR, sensorIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.OBSERVATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.LOCATION);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        checkExisting(entityTypes);
+
+        //ObservedProperty
+        createEntitiesForDelete();
+        deleteEntity(EntityType.OBSERVED_PROPERTY, obsPropIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.OBSERVATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.LOCATION);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        checkExisting(entityTypes);
+
+        //FeatureOfInterest
+        createEntitiesForDelete();
+        deleteEntity(EntityType.FEATURE_OF_INTEREST, foiIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.OBSERVATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.LOCATION);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        entityTypes.add(EntityType.DATASTREAM);
+        checkExisting(entityTypes);
+
+        //Observation
+        createEntitiesForDelete();
+        deleteEntity(EntityType.OBSERVATION, observationIds.get(0));
+        entityTypes.clear();
+        entityTypes.add(EntityType.OBSERVATION);
+        checkNotExisting(entityTypes);
+        entityTypes.clear();
+        entityTypes.add(EntityType.THING);
+        entityTypes.add(EntityType.SENSOR);
+        entityTypes.add(EntityType.OBSERVED_PROPERTY);
+        entityTypes.add(EntityType.FEATURE_OF_INTEREST);
+        entityTypes.add(EntityType.DATASTREAM);
+        entityTypes.add(EntityType.HISTORICAL_LOCATION);
+        entityTypes.add(EntityType.LOCATION);
+        checkExisting(entityTypes);
     }
 
     //TODO: Add invalid PATCH test for other entities when it is implemented in the service
-    @Test(description = "Invalid PATCH Entities", groups = "level-2", priority = 3)
+    @Test(description = "Invalid PATCH Entities", groups = "level-2", priority = 4)
     public void invalidPatchEntities() {
         /** Thing **/
         long thingId = thingIds.get(0);
@@ -750,7 +925,7 @@ public class Capability2Tests {
 //        invalidPatchEntity(EntityType.OBSERVATION, urlParameters, obsId1);
     }
 
-    @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 4)
+    @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 5)
     public void deleteNoneexistentEntities() {
         deleteNonExsistentEntity(EntityType.THING);
         deleteNonExsistentEntity(EntityType.LOCATION);
@@ -967,6 +1142,34 @@ public class Capability2Tests {
         }
     }
 
+    private void checkNotExisting(List<EntityType> entityTypes){
+        for(EntityType entityType:entityTypes) {
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            try {
+                JSONObject result = new JSONObject(responseMap.get("response").toString());
+                JSONArray array = result.getJSONArray("value");
+                Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't.");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void checkExisting(List<EntityType> entityTypes){
+        for(EntityType entityType:entityTypes) {
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            try {
+                JSONObject result = new JSONObject(responseMap.get("response").toString());
+                JSONArray array = result.getJSONArray("value");
+                Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't.");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @AfterClass
     private void deleteEverythings(){
         deleteEntityType(EntityType.OBSERVATION);
@@ -997,5 +1200,115 @@ public class Capability2Tests {
                 Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             }
         } while (array.length() >0);
+    }
+
+    private void createEntitiesForDelete(){
+        try {
+
+            deleteEverythings();
+            thingIds.clear();
+            locationIds.clear();
+            historicalLocationIds.clear();
+            datastreamIds.clear();
+            sensorIds.clear();
+            observationIds.clear();
+            obsPropIds.clear();
+            foiIds.clear();
+
+            //First Thing
+            String urlParameters = "{\n" +
+                    "    \"description\": \"thing 1\",\n" +
+                    "    \"properties\": {\n" +
+                    "        \"reference\": \"first\"\n" +
+                    "    },\n" +
+                    "    \"Locations\": [\n" +
+                    "        {\n" +
+                    "            \"description\": \"location 1\",\n" +
+                    "            \"location\": {\n" +
+                    "                \"type\": \"Point\",\n" +
+                    "                \"coordinates\": [\n" +
+                    "                    -117.05,\n" +
+                    "                    51.05\n" +
+                    "                ]\n" +
+                    "            },\n" +
+                    "            \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "        }\n" +
+                    "    ],\n" +
+                    "    \"Datastreams\": [\n" +
+                    "        {\n" +
+                    "            \"unitOfMeasurement\": {\n" +
+                    "                \"name\": \"Lumen\",\n" +
+                    "                \"symbol\": \"lm\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "            },\n" +
+                    "            \"description\": \"datastream 1\",\n" +
+                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "            \"ObservedProperty\": {\n" +
+                    "                \"name\": \"Luminous Flux\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "                \"description\": \"observedProperty 1\"\n" +
+                    "            },\n" +
+                    "            \"Sensor\": {\n" +
+                    "                \"description\": \"sensor 1\",\n" +
+                    "                \"encodingType\": \"http://schema.org/description\",\n" +
+                    "                \"metadata\": \"Light flux sensor\"\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    ]\n" +
+                    "}";
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            String response = responseMap.get("response").toString();
+            thingIds.add(Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")"))));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingIds.get(0), EntityType.LOCATION, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            locationIds.add(array.getJSONObject(0).getLong(ControlInformation.ID));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingIds.get(0), EntityType.DATASTREAM, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            datastreamIds.add(array.getJSONObject(0).getLong(ControlInformation.ID));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamIds.get(0), EntityType.SENSOR, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            sensorIds.add(new JSONObject(response).getLong(ControlInformation.ID));
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamIds.get(0), EntityType.OBSERVED_PROPERTY, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            obsPropIds.add(new JSONObject(response).getLong(ControlInformation.ID));
+
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingIds.get(0), EntityType.HISTORICAL_LOCATION, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            array = new JSONObject(response).getJSONArray("value");
+            historicalLocationIds.add(array.getJSONObject(0).getLong(ControlInformation.ID));
+
+            //Observations
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamIds.get(0), EntityType.OBSERVATION, null);
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                    "  \"result\": 1 \n" +
+                    "   }";
+            responseMap = HTTPMethods.doPost(urlString, urlParameters);
+            response = responseMap.get("response").toString();
+            observationIds.add(Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")"))));
+
+            //FeatureOfInterest
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, observationIds.get(0), EntityType.FEATURE_OF_INTEREST, null);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            foiIds.add(new JSONObject(response).getLong(ControlInformation.ID));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+        }
+
+
     }
 }
