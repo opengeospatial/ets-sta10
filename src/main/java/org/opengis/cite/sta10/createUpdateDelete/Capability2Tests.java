@@ -388,7 +388,6 @@ public class Capability2Tests {
             /** Datastream **/
             urlParameters = "{\"description\": \"Office Building\"}";
             long thingId = postEntity(EntityType.THING, urlParameters).getLong("@iot.id");
-            thingIds.add(thingId);
 
             urlParameters = "{\n" +
                     "  \"unitOfMeasurement\": {\n" +
@@ -496,6 +495,60 @@ public class Capability2Tests {
             entityTypesToCheck.add(EntityType.FEATURE_OF_INTEREST);
             entityTypesToCheck.add(EntityType.OBSERVED_PROPERTY);
             checkNotExisting(entityTypesToCheck);
+
+            /** Observation **/
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
+                    "   \"ObservedProperty\": {\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "   },\n" +
+                    "   \"Sensor\": {        \n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "   }\n" +
+                    "}";
+            long datastreamId = postEntity(EntityType.DATASTREAM, urlParameters).getLong("@iot.id");
+
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                    "  \"result\": 100,\n" +
+                    "  \"Datastream\":{\"@iot.id\": "+datastreamId+"}\n" +
+                    "}";
+            postInvalidEntity(EntityType.OBSERVATION, urlParameters);
+
+            urlParameters = "{\n" +
+                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
+                    "  \"result\": 100,\n" +
+                    "  \"FeatureOfInterest\": {\n" +
+                    "  \t\"description\": \"A weather station.\",\n" +
+                    "    \"feature\": {\n" +
+                    "      \"type\": \"Point\",\n" +
+                    "      \"coordinates\": [\n" +
+                    "        -114.05,\n" +
+                    "        51.05\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"Datastream\":{\"@iot.id\": "+datastreamId+"}\n" +
+                    "}";
+            postInvalidEntity(EntityType.OBSERVATION, urlParameters);
+
+            entityTypesToCheck.clear();
+            entityTypesToCheck.add(EntityType.OBSERVATION);
+            entityTypesToCheck.add(EntityType.FEATURE_OF_INTEREST);
+            checkNotExisting(entityTypesToCheck);
+
+            deleteEverythings();
 
         } catch (JSONException e) {
             e.printStackTrace();
