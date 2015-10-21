@@ -344,48 +344,164 @@ public class Capability2Tests {
         }
     }
 
-//    @Test(description = "POST Invalid Entities using Deep Insert", groups = "level-2", priority = 1)
-//    public void createInvalidEntitiesWithDeepInsert() {
-////        try {
-//            /** Thing **/
-//        String urlParameters = "{\n" +
-//                "  \"description\": \"Office Building\",\n" +
-//                "  \"properties\": {\n" +
-//                "    \"reference\": \"Third Floor\"\n" +
-//                "  },\n" +
-//                "  \"Locations\": [\n" +
-//                "    {\n" +
-//                "      \"description\": \"West Roof\",\n" +
-//                "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
-//                "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
-//                "    }\n" +
-//                "  ],\n" +
-//                "  \"Datastreams\": [\n" +
-//                "    {\n" +
-//                "      \"unitOfMeasurement\": {\n" +
-//                "        \"name\": \"Lumen\",\n" +
-//                "        \"symbol\": \"lm\",\n" +
-//                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
-//                "      },\n" +
-//                "      \"description\": \"Light exposure.\",\n" +
-//                "      \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-//                "      \"ObservedProperty\": {\n" +
-//                "        \"name\": \"Luminous Flux\",\n" +
-//                "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
-//                "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
-//                "      }\n" +
-//                "    }\n" +
-//                "  ]\n" +
-//                "}";
-//            postInvalidEntity(EntityType.THING, urlParameters);
-//            List<EntityType> entityTypesToCheck = new ArrayList<>();
-//            entityTypesToCheck.add(EntityType.THING);
-//            entityTypesToCheck.add(EntityType.LOCATION);
-//            entityTypesToCheck.add(EntityType.HISTORICAL_LOCATION);
-//            entityTypesToCheck.add(EntityType.DATASTREAM);
-//            entityTypesToCheck.add(EntityType.OBSERVED_PROPERTY);
-//            checkNotExisting(entityTypesToCheck);
-//    }
+    @Test(description = "POST Invalid Entities using Deep Insert", groups = "level-2", priority = 1)
+    public void createInvalidEntitiesWithDeepInsert() {
+        try {
+            String urlParameters = "{\n" +
+                    "  \"description\": \"Office Building\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"reference\": \"Third Floor\"\n" +
+                    "  },\n" +
+                    "  \"Locations\": [\n" +
+                    "    {\n" +
+                    "      \"description\": \"West Roof\",\n" +
+                    "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
+                    "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "    }\n" +
+                    "  ],\n" +
+                    "  \"Datastreams\": [\n" +
+                    "    {\n" +
+                    "      \"unitOfMeasurement\": {\n" +
+                    "        \"name\": \"Lumen\",\n" +
+                    "        \"symbol\": \"lm\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "      },\n" +
+                    "      \"description\": \"Light exposure.\",\n" +
+                    "      \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "      \"ObservedProperty\": {\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
+            postInvalidEntity(EntityType.THING, urlParameters);
+            List<EntityType> entityTypesToCheck = new ArrayList<>();
+            entityTypesToCheck.add(EntityType.THING);
+            entityTypesToCheck.add(EntityType.LOCATION);
+            entityTypesToCheck.add(EntityType.HISTORICAL_LOCATION);
+            entityTypesToCheck.add(EntityType.DATASTREAM);
+            entityTypesToCheck.add(EntityType.OBSERVED_PROPERTY);
+            checkNotExisting(entityTypesToCheck);
+
+            /** Datastream **/
+            urlParameters = "{\"description\": \"Office Building\"}";
+            long thingId = postEntity(EntityType.THING, urlParameters).getLong("@iot.id");
+            thingIds.add(thingId);
+
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
+                    "   \"ObservedProperty\": {\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "   },\n" +
+                    "      \"Observations\": [\n" +
+                    "        {\n" +
+                    "          \"phenomenonTime\": \"2015-03-01T00:10:00Z\",\n" +
+                    "          \"result\": 10\n" +
+                    "        }\n" +
+                    "      ]" +
+                    "}";
+            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
+                    "   \"Sensor\": {        \n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "   },\n" +
+                    "      \"Observations\": [\n" +
+                    "        {\n" +
+                    "          \"phenomenonTime\": \"2015-03-01T00:10:00Z\",\n" +
+                    "          \"result\": 10\n" +
+                    "        }\n" +
+                    "      ]" +
+                    "}";
+            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+
+            urlParameters = "{\n" +
+                    "  \"unitOfMeasurement\": {\n" +
+                    "    \"name\": \"Celsius\",\n" +
+                    "    \"symbol\": \"degC\",\n" +
+                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+                    "  },\n" +
+                    "  \"description\": \"test datastream.\",\n" +
+                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+                    "   \"ObservedProperty\": {\n" +
+                    "        \"name\": \"Luminous Flux\",\n" +
+                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+                    "   },\n" +
+                    "   \"Sensor\": {        \n" +
+                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+                    "        \"metadata\": \"Light flux sensor\"\n" +
+                    "   },\n" +
+                    "      \"Observations\": [\n" +
+                    "        {\n" +
+                    "          \"phenomenonTime\": \"2015-03-01T00:10:00Z\",\n" +
+                    "          \"result\": 10\n" +
+                    "        }\n" +
+                    "      ]" +
+                    "}";
+            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+
+//            urlParameters = "{\n" +
+//                    "  \"unitOfMeasurement\": {\n" +
+//                    "    \"name\": \"Celsius\",\n" +
+//                    "    \"symbol\": \"degC\",\n" +
+//                    "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n" +
+//                    "  },\n" +
+//                    "  \"description\": \"test datastream.\",\n" +
+//                    "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
+//                    "  \"Thing\": { \"@iot.id\": " + thingId + " },\n" +
+//                    "   \"ObservedProperty\": {\n" +
+//                    "        \"name\": \"Luminous Flux\",\n" +
+//                    "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+//                    "        \"description\": \"Luminous Flux or Luminous Power is the measure of the perceived power of light.\"\n" +
+//                    "   },\n" +
+//                    "   \"Sensor\": {        \n" +
+//                    "        \"description\": \"Acme Fluxomatic 1000\",\n" +
+//                    "        \"encodingType\": \"http://schema.org/description\",\n" +
+//                    "        \"metadata\": \"Light flux sensor\"\n" +
+//                    "   },\n" +
+//                    "      \"Observations\": [\n" +
+//                    "        {\n" +
+//                    "        }\n" +
+//                    "      ]" +
+//                    "}";
+//            postInvalidEntity(EntityType.DATASTREAM, urlParameters);
+
+            entityTypesToCheck.clear();
+            entityTypesToCheck.add(EntityType.DATASTREAM);
+            entityTypesToCheck.add(EntityType.SENSOR);
+            entityTypesToCheck.add(EntityType.OBSERVATION);
+            entityTypesToCheck.add(EntityType.FEATURE_OF_INTEREST);
+            entityTypesToCheck.add(EntityType.OBSERVED_PROPERTY);
+            checkNotExisting(entityTypesToCheck);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+        }
+    }
 
     @Test(description = "POST Invalid Entities", groups = "level-2", priority = 3)
     public void createInvalidEntities() {
@@ -981,7 +1097,7 @@ public class Capability2Tests {
 
         Map<String,Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 400, "The  " + entityType.name()+" should not be created due to integrity constraints.");
+        Assert.assertTrue(responseCode == 400 || responseCode == 409, "The  " + entityType.name() + " should not be created due to integrity constraints.");
 
     }
 
