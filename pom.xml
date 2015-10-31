@@ -13,8 +13,8 @@
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Test suite: ets-sta10</name>
-  <description>Describe purpose of test suite.</description>
+  <name>SensorThings API (STA)</name>
+  <description>Conformance Test suite for SensorThings API</description>
   <url>http://opengeospatial.github.io/ets-sta10/</url>
   <licenses>
     <license>
