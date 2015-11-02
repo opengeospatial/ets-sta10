@@ -17,12 +17,13 @@
     </ctl:code>
 	</ctl:function>
 
-   <ctl:suite name="tns:ets-sta10-1.0">
+   <ctl:suite name="tns:ets-sta10-${version}">
      <ctl:title>OGC SensorThings Test Suite</ctl:title>
-     <ctl:description>Checks SensorThings 1.0 implementations for conformance to OGC ------</ctl:description>
+     <ctl:description>Checks implementations of the OGC SensorThings API for conformance 
+     against the candidate standard (OGC 15-078).</ctl:description>
      <ctl:starting-test>tns:Main</ctl:starting-test>
    </ctl:suite>
- 
+
    <ctl:test name="tns:Main">
       <ctl:assertion>The test subject satisfies all applicable constraints.</ctl:assertion>
 	  <ctl:code>
