@@ -2096,7 +2096,7 @@ public class Capability3Tests {
         }
         return false;
     }
-    
+
     @AfterClass
     private void deleteEverythings(){
         deleteEntityType(EntityType.OBSERVATION);
