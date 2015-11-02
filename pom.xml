@@ -8,7 +8,6 @@
     <version>4</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opengis.cite</groupId>
   <artifactId>ets-sta10</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>

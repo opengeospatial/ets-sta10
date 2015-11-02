@@ -328,9 +328,10 @@ public class XMLUtils {
     }
 
     /**
-     * Expands character entity (&name;) and numeric references (&#xhhhh; or
-     * &dddd;) that occur within a given string value. It may be necessary to do
-     * this before processing an XPath expression.
+     * Expands character entity ({@literal &name;}) and numeric references (
+     * {@literal &#xhhhh;} or {@literal &dddd;}) that occur within a given
+     * string value. It may be necessary to do this before processing an XPath
+     * expression.
      * 
      * @param value
      *            A string representing text content.
