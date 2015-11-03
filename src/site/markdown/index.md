@@ -18,6 +18,15 @@ implemented in the test and reference to the section in the specification.
 
 Classes A.4 to A.8 have not been implemented.
 
+## Preconditions and Postconditions
+
+Here are the preconditions and postconditions for running SensorThings Test Suite on a service.
+
+### Preconditions
+The service under test should have at least one instance of each entity in SensorThings.
+
+### Postconditions
+After finishing test process, <b>all the data in the service under test will be DELETED</b>.
 
 ## Release Notes
 
