@@ -130,4 +130,5 @@
       </plugin>
     </plugins>
   </build>
+  <groupId>org.opengis.cite</groupId>
 </project>
