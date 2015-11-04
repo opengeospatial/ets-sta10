@@ -19,26 +19,26 @@ import org.testng.annotations.Test;
  */
 public class Capability1Tests {
 
-    public String rootUri="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
 
-//    @BeforeClass
-//    public void obtainTestSubject(ITestContext testContext) {
-//        Object obj = testContext.getSuite().getAttribute(
-//                SuiteAttribute.LEVEL.getName());
-//        if ((null != obj)) {
-//            Integer level = Integer.class.cast(obj);
-//            Assert.assertTrue(level.intValue() > 0,
-//                    "Conformance level 1 will not be checked since ics = " + level);
-//        }
-//
-//        rootUri = testContext.getSuite().getAttribute(
-//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-//        rootUri = rootUri.trim();
-//        if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
-//            rootUri = rootUri.substring(0, rootUri.length() - 1);
-//        }
-//
-//    }
+    @BeforeClass
+    public void obtainTestSubject(ITestContext testContext) {
+        Object obj = testContext.getSuite().getAttribute(
+                SuiteAttribute.LEVEL.getName());
+        if ((null != obj)) {
+            Integer level = Integer.class.cast(obj);
+            Assert.assertTrue(level.intValue() > 0,
+                    "Conformance level 1 will not be checked since ics = " + level);
+        }
+
+        rootUri = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = rootUri.trim();
+        if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
+            rootUri = rootUri.substring(0, rootUri.length() - 1);
+        }
+
+    }
 
     @Test(description = "GET Entities", groups = "level-1")
     public void readEntitiesAndCheckResponse() {
