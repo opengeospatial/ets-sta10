@@ -12,12 +12,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.util.ClientUtils;
-import org.opengis.cite.sta10.util.XMLUtils;
 import org.opengis.cite.sta10.util.TestSuiteLogger;
-import org.opengis.cite.sta10.util.URIUtils;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
-import org.w3c.dom.Document;
 
 /**
  * A listener that performs various tasks before and after a test suite is run,

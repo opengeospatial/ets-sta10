@@ -5,7 +5,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import org.opengis.cite.sta10.util.ClientUtils;
-import org.opengis.cite.sta10.util.XMLUtils;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 import org.w3c.dom.Document;
@@ -55,10 +54,9 @@ public class TestFailureListener extends TestListenerAdapter {
         msgInfo.append("Headers: ").append(req.getHeaders()).append('\n');
         if (null != req.getEntity()) {
             Object entity = req.getEntity();
-            String body;
+            String body="";
             if (Document.class.isInstance(entity)) {
                 Document doc = Document.class.cast(entity);
-                body = XMLUtils.writeNodeToString(doc);
             } else {
                 body = entity.toString();
             }
@@ -84,7 +82,6 @@ public class TestFailureListener extends TestListenerAdapter {
         if (rsp.hasEntity()) {
             if (rsp.getType().isCompatible(MediaType.APPLICATION_XML_TYPE)) {
                 Document doc = ClientUtils.getResponseEntityAsDocument(rsp, null);
-                msgInfo.append(XMLUtils.writeNodeToString(doc));
             } else {
                 byte[] body = rsp.getEntity(byte[].class);
                 msgInfo.append(new String(body, StandardCharsets.UTF_8));

@@ -2096,18 +2096,18 @@ public class Capability3Tests {
         }
         return false;
     }
-
-    @AfterClass
-    private void deleteEverythings(){
-        deleteEntityType(EntityType.OBSERVATION);
-        deleteEntityType(EntityType.FEATURE_OF_INTEREST);
-        deleteEntityType(EntityType.DATASTREAM);
-        deleteEntityType(EntityType.SENSOR);
-        deleteEntityType(EntityType.OBSERVED_PROPERTY);
-        deleteEntityType(EntityType.HISTORICAL_LOCATION);
-        deleteEntityType(EntityType.LOCATION);
-        deleteEntityType(EntityType.THING);
-    }
+//
+//    @AfterClass
+//    private void deleteEverythings(){
+//        deleteEntityType(EntityType.OBSERVATION);
+//        deleteEntityType(EntityType.FEATURE_OF_INTEREST);
+//        deleteEntityType(EntityType.DATASTREAM);
+//        deleteEntityType(EntityType.SENSOR);
+//        deleteEntityType(EntityType.OBSERVED_PROPERTY);
+//        deleteEntityType(EntityType.HISTORICAL_LOCATION);
+//        deleteEntityType(EntityType.LOCATION);
+//        deleteEntityType(EntityType.THING);
+//    }
 
 
     private void deleteEntityType(EntityType entityType){
