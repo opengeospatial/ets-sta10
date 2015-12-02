@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class Capability2Tests {
 
-    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri;//="http://192.168.1.13:8080/OGCSensorThings/v1.0";
 
     List<Long> thingIds = new ArrayList<>();
     List<Long> locationIds = new ArrayList<>();

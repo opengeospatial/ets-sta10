@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
 
     long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
@@ -36,20 +36,20 @@ public class Capability3Tests {
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
-        Object obj = testContext.getSuite().getAttribute(
-                SuiteAttribute.LEVEL.getName());
-        if ((null != obj)) {
-            Integer level = Integer.class.cast(obj);
-            Assert.assertTrue(level.intValue() > 2,
-                    "Conformance level 3 will not be checked since ics = " + level);
-        }
-
-        rootUri = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-        rootUri = rootUri.trim();
-        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
-            rootUri = rootUri.substring(0, rootUri.length() - 1);
-        }
+//        Object obj = testContext.getSuite().getAttribute(
+//                SuiteAttribute.LEVEL.getName());
+//        if ((null != obj)) {
+//            Integer level = Integer.class.cast(obj);
+//            Assert.assertTrue(level.intValue() > 2,
+//                    "Conformance level 3 will not be checked since ics = " + level);
+//        }
+//
+//        rootUri = testContext.getSuite().getAttribute(
+//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+//        rootUri = rootUri.trim();
+//        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
+//            rootUri = rootUri.substring(0, rootUri.length() - 1);
+//        }
         createEntities();
     }
 
@@ -198,7 +198,7 @@ public class Capability3Tests {
     @Test(description = "GET Entities with $filter", groups = "level-3")
     public void readEntitiesWithFilterQO() {
         checkFilterForEntityType(EntityType.THING);
-//        checkFilterForEntityType(EntityType.LOCATION);
+        checkFilterForEntityType(EntityType.LOCATION);
         checkFilterForEntityType(EntityType.HISTORICAL_LOCATION);
         checkFilterForEntityType(EntityType.DATASTREAM);
         checkFilterForEntityType(EntityType.SENSOR);
@@ -1567,8 +1567,7 @@ public class Capability3Tests {
             samplePropertyValues = new ArrayList<>();
             String property = properties[i];
             filteredProperties.add(property);
-            if(property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement") || property.equals("resultTime") || property.equals("encodingType")
-                    || property.equals("definition")  || property.equals("observationType")  || property.equals("description")  || property.equals("metadata")){
+            if(property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement")){
                 continue;
             }
             String propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(entityType, i);
@@ -1639,8 +1638,7 @@ public class Capability3Tests {
                 samplePropertyValues = new ArrayList<>();
                 String property = properties[i];
                 filteredProperties.add(property);
-                if (property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement") || property.equals("resultTime") || property.equals("encodingType")
-                        || property.equals("definition") || property.equals("observationType") || property.equals("description") || property.equals("metadata")) {
+                if (property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement")) {
                     continue;
                 }
                 String propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(relationEntityType, i);
@@ -1768,7 +1766,7 @@ public class Capability3Tests {
                     "                    51.05\n" +
                     "                ]\n" +
                     "            },\n" +
-                    "            \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n" +
                     "        }\n" +
                     "    ],\n" +
                     "    \"Datastreams\": [\n" +
@@ -1776,13 +1774,13 @@ public class Capability3Tests {
                     "            \"unitOfMeasurement\": {\n" +
                     "                \"name\": \"Lumen\",\n" +
                     "                \"symbol\": \"lm\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
                     "            },\n" +
                     "            \"description\": \"datastream 1\",\n" +
                     "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
                     "            \"ObservedProperty\": {\n" +
                     "                \"name\": \"Luminous Flux\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux\",\n" +
                     "                \"description\": \"observedProperty 1\"\n" +
                     "            },\n" +
                     "            \"Sensor\": {\n" +
@@ -1795,13 +1793,13 @@ public class Capability3Tests {
                     "            \"unitOfMeasurement\": {\n" +
                     "                \"name\": \"Centigrade\",\n" +
                     "                \"symbol\": \"C\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
                     "            },\n" +
                     "            \"description\": \"datastream 2\",\n" +
                     "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
                     "            \"ObservedProperty\": {\n" +
                     "                \"name\": \"Tempretaure\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#Tempreture\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/Tempreture\",\n" +
                     "                \"description\": \"observedProperty 2\"\n" +
                     "            },\n" +
                     "            \"Sensor\": {\n" +
@@ -1865,7 +1863,7 @@ public class Capability3Tests {
                     "                    50.05\n" +
                     "                ]\n" +
                     "            },\n" +
-                    "            \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n" +
                     "        }\n" +
                     "    ],\n" +
                     "    \"Datastreams\": [\n" +
@@ -1873,13 +1871,13 @@ public class Capability3Tests {
                     "            \"unitOfMeasurement\": {\n" +
                     "                \"name\": \"Lumen\",\n" +
                     "                \"symbol\": \"lm\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
                     "            },\n" +
                     "            \"description\": \"datastream 3\",\n" +
                     "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
                     "            \"ObservedProperty\": {\n" +
                     "                \"name\": \"Second Luminous Flux\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html#LuminousFlux\",\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux\",\n" +
                     "                \"description\": \"observedProperty 3\"\n" +
                     "            },\n" +
                     "            \"Sensor\": {\n" +
@@ -1892,7 +1890,7 @@ public class Capability3Tests {
                     "            \"unitOfMeasurement\": {\n" +
                     "                \"name\": \"Centigrade\",\n" +
                     "                \"symbol\": \"C\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
+                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
                     "            },\n" +
                     "            \"description\": \"datastream 2\",\n" +
                     "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
@@ -2097,7 +2095,7 @@ public class Capability3Tests {
         return false;
     }
 
-    @AfterClass
+    //@AfterClass
     private void deleteEverythings(){
         deleteEntityType(EntityType.OBSERVATION);
         deleteEntityType(EntityType.FEATURE_OF_INTEREST);
