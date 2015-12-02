@@ -17,12 +17,13 @@
     </ctl:code>
 	</ctl:function>
 
-   <ctl:suite name="tns:ets-sta10-1.0">
+   <ctl:suite name="tns:ets-sta10-${version}">
      <ctl:title>OGC SensorThings Test Suite</ctl:title>
-     <ctl:description>Checks SensorThings 1.0 implementations for conformance to OGC ------</ctl:description>
+     <ctl:description>Checks implementations of the OGC SensorThings API for conformance 
+     against the candidate standard (OGC 15-078).</ctl:description>
      <ctl:starting-test>tns:Main</ctl:starting-test>
    </ctl:suite>
- 
+
    <ctl:test name="tns:Main">
       <ctl:assertion>The test subject satisfies all applicable constraints.</ctl:assertion>
 	  <ctl:code>
@@ -30,11 +31,9 @@
            <ctl:form method="POST" width="800" height="600" xmlns="http://www.w3.org/1999/xhtml">
              <h2>Test suite: ets-sta10</h2>
              <div style="background:#F0F8FF" bgcolor="#F0F8FF">
-               <p>The SensorThings implementation under test (IUT) is checked against the following specifications:</p>
-               <ul>
-                 <li><a href="http://www.opengeospatial.org/projects/groups/sensorthings">OGC SensorThings 1.0</a>,
-				 First Edition</li>
-               </ul>
+               <p>The SensorThings implementation under test (IUT) is checked against the <a href="http://www.opengeospatial.org/projects/groups/sensorthings">OGC SensorThings API 1.0</a></p>
+               <p>Detailed information about the test suite is available <a href="index.html" target="otherwindow">here</a>.</p>
+       
                <p>Three conformance levels are defined:</p>
                <ul>
                  <li>Sensing Core</li>
@@ -55,10 +54,14 @@
                  <input id="doc" type="hidden" name="doc" value="" />
                <p>
                  <label for="level">Conformance class: </label>
+               </p>  
                  <input id="level-1" type="radio" name="level" value="1"/>
                  <label class="form-label" for="level-1"> Sensing Core</label>
+               <p>  
                  <input id="level-2" type="radio" name="level" value="2"/>
                  <label class="form-label" for="level-2"> Create-Update-Delete</label>
+               </p>
+               <p>
                 <input id="level-3" type="radio" name="level" value="3" checked="checked" />
                  <label class="form-label" for="level-3"> Filtering Extension</label>
                </p>
