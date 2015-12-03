@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class Capability3Tests {
 
-    public String rootUri="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
+    public String rootUri;//="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
 
     long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
@@ -36,20 +36,20 @@ public class Capability3Tests {
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
-//        Object obj = testContext.getSuite().getAttribute(
-//                SuiteAttribute.LEVEL.getName());
-//        if ((null != obj)) {
-//            Integer level = Integer.class.cast(obj);
-//            Assert.assertTrue(level.intValue() > 2,
-//                    "Conformance level 3 will not be checked since ics = " + level);
-//        }
-//
-//        rootUri = testContext.getSuite().getAttribute(
-//                SuiteAttribute.TEST_SUBJECT.getName()).toString();
-//        rootUri = rootUri.trim();
-//        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
-//            rootUri = rootUri.substring(0, rootUri.length() - 1);
-//        }
+        Object obj = testContext.getSuite().getAttribute(
+                SuiteAttribute.LEVEL.getName());
+        if ((null != obj)) {
+            Integer level = Integer.class.cast(obj);
+            Assert.assertTrue(level.intValue() > 2,
+                    "Conformance level 3 will not be checked since ics = " + level);
+        }
+
+        rootUri = testContext.getSuite().getAttribute(
+                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = rootUri.trim();
+        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
+            rootUri = rootUri.substring(0, rootUri.length() - 1);
+        }
         createEntities();
     }
 
@@ -77,22 +77,22 @@ public class Capability3Tests {
 
     @Test(description = "GET Entities with $expand", groups = "level-3")
     public void readEntitiesWithExpandQO() {
-        checkExpandtForEntityType(EntityType.THING);
-        checkExpandtForEntityType(EntityType.LOCATION);
-        checkExpandtForEntityType(EntityType.HISTORICAL_LOCATION);
-        checkExpandtForEntityType(EntityType.DATASTREAM);
-        checkExpandtForEntityType(EntityType.SENSOR);
-        checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
-        checkExpandtForEntityType(EntityType.OBSERVATION);
-        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
-        checkExpandtForEntityTypeRelations(EntityType.THING);
-        checkExpandtForEntityTypeRelations(EntityType.LOCATION);
-        checkExpandtForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
-        checkExpandtForEntityTypeRelations(EntityType.DATASTREAM);
-        checkExpandtForEntityTypeRelations(EntityType.SENSOR);
-        checkExpandtForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
-        checkExpandtForEntityTypeRelations(EntityType.OBSERVATION);
-        checkExpandtForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+//        checkExpandtForEntityType(EntityType.THING);
+//        checkExpandtForEntityType(EntityType.LOCATION);
+//        checkExpandtForEntityType(EntityType.HISTORICAL_LOCATION);
+//        checkExpandtForEntityType(EntityType.DATASTREAM);
+//        checkExpandtForEntityType(EntityType.SENSOR);
+//        checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
+//        checkExpandtForEntityType(EntityType.OBSERVATION);
+//        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
+//        checkExpandtForEntityTypeRelations(EntityType.THING);
+//        checkExpandtForEntityTypeRelations(EntityType.LOCATION);
+//        checkExpandtForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
+//        checkExpandtForEntityTypeRelations(EntityType.DATASTREAM);
+//        checkExpandtForEntityTypeRelations(EntityType.SENSOR);
+//        checkExpandtForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
+//        checkExpandtForEntityTypeRelations(EntityType.OBSERVATION);
+//        checkExpandtForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
         checkExpandtForEntityTypeMultilevel(EntityType.THING);
         checkExpandtForEntityTypeMultilevel(EntityType.LOCATION);
         checkExpandtForEntityTypeMultilevel(EntityType.HISTORICAL_LOCATION);
@@ -1239,7 +1239,7 @@ public class Capability3Tests {
                                 String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
                                 JSONObject expandedEntity = expandedEntityArray.getJSONObject(0);
                                 for (String secondLeveleRelation : secondLevelRelations) {
-                                    if (listContainsString(expandedRelations, "/"+secondLeveleRelation)) {
+                                    if (listContainsString(expandedRelations, relation+"/"+secondLeveleRelation)) {
 
                                         expandedEntityArray = null;
                                         try {
@@ -1309,9 +1309,9 @@ public class Capability3Tests {
                 String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
                 for (String relation : relations) {
                     //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                    if(getEntityTypeFor(relation).equals(entityType)){
-                        continue;
-                    }
+//                    if(getEntityTypeFor(relation).equals(entityType)){
+//                        continue;
+//                    }
                     expandedRelations = new ArrayList<>();
                     expandedRelations.add(relation);
                     response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
@@ -1320,9 +1320,9 @@ public class Capability3Tests {
                 expandedRelations = new ArrayList<>();
                 for (String relation : relations) {
                     //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                    if(getEntityTypeFor(relation).equals(entityType)){
-                        continue;
-                    }
+//                    if(getEntityTypeFor(relation).equals(entityType)){
+//                        continue;
+//                    }
                     expandedRelations.add(relation);
                     response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
                     checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
@@ -1353,18 +1353,18 @@ public class Capability3Tests {
                 for (String relation : relations) {
 
                     //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                    if(getEntityTypeFor(relation).equals(entityType)){
-                        continue;
-                    }
+//                    if(getEntityTypeFor(relation).equals(entityType)){
+//                        continue;
+//                    }
 
                     String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
 
                     for (String secondLevelRelation: secondLevelRelations) {
                         //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
-                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-                            continue;
-                        }
+//                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
+//                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+//                            continue;
+//                        }
                         expandedRelations = new ArrayList<>();
                         expandedRelations.add(relation + "/" + secondLevelRelation);
                         response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
@@ -1374,16 +1374,16 @@ public class Capability3Tests {
                 expandedRelations = new ArrayList<>();
                 for (String relation : relations) {
                     //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                    if(getEntityTypeFor(relation).equals(entityType)){
-                        continue;
-                    }
+//                    if(getEntityTypeFor(relation).equals(entityType)){
+//                        continue;
+//                    }
                     String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
                     for (String secondLevelRelation: secondLevelRelations) {
                         //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
-                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-                            continue;
-                        }
+//                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
+//                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+//                            continue;
+//                        }
                         expandedRelations.add(relation+"/"+secondLevelRelation);
                         response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
                         checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
@@ -1403,18 +1403,18 @@ public class Capability3Tests {
         for (String relation : relations) {
 
             //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-            if(getEntityTypeFor(relation).equals(entityType)){
-                continue;
-            }
+//            if(getEntityTypeFor(relation).equals(entityType)){
+//                continue;
+//            }
 
             String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
 
             for (String secondLevelRelation: secondLevelRelations) {
                 //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
-                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-                    continue;
-                }
+//                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
+//                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+//                    continue;
+//                }
                 expandedRelations = new ArrayList<>();
                 expandedRelations.add(relation + "/" + secondLevelRelation);
                 String response = getEntities(entityType, -1, null, null, expandedRelations);
@@ -1424,16 +1424,16 @@ public class Capability3Tests {
         expandedRelations = new ArrayList<>();
         for (String relation : relations) {
             //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-            if(getEntityTypeFor(relation).equals(entityType)){
-                continue;
-            }
+//            if(getEntityTypeFor(relation).equals(entityType)){
+//                continue;
+//            }
             String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
             for (String secondLevelRelation: secondLevelRelations) {
                 //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
-                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-                    continue;
-                }
+//                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
+//                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
+//                    continue;
+//                }
                 expandedRelations.add(relation+"/"+secondLevelRelation);
                 String response = getEntities(entityType, -1, null, null, expandedRelations);
                 checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
@@ -2083,13 +2083,14 @@ public class Capability3Tests {
     private boolean listContainsString(List<String> list, String entity){
         for(String item:list) {
             if (item.toLowerCase().contains(entity.toLowerCase())){
-                if((entity.toLowerCase().equals("locations")||entity.toLowerCase().equals("locations"))&&(item.toLowerCase().equals("historicallocation")||item.toLowerCase().equals("historicallocations"))){
+                if(entity.toLowerCase().equals("locations")&&(item.toLowerCase().equals("historicallocations/thing")||item.toLowerCase().equals("historicallocations") || item.toLowerCase().equals("things/historicallocations")  || item.toLowerCase().equals("thing/historicallocations"))){
                     continue;
                 }
                 if(!entity.contains("/")&&item.contains("/"+entity)){
                     continue;
                 }
                 return true;
+
             }
         }
         return false;
