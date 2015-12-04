@@ -1,6 +1,8 @@
 package org.opengis.cite.sta10.sensingCore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -19,7 +21,8 @@ import org.testng.annotations.Test;
  */
 public class Capability1Tests {
 
-    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
+    public String rootUri;//="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
+    private final int resourcePathLevel = 4;
 
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -151,7 +154,7 @@ public class Capability1Tests {
     }
 
     @Test(description = "GET Related Entity of an Entity", groups = "level-1")
-    public void readRelatedEntityOfEntityAndCheckResponse(){
+    public void checkResourcePaths(){
         readRelatedEntityOfEntityWithEntityType(EntityType.THING);
         readRelatedEntityOfEntityWithEntityType(EntityType.LOCATION);
         readRelatedEntityOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
@@ -163,45 +166,92 @@ public class Capability1Tests {
     }
 
     public void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
+        List<String> entityTypes = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+        switch (entityType) {
+            case THING:
+                entityTypes.add( "Things");
+                break;
+            case LOCATION:
+                entityTypes.add("Locations");
+                break;
+            case HISTORICAL_LOCATION:
+                entityTypes.add( "HistoricalLocations");
+                break;
+            case DATASTREAM:
+                entityTypes.add("Datastreams");
+                break;
+            case SENSOR:
+                entityTypes.add( "Sensors");
+                break;
+            case OBSERVATION:
+                entityTypes.add( "Observations");
+                break;
+            case OBSERVED_PROPERTY:
+                entityTypes.add( "ObservedProperties");
+                break;
+            case FEATURE_OF_INTEREST:
+                entityTypes.add( "FeaturesOfInterest");
+                break;
+            default:
+                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
+        }
+        readRelatedEntity(entityTypes,ids);
+    }
+
+    public void readRelatedEntity(List<String> entityTypes, List<Long> ids){
+        if(entityTypes.size() > resourcePathLevel){
+            return;
+        }
         try {
-            String response = getEntities(entityType);
-            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
-            for (String relation : EntityRelations.getRelationsListFor(entityType)) {
-                checkGetNavigationLinkOfEntity(entityType, id, relation);
-                checkGetAssociationOfEntity(entityType, id, relation);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, null);
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            Assert.assertEquals(responseMap.get("response-code"),200, "Reading relation of the entity failed: "+entityTypes.toString());
+            String response = responseMap.get("response").toString();
+            if(!entityTypes.get(entityTypes.size()-1).toLowerCase().equals("featuresofinterest") && !entityTypes.get(entityTypes.size()-1).endsWith("s")){
+                return;
             }
+            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+
+            //check $ref
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, "$ref");
+            responseMap = HTTPMethods.doGet(urlString);
+            Assert.assertEquals(responseMap.get("response-code"),200, "Reading relation of the entity failed: "+entityTypes.toString());
+            response = responseMap.get("response").toString();
+            checkAssociationLinks(response, entityTypes, ids);
+
+            if(entityTypes.size()==resourcePathLevel){
+                return;
+            }
+            ids.add(id);
+            for(String relation: EntityRelations.getRelationsListFor(entityTypes.get(entityTypes.size()-1))){
+                entityTypes.add(relation);
+                readRelatedEntity(entityTypes, ids);
+                entityTypes.remove(entityTypes.size()-1);
+            }
+            ids.remove(ids.size()-1);
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
+
     }
 
-    public void checkGetNavigationLinkOfEntity(EntityType entityType, long id, String relation){
-        int responseCode = Integer.parseInt(getEntity(entityType, id, relation).get("response-code").toString());
-        Assert.assertTrue(responseCode==200 /*|| (relation.lastIndexOf("s")!= relation.length()-1 && responseCode==404)*/ , "Reading relation \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-    }
+    public void checkAssociationLinks(String response, List<String> entityTypes, List<Long> ids) {
 
-    public void checkGetAssociationOfEntity(EntityType entityType, long id, String relation) {
-        if(!relation.endsWith("s")){
-            return;
-        }
         try {
-            Map<String,Object> responseMap = getEntity(entityType, id, relation + "/$ref");
-            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Reading Association Link of \"" + relation + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
-            String response = responseMap.get("response").toString();
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response for " + entityType + "(" + id + ")/" + relation + " does not match SensorThings API : missing \"value\" in response.");
+            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response does not match SensorThings API : missing \"value\" in response.: "+entityTypes.toString()+ids.toString());
             JSONArray value = new JSONObject(response.toString()).getJSONArray("value");
             int count = 0;
             for (int i = 0; i < value.length()&& count < 2 ; i++) {
                 count ++;
                 JSONObject obj = value.getJSONObject(i);
                 try {
-                    Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link for " + entityType + "(" + id + ")/" + relation + " does not contain self-links.");
+                    Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link does not contain self-links.: "+entityTypes.toString()+ids.toString());
                 }catch (JSONException e){
-                    Assert.fail("The Association Link for " + entityType + "(" + id + ")/" + relation + " does not contain self-links.");
+                    Assert.fail("The Association Link does not contain self-links.: "+entityTypes.toString()+ids.toString());
                 }
-                Assert.assertEquals(obj.length(), 1, "The Association Link for "+entityType+"("+id+")/"+relation+" contains properties other than self-link.");
+                Assert.assertEquals(obj.length(), 1, "The Association Link contains properties other than self-link.: "+entityTypes.toString()+ids.toString());
             }
         } catch (JSONException e) {
             e.printStackTrace();

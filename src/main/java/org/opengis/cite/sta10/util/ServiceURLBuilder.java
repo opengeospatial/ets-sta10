@@ -2,6 +2,8 @@ package org.opengis.cite.sta10.util;
 
 import org.testng.Assert;
 
+import java.util.List;
+
 public class ServiceURLBuilder {
     public static String buildURLString(String rootURI, EntityType parentEntityType, long parentId, EntityType relationEntityType, String property){
         String urlString = rootURI;
@@ -148,6 +150,33 @@ public class ServiceURLBuilder {
                 default:
                     Assert.fail("Entity type is not recognized in SensorThings API : " + parentEntityType);
             }
+        }
+        if(property!=null){
+            if(property.indexOf('?')>=0){
+                urlString +=property;
+            } else {
+                urlString += "/" + property;
+            }
+        }
+        return urlString;
+    }
+
+    public static String buildURLString(String rootURI, List<String > entityTypes, List<Long> ids, String property){
+        String urlString = rootURI;
+        if(entityTypes.size()!=ids.size() && entityTypes.size()!=ids.size()+1){
+            Assert.fail("There is problem with the path of entities!!!");
+        }
+        if(urlString.charAt(urlString.length()-1)!='/'){
+            urlString+='/';
+        }
+        for (int i = 0; i < entityTypes.size(); i++) {
+            urlString += entityTypes.get(i);
+            if(i<ids.size()){
+                urlString+="("+ids.get(i)+")/";
+            }
+        }
+        if(urlString.charAt(urlString.length()-1)=='/'){
+            urlString=urlString.substring(0,urlString.length()-1);
         }
         if(property!=null){
             if(property.indexOf('?')>=0){
