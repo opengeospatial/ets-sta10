@@ -77,22 +77,22 @@ public class Capability3Tests {
 
     @Test(description = "GET Entities with $expand", groups = "level-3")
     public void readEntitiesWithExpandQO() {
-//        checkExpandtForEntityType(EntityType.THING);
-//        checkExpandtForEntityType(EntityType.LOCATION);
-//        checkExpandtForEntityType(EntityType.HISTORICAL_LOCATION);
-//        checkExpandtForEntityType(EntityType.DATASTREAM);
-//        checkExpandtForEntityType(EntityType.SENSOR);
-//        checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
-//        checkExpandtForEntityType(EntityType.OBSERVATION);
-//        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
-//        checkExpandtForEntityTypeRelations(EntityType.THING);
-//        checkExpandtForEntityTypeRelations(EntityType.LOCATION);
-//        checkExpandtForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
-//        checkExpandtForEntityTypeRelations(EntityType.DATASTREAM);
-//        checkExpandtForEntityTypeRelations(EntityType.SENSOR);
-//        checkExpandtForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
-//        checkExpandtForEntityTypeRelations(EntityType.OBSERVATION);
-//        checkExpandtForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
+        checkExpandtForEntityType(EntityType.THING);
+        checkExpandtForEntityType(EntityType.LOCATION);
+        checkExpandtForEntityType(EntityType.HISTORICAL_LOCATION);
+        checkExpandtForEntityType(EntityType.DATASTREAM);
+        checkExpandtForEntityType(EntityType.SENSOR);
+        checkExpandtForEntityType(EntityType.OBSERVED_PROPERTY);
+        checkExpandtForEntityType(EntityType.OBSERVATION);
+        checkExpandtForEntityType(EntityType.FEATURE_OF_INTEREST);
+        checkExpandtForEntityTypeRelations(EntityType.THING);
+        checkExpandtForEntityTypeRelations(EntityType.LOCATION);
+        checkExpandtForEntityTypeRelations(EntityType.HISTORICAL_LOCATION);
+        checkExpandtForEntityTypeRelations(EntityType.DATASTREAM);
+        checkExpandtForEntityTypeRelations(EntityType.SENSOR);
+        checkExpandtForEntityTypeRelations(EntityType.OBSERVED_PROPERTY);
+        checkExpandtForEntityTypeRelations(EntityType.OBSERVATION);
+        checkExpandtForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
         checkExpandtForEntityTypeMultilevel(EntityType.THING);
         checkExpandtForEntityTypeMultilevel(EntityType.LOCATION);
         checkExpandtForEntityTypeMultilevel(EntityType.HISTORICAL_LOCATION);
@@ -1113,11 +1113,6 @@ public class Capability3Tests {
         String response = responseMap.get("response").toString();
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 200, "Error during getting entities: " + entityType.name());
-//        if (entityType != null) {
-//            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
-//        } else { // GET Service Base URI
-//            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
-//        }
         return response;
     }
 
@@ -1308,10 +1303,6 @@ public class Capability3Tests {
                 List<String> expandedRelations;
                 String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
                 for (String relation : relations) {
-                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                    if(getEntityTypeFor(relation).equals(entityType)){
-//                        continue;
-//                    }
                     expandedRelations = new ArrayList<>();
                     expandedRelations.add(relation);
                     response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
@@ -1319,10 +1310,6 @@ public class Capability3Tests {
                 }
                 expandedRelations = new ArrayList<>();
                 for (String relation : relations) {
-                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                    if(getEntityTypeFor(relation).equals(entityType)){
-//                        continue;
-//                    }
                     expandedRelations.add(relation);
                     response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
                     checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
@@ -1351,20 +1338,9 @@ public class Capability3Tests {
                 List<String> expandedRelations;
                 String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
                 for (String relation : relations) {
-
-                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                    if(getEntityTypeFor(relation).equals(entityType)){
-//                        continue;
-//                    }
-
                     String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
 
                     for (String secondLevelRelation: secondLevelRelations) {
-                        //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
-//                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-//                            continue;
-//                        }
                         expandedRelations = new ArrayList<>();
                         expandedRelations.add(relation + "/" + secondLevelRelation);
                         response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
@@ -1373,17 +1349,8 @@ public class Capability3Tests {
                 }
                 expandedRelations = new ArrayList<>();
                 for (String relation : relations) {
-                    //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                    if(getEntityTypeFor(relation).equals(entityType)){
-//                        continue;
-//                    }
                     String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
                     for (String secondLevelRelation: secondLevelRelations) {
-                        //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                        if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation)) || getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(parentRelation))
-//                                ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-//                            continue;
-//                        }
                         expandedRelations.add(relation+"/"+secondLevelRelation);
                         response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
                         checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
@@ -1401,20 +1368,9 @@ public class Capability3Tests {
         List<String> expandedRelations;
         String[] relations = EntityRelations.getRelationsListFor(entityType);
         for (String relation : relations) {
-
-            //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//            if(getEntityTypeFor(relation).equals(entityType)){
-//                continue;
-//            }
-
             String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
 
             for (String secondLevelRelation: secondLevelRelations) {
-                //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
-//                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-//                    continue;
-//                }
                 expandedRelations = new ArrayList<>();
                 expandedRelations.add(relation + "/" + secondLevelRelation);
                 String response = getEntities(entityType, -1, null, null, expandedRelations);
@@ -1423,17 +1379,8 @@ public class Capability3Tests {
         }
         expandedRelations = new ArrayList<>();
         for (String relation : relations) {
-            //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//            if(getEntityTypeFor(relation).equals(entityType)){
-//                continue;
-//            }
             String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
             for (String secondLevelRelation: secondLevelRelations) {
-                //ToDO: This if must be removed when the corresponding feature is implemented in the servcie (Things(id)/Locations?$expand=Things)
-//                if(getEntityTypeFor(secondLevelRelation).equals(getEntityTypeFor(relation))
-//                        ||getEntityTypeFor(secondLevelRelation).equals(entityType)){
-//                    continue;
-//                }
                 expandedRelations.add(relation+"/"+secondLevelRelation);
                 String response = getEntities(entityType, -1, null, null, expandedRelations);
                 checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
@@ -2096,7 +2043,7 @@ public class Capability3Tests {
         return false;
     }
 
-    //@AfterClass
+    @AfterClass
     private void deleteEverythings(){
         deleteEntityType(EntityType.OBSERVATION);
         deleteEntityType(EntityType.FEATURE_OF_INTEREST);
