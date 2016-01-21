@@ -20,8 +20,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Sending HTTP Methods: GET, POST, PUT, PATCH, and DELETE
+ */
 public class HTTPMethods {
 
+    /**
+     * Send HTTP GET request to the urlString and return response code and response body
+     * @param urlString The URL that the GET request should be sent to
+     * @return response-code and response(response body) of the HTTP GET in the MAP format.
+     *         If the response is not 200, the response(response body) will be empty.
+     */
     public static Map<String,Object> doGet(String urlString){
         HttpURLConnection connection = null;
         try {
@@ -64,6 +73,13 @@ public class HTTPMethods {
         }
     }
 
+    /**
+     * Send HTTP POST request to the urlString with postBody and return response code and response body
+     * @param urlString The URL that the POST request should be sent to
+     * @param postBody The body of the POST request
+     * @return response-code and response of the HTTP POST in the MAP format.
+     *         If the response is 201, the response will contain the self-link to the created entity. Otherwise, it will be empty String.
+     */
     public static Map<String,Object> doPost(String urlString, String postBody){
         HttpURLConnection connection = null;
         try {
@@ -101,6 +117,13 @@ public class HTTPMethods {
         }
     }
 
+    /**
+     * Send HTTP PUT request to the urlString with putBody and return response code and response body
+     * @param urlString The URL that the PUT request should be sent to
+     * @param putBody The body of the PUT request
+     * @return response-code and response(response body) of the HTTP PUT in the MAP format.
+     *         If the response is not 200, the response(response body) will be empty.
+     */
     public static Map<String,Object> doPut(String urlString, String putBody){
         HttpURLConnection connection = null;
         try {
@@ -148,6 +171,12 @@ public class HTTPMethods {
         }
     }
 
+    /**
+     * Send HTTP DELETE request to the urlString and return response code
+     * @param urlString The URL that the DELETE request should be sent to
+     * @return response-code of the HTTP DELETE in the MAP format.
+     *         The MAP contains an empty response, in order to be consistent with what other HTTP requests return.
+     */
     public static Map<String,Object> doDelete(String urlString){
         HttpURLConnection connection = null;
         try {
@@ -175,6 +204,13 @@ public class HTTPMethods {
         }
     }
 
+    /**
+     * Send HTTP PATCH request to the urlString with patchBody and return response code and response body
+     * @param urlString The URL that the PATCH request should be sent to
+     * @param patchBody The body of the PATCH request
+     * @return response-code and response(response body) of the HTTP PATCH in the MAP format.
+     *         If the response is not 200, the response(response body) will be empty.
+     */
     public static Map<String,Object> doPatch(String urlString, String patchBody){
         URI uri = null;
         try {

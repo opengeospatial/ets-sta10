@@ -4,7 +4,20 @@ import org.testng.Assert;
 
 import java.util.List;
 
+/**
+ * Utility class that helps preparing the URL string for the targeted entity.
+ */
 public class ServiceURLBuilder {
+
+    /**
+     * Build the URL String based on the entityType, parent EntityType and id, and the targeted property or query
+     * @param rootURI The base URL of the SensorThings Service
+     * @param parentEntityType The entity type of the parent entity
+     * @param parentId The parent entity id
+     * @param relationEntityType The entity type of the targeted entity
+     * @param property The targeted property or the query string
+     * @return The URL String created based on the input parameters
+     */
     public static String buildURLString(String rootURI, EntityType parentEntityType, long parentId, EntityType relationEntityType, String property){
         String urlString = rootURI;
         if(relationEntityType == null){
@@ -161,6 +174,14 @@ public class ServiceURLBuilder {
         return urlString;
     }
 
+    /**
+     * Build the URL String based on a chain of entity type hierarchy and ids, and the targeted property or query
+     * @param rootURI The base URL of the SensorThings Service
+     * @param entityTypes The list of entity type chain
+     * @param ids The ids for the entity type chain
+     * @param property The targeted property or the query string
+     * @return The URL String created based on the input parameters
+     */
     public static String buildURLString(String rootURI, List<String > entityTypes, List<Long> ids, String property){
         String urlString = rootURI;
         if(entityTypes.size()!=ids.size() && entityTypes.size()!=ids.size()+1){

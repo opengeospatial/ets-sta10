@@ -1,7 +1,7 @@
 package org.opengis.cite.sta10.util;
 
 /**
- * Created by tania on 15/07/15.
+ * List of entity types in SensorThings API.
  */
 public enum EntityType {
     THING,
