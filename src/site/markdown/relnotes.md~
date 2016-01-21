@@ -4,7 +4,7 @@ SensorThings API Conformance Test Release Notes
 
 0.3 (2016-01-25)
 -------------------
-- Add more tests to "A.2 Filtering Extension" and "A.1 Sensing Core" conformance classes.
+- Add more tests to "Filtering Extension" conformance class.
 - Clean the code and complete the API doc.
 
 0.2 (2015-11-05)
