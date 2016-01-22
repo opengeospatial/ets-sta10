@@ -95,7 +95,11 @@ public class SuiteFixtureListener implements ISuiteListener {
         }
     }
 
-
+    /**
+     * Checking the service root URL to be compliant with SensorThings API
+     * @param rootUri The root URL for the service under test
+     * @return If the root URL of the service is not compliant to SensorThings API, it will return the reason it is not compliant. Otherwise it returns empty String.
+     */
     private String checkServiceRootUri(String rootUri) {
         rootUri = rootUri.trim();
         if(rootUri.lastIndexOf('/')==rootUri.length()-1){

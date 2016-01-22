@@ -15,22 +15,52 @@ import org.testng.annotations.Test;
 import java.util.*;
 
 /**
- * Includes various tests of capability 2.
+ * Includes various tests of "A.3 Create Update Delete" Conformance class.
  */
 public class Capability2Tests {
 
+    /**
+     * The root URL of the SensorThings service under the test
+     */
     public String rootUri;//="http://192.168.1.13:8080/OGCSensorThings/v1.0";
 
+    /**
+     * The list of ids for all the Things created during test procedure (will be used for clean-up)
+     */
     List<Long> thingIds = new ArrayList<>();
+    /**
+     * The list of ids for all the Locations created during test procedure (will be used for clean-up)
+     */
     List<Long> locationIds = new ArrayList<>();
+    /**
+     * The list of ids for all the HistoricalLocations created during test procedure (will be used for clean-up)
+     */
     List<Long> historicalLocationIds = new ArrayList<>();
+    /**
+     * The list of ids for all the Datastreams created during test procedure (will be used for clean-up)
+     */
     List<Long> datastreamIds = new ArrayList<>();
+    /**
+     * The list of ids for all the Observations created during test procedure (will be used for clean-up)
+     */
     List<Long> observationIds = new ArrayList<>();
+    /**
+     * The list of ids for all the Sensors created during test procedure (will be used for clean-up)
+     */
     List<Long> sensorIds = new ArrayList<>();
+    /**
+     * The list of ids for all the ObservedPropeties created during test procedure (will be used for clean-up)
+     */
     List<Long> obsPropIds = new ArrayList<>();
+    /**
+     * The list of ids for all the FeaturesOfInterest created during test procedure (will be used for clean-up)
+     */
     List<Long> foiIds = new ArrayList<>();
 
-
+    /**
+     * This method will be run before starting the test for this conformance class. It cleans the database to start test.
+     * @param testContext The test context to find out whether thsi class is requested to test or not
+     */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
         Object obj = testContext.getSuite().getAttribute(
@@ -50,6 +80,10 @@ public class Capability2Tests {
         deleteEverythings();
     }
 
+    /**
+     * This method is testing create or POST entities. It only tests simple create, no deep insert.
+     * It makes sure that the response is 201 and use simple GET to make sure the entity is added to the service.
+     */
     @Test(description = "POST Entities", groups = "level-2", priority = 2)
     public void createEntities() {
         try {
@@ -178,6 +212,10 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * This method is testing create or POST in the form of Deep Insert.
+     * It makes sure the response is 201. Also using GET requests, it makes sure the entity and all its related entities are created and added to the service.
+     */
     @Test(description = "POST Entities using Deep Insert", groups = "level-2", priority = 2)
     public void createEntitiesWithDeepInsert() {
         try {
@@ -344,6 +382,11 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * This method is testing create or POST with invalid Deep Insert.
+     * It makes sure that if there is any problem in the request body of Deep Insert, none of the entities in that query is created.
+     * The response should be 400 or 409 and the entities should not be accessible using GET.
+     */
     @Test(description = "POST Invalid Entities using Deep Insert", groups = "level-2", priority = 1)
     public void createInvalidEntitiesWithDeepInsert() {
         try {
@@ -556,6 +599,10 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * This method is testing create or POST invalid entities.
+     * The response should be 400 or 409 and the entity should not be accessible using GET.
+     */
     @Test(description = "POST Invalid Entities", groups = "level-2", priority = 3)
     public void createInvalidEntities() {
         try {
@@ -641,6 +688,10 @@ public class Capability2Tests {
 
     }
 
+    /**
+     * This method is testing partial update or PATCH.
+     * The response should be 200 and only the properties in the PATCH body should be updated, and the rest must be unchanged.
+     */
     @Test(description = "PATCH Entities", groups = "level-2", priority = 4)
     public void patchEntities() {
         try {
@@ -733,6 +784,10 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * This method is testing update or PUT.
+     * The response should be 200 and all the properties in the PUT body should be updated, and the rest must be restored to their default value.
+     */
     @Test(description = "PUT Entities", groups = "level-2", priority = 4)
     public void putEntities() {
         try {
@@ -832,7 +887,10 @@ public class Capability2Tests {
         }
     }
 
-
+    /**
+     * This method is testing DELETE and its integrity constraint. The response should be 200.
+     * After DELETE the GET request to that entity should return 404.
+     */
     @Test(description = "DELETE Entities", groups = "level-2", priority = 5)
     public void deleteEntities() {
         for (int i = 0; i < observationIds.size(); i++) {
@@ -872,6 +930,10 @@ public class Capability2Tests {
         checkDeleteIntegrityConstraint();
     }
 
+    /**
+     * This is helper method for checking the integrity containt of DELETE.
+     * For each entity, it checks after deleting, it confirm the deletion of its related entities mentioned in the integrity constraint of the specification.
+     */
     private void checkDeleteIntegrityConstraint(){
         //Thing
         createEntitiesForDelete();
@@ -1003,6 +1065,10 @@ public class Capability2Tests {
     }
 
     //TODO: Add invalid PATCH test for other entities when it is implemented in the service
+    /**
+     * This method is testing invalid partial update or PATCH.
+     * The PATCH request is invalid if the body contains related entities as inline content.
+     */
     @Test(description = "Invalid PATCH Entities", groups = "level-2", priority = 4)
     public void invalidPatchEntities() {
         /** Thing **/
@@ -1094,6 +1160,10 @@ public class Capability2Tests {
 //        invalidPatchEntity(EntityType.OBSERVATION, urlParameters, obsId1);
     }
 
+    /**
+     * This method is testing DELETE request for a nonexistent entity.
+     * The response should be 404.
+     */
     @Test(description = "DELETE nonexistent Entities", groups = "level-2", priority = 5)
     public void deleteNoneexistentEntities() {
         deleteNonExsistentEntity(EntityType.THING);
@@ -1106,8 +1176,13 @@ public class Capability2Tests {
         deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
     }
 
-
-    public JSONObject getEntity(EntityType entityType, long id) {
+    /**
+     * This method created the URL string for the entity with specific id and then send a GET request to that URL.
+     * @param entityType Entity type in from EntityType enum
+     * @param id The id of requested entity
+     * @return The requested entity in the format of JSON Object.
+     */
+    private JSONObject getEntity(EntityType entityType, long id) {
         if (id == -1) {
             return null;
         }
@@ -1121,7 +1196,13 @@ public class Capability2Tests {
         }
     }
 
-    public JSONObject postEntity(EntityType entityType, String urlParameters) {
+    /**
+     * This method created the URL string for the entity and then POST the entity with urlParameters to that URL.
+     * @param entityType Entity type in from EntityType enum
+     * @param urlParameters POST body
+     * @return The created entity in the form of JSON Object
+     */
+    private JSONObject postEntity(EntityType entityType, String urlParameters) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,-1,null,null);
         try {
             Map<String,Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
@@ -1145,7 +1226,12 @@ public class Capability2Tests {
         }
     }
 
-    public void postInvalidEntity(EntityType entityType, String urlParameters) {
+    /**
+     * This helper method is sending invalid POST request and confirm that the response is correct based on specification.
+     * @param entityType Entity type in from EntityType enum
+     * @param urlParameters POST body (invalid)
+     */
+    private void postInvalidEntity(EntityType entityType, String urlParameters) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,-1,null,null);
 
         Map<String,Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
@@ -1154,6 +1240,11 @@ public class Capability2Tests {
 
     }
 
+    /**
+     * This method created the URL string for the entity with specific id and then send DELETE request to that URl.
+     * @param entityType Entity type in from EntityType enum
+     * @param id The id of requested entity
+     */
     private void deleteEntity(EntityType entityType, long id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
@@ -1165,6 +1256,10 @@ public class Capability2Tests {
         Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
     }
 
+    /**
+     * This method create the URL string for a nonexistent entity and send the DELETE request to that URL and confirm that the response is correct based on specification.
+     * @param entityType Entity type in from EntityType enum
+     */
     private void deleteNonExsistentEntity(EntityType entityType) {
         long id = Long.MAX_VALUE;
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
@@ -1174,7 +1269,14 @@ public class Capability2Tests {
 
     }
 
-    public JSONObject updateEntity(EntityType entityType, String urlParameters, long id) {
+    /**
+     * This method created the URL string for the entity with specific idand then PUT the entity with urlParameters to that URL.
+     * @param entityType Entity type in from EntityType enum
+     * @param urlParameters The PUT body
+     * @param id The id of requested entity
+     * @return The updated entity in the format of JSON Object
+     */
+    private JSONObject updateEntity(EntityType entityType, String urlParameters, long id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         try {
             Map<String,Object> responseMap = HTTPMethods.doPut(urlString, urlParameters);
@@ -1192,7 +1294,14 @@ public class Capability2Tests {
         }
     }
 
-    public JSONObject patchEntity(EntityType entityType, String urlParameters, long id) {
+    /**
+     * This method created the URL string for the entity with specific id and then PATCH the entity with urlParameters to that URL.
+     * @param entityType Entity type in from EntityType enum
+     * @param urlParameters The PATCH body
+     * @param id The id of requested entity
+     * @return The patched entity in the format of JSON Object
+     */
+    private JSONObject patchEntity(EntityType entityType, String urlParameters, long id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         try {
 
@@ -1210,7 +1319,13 @@ public class Capability2Tests {
         }
     }
 
-    public void invalidPatchEntity(EntityType entityType, String urlParameters, long id) {
+    /**
+     * This method created the URL string for the entity with specific id and then PATCH invalid entity with urlParameters to that URL and confirms that the response is correct based on specification.
+     * @param entityType Entity type in from EntityType enum
+     * @param urlParameters The PATCH body (invalid)
+     * @param id The id of requested entity
+     */
+    private void invalidPatchEntity(EntityType entityType, String urlParameters, long id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
 
         Map<String,Object> responseMap = HTTPMethods.doPatch(urlString,urlParameters);
@@ -1219,6 +1334,13 @@ public class Capability2Tests {
 
     }
 
+    /**
+     * Check the patched entity properties are updates correctly
+     * @param entityType Entity type in from EntityType enum
+     * @param oldEntity The old properties of the patched entity
+     * @param newEntity The updated properties of the patched entity
+     * @param diffs The properties that supposed to be updated besed on the request due to the specification
+     */
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs){
         try {
             for (String property : EntityProperties.getPropertiesListFor(entityType)) {
@@ -1234,6 +1356,13 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * Check the updated entity properties are updates correctly
+     * @param entityType Entity type in from EntityType enum
+     * @param oldEntity The old properties of the updated entity
+     * @param newEntity The updated properties of the updated entity
+     * @param diffs The properties that supposed to be updated based on the request due to the specification
+     */
     private void checkPut(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs){
         try {
             for (String property : EntityProperties.getPropertiesListFor(entityType)) {
@@ -1250,6 +1379,13 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * Check the FeatureOfInterest is created automatically correctly if not inserted in Observation
+     * @param obsId The observation id
+     * @param locationObj The Location object that the FOI is supposed to be created based on that
+     * @param expectedFOIId The id of the FOI linked to the Observation
+     * @return The id of FOI
+     */
     private long checkAutomaticInsertionOfFOI(long obsId, JSONObject locationObj, long expectedFOIId){
         String urlString = rootUri+"/Observations("+obsId+")/FeatureOfInterest";
         try {
@@ -1270,6 +1406,14 @@ public class Capability2Tests {
         return -1;
     }
 
+    /**
+     * Check the related entity of a given entity
+     * @param parentEntityType The given entity type
+     * @param parentId The given entity id
+     * @param relationEntityType The relation entity type
+     * @param relationObj The expected related entity object
+     * @return The id of related object
+     */
     private long checkRelatedEntity(EntityType parentEntityType, long parentId, EntityType relationEntityType, JSONObject relationObj){
         boolean isCollection = true;
         String urlString = ServiceURLBuilder.buildURLString(rootUri,parentEntityType,parentId,relationEntityType,null);
@@ -1298,6 +1442,11 @@ public class Capability2Tests {
         return -1;
     }
 
+    /**
+     * Check the Observation have the resultTime even if it is null
+     * @param observation The observation JSON object
+     * @param resultTimeValue The expected value of resultTime
+     */
     private void checkForObservationResultTime(JSONObject observation, String resultTimeValue){
         try {
             if(resultTimeValue == null){
@@ -1311,6 +1460,10 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * Check the database is empty of certain entity types
+     * @param entityTypes  List of entity types
+     */
     private void checkNotExisting(List<EntityType> entityTypes){
         for(EntityType entityType:entityTypes) {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
@@ -1326,6 +1479,10 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * Check there are some entityes for certain entity types
+     * @param entityTypes List of entity types
+     */
     private void checkExisting(List<EntityType> entityTypes){
         for(EntityType entityType:entityTypes) {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
@@ -1341,8 +1498,11 @@ public class Capability2Tests {
         }
     }
 
+    /**
+     * This method is run after all the tests of this class is run and clean the database.
+     */
     @AfterClass
-    private void deleteEverythings(){
+    public void deleteEverythings(){
         deleteEntityType(EntityType.OBSERVATION);
         deleteEntityType(EntityType.FEATURE_OF_INTEREST);
         deleteEntityType(EntityType.DATASTREAM);
@@ -1353,6 +1513,10 @@ public class Capability2Tests {
         deleteEntityType(EntityType.THING);
     }
 
+    /**
+     * Delete all the entities of a certain entity type
+     * @param entityType The entity type from EntityType enum
+     */
     private void deleteEntityType(EntityType entityType){
         JSONArray array = null;
         do {
@@ -1373,6 +1537,9 @@ public class Capability2Tests {
         } while (array.length() >0);
     }
 
+    /**
+     * Create entities as a pre-process for testing DELETE.
+     */
     private void createEntitiesForDelete(){
         try {
 
