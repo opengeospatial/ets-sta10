@@ -18,13 +18,16 @@ import java.util.Map;
 
 
 /**
- * Includes various tests of capability 3.
+ * Includes various tests of "A.2 Filtering Extension" Conformance class.
  */
 public class Capability3Tests {
 
+    /**
+     * The root URL of the SensorThings service under the test
+     */
     public String rootUri;//="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
 
-    long thingId1, thingId2,
+    private long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
             locationId1, locationId2, historicalLocationId1,
             historicalLocationId2, historicalLocationId3, historicalLocationId4,
@@ -33,7 +36,10 @@ public class Capability3Tests {
             observationId1, observationId2, observationId3, observationId4, observationId5, observationId6, observationId7, observationId8, observationId9, observationId10, observationId11, observationId12,
             featureOfInterestId1, featureOfInterestId2;
 
-
+    /**
+     * This method will be run before starting the test for this conformance class. It creates a set of entities to start testing query options.
+     * @param testContext The test context to find out whether this class is requested to test or not
+     */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
         Object obj = testContext.getSuite().getAttribute(
@@ -53,7 +59,11 @@ public class Capability3Tests {
         createEntities();
     }
 
-
+    /**
+     * This method is testing $select query option.
+     * It tests $select for collection of entities with 1 level and 2 levels resource path.
+     * It also tests $select for one or more properties.
+     */
     @Test(description = "Check Query Evaluation Priority.", groups = "level-3")
     public void readEntitiesWithSelectQO() {
         checkSelectForEntityType(EntityType.THING);
@@ -75,6 +85,11 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * This method is testing $expand query option.
+     * It tests $expand for collection of entities with 1 level and 2 levels resource path.
+     * It also tests $expand for one or more collections, and also tests multilevel $expand.
+     */
     @Test(description = "GET Entities with $expand", groups = "level-3")
     public void readEntitiesWithExpandQO() {
         checkExpandtForEntityType(EntityType.THING);
@@ -113,6 +128,11 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * This method is testing $top query option.
+     * It tests $top for collection of entities with 1 level and 2 levels resource path.
+     * It also tests @iot.nextLink with regard to $top.
+     */
     @Test(description = "GET Entities with $top", groups = "level-3")
     public void readEntitiesWithTopQO() {
         checkTopForEntityType(EntityType.THING);
@@ -134,6 +154,11 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * This method is testing $skip query option.
+     * It tests $skip for collection of entities with 1 level and 2 levels resource path.
+     * It also tests @iot.nextLink with regard to $skip.
+     */
     @Test(description = "GET Entities with $skip", groups = "level-3")
     public void readEntitiesWithSkipQO() {
         checkSkipForEntityType(EntityType.THING);
@@ -155,6 +180,11 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * This method is testing $orderby query option.
+     * It tests $orderby for collection of entities with 1 level and 2 levels resource path.
+     * It also tests $orderby for one or more properties, and ascending and descending sorting.
+     */
     @Test(description = "GET Entities with $orderby", groups = "level-3")
     public void readEntitiesWithOrderbyQO() {
         checkOrderbyForEntityType(EntityType.THING);
@@ -175,6 +205,10 @@ public class Capability3Tests {
         checkOrderbyForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
+    /**
+     * This method is testing $count query option.
+     * It tests $count for collection of entities with 1 level and 2 levels resource path.
+     */
     @Test(description = "GET Entities with $count", groups = "level-3")
     public void readEntitiesWithCountQO() {
         checkCountForEntityType(EntityType.THING);
@@ -195,6 +229,10 @@ public class Capability3Tests {
         checkCountForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
+    /**
+     * This method is testing $filter query option for <, <=, =, >=, > on properties.
+     * It tests $filter for collection of entities with 1 level and 2 levels resource path.
+     */
     @Test(description = "GET Entities with $filter", groups = "level-3")
     public void readEntitiesWithFilterQO() {
         checkFilterForEntityType(EntityType.THING);
@@ -215,7 +253,11 @@ public class Capability3Tests {
         checkFilterForEntityTypeRelations(EntityType.FEATURE_OF_INTEREST);
     }
 
-    @Test(description = "GET Entities with $filter", groups = "level-3")
+    /**
+     * This method is testing the correct priority of the query options.
+     * It uses $count, $top, $skip, $orderby, and $filter togther and check the priority in result.
+     */
+    @Test(description = "Check priotity of query options", groups = "level-3")
     public void checkQueriesPriorityOrdering() {
         try{
             String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
@@ -232,6 +274,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $orderby for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
         String[] relations = EntityRelations.getRelationsListFor(entityType);
         try {
@@ -360,6 +406,10 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * This helper method is checking $orderby for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkOrderbyForEntityType(EntityType entityType) {
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
         try {
@@ -472,6 +522,10 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * This helper method is checking $skip for s collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkSkipForEntityType(EntityType entityType) {
         try {
 
@@ -600,6 +654,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $skip for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkSkipForEntityTypeRelation(EntityType entityType) {
         try {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -682,6 +740,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $top for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkTopForEntityType(EntityType entityType) {
         try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=1");
@@ -926,6 +988,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $top for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkTopForEntityTypeRelation(EntityType entityType) {
         try {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -1033,6 +1099,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $select for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkSelectForEntityType(EntityType entityType) {
         List<String> selectedProperties;
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
@@ -1050,6 +1120,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $select for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkSelectForEntityTypeRelations(EntityType entityType) {
         try {
             String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
@@ -1084,7 +1158,16 @@ public class Capability3Tests {
         }
     }
 
-    public String getEntities(EntityType entityType, long id, EntityType relationEntityType, List<String> selectedProperties, List<String> expandedRelations) {
+    /**
+     * Send GET request with $select and $expand and check the response.
+     * @param entityType  Entity type from EntityType enum list
+     * @param id The id of the entity
+     * @param relationEntityType The relation entity type from EntityType enum list
+     * @param selectedProperties The list of selected properties
+     * @param expandedRelations The list of expanded properties
+     * @return The response of GET request in string format
+     */
+    private String getEntities(EntityType entityType, long id, EntityType relationEntityType, List<String> selectedProperties, List<String> expandedRelations) {
         String urlString = rootUri;
         String selectString = "";
         if (selectedProperties != null && selectedProperties.size() > 0) {
@@ -1116,13 +1199,24 @@ public class Capability3Tests {
         return response;
     }
 
-    public void checkEntitiesAllAspectsForSelectResponse(EntityType entityType, String response, List<String> selectedProperties) {
+    /**
+     * This helper method is the start point for checking $select response
+     * @param entityType Entity type from EntityType enum list
+     * @param response The response to be checked
+     * @param selectedProperties The list of selected properties
+     */
+    private void checkEntitiesAllAspectsForSelectResponse(EntityType entityType, String response, List<String> selectedProperties) {
         checkEntitiesProperties(entityType, response, selectedProperties);
         checkEntitiesRelations(entityType, response, selectedProperties, null);
     }
 
-
-    public void checkEntitiesProperties(EntityType entityType, String response, List<String> selectedProperties) {
+    /**
+     * This method is checking properties for the $select response of a collection
+     * @param entityType Entity type from EntityType enum list
+     * @param response The response to be checked
+     * @param selectedProperties The list of selected properties
+     */
+    private void checkEntitiesProperties(EntityType entityType, String response, List<String> selectedProperties) {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = null;
@@ -1141,7 +1235,13 @@ public class Capability3Tests {
 
     }
 
-    public void checkPropertiesForEntityArray(EntityType entityType, JSONArray entities, List<String> selectedProperties) {
+    /**
+     * This method is checking properties for the $select array of entities
+     * @param entityType Entity type from EntityType enum list
+     * @param entities The JSONArray of entities to be checked
+     * @param selectedProperties The list of selected properties
+     */
+    private void checkPropertiesForEntityArray(EntityType entityType, JSONArray entities, List<String> selectedProperties) {
         int count = 0;
         for (int i = 0; i < entities.length() && count < 2; i++) {
             count++;
@@ -1156,7 +1256,13 @@ public class Capability3Tests {
         }
     }
 
-    public void checkEntityProperties(EntityType entityType, Object response, List<String> selectedProperties) {
+    /**
+     * This method is checking properties for the $select response of a single entity
+     * @param entityType Entity type from EntityType enum list
+     * @param response The response to be checked
+     * @param selectedProperties The list of selected properties
+     */
+    private void checkEntityProperties(EntityType entityType, Object response, List<String> selectedProperties) {
         try {
             JSONObject entity = new JSONObject(response.toString());
             String[] properties = EntityProperties.getPropertiesListFor(entityType);
@@ -1181,7 +1287,14 @@ public class Capability3Tests {
 
     }
 
-    public void checkEntitiesRelations(EntityType entityType, String response, List<String> selectedProperties, List<String> expandedRelations) {
+    /**
+     * This method is checking the related entities of selected and/or expanded entities for a collection
+     * @param entityType Entity type from EntityType enum list
+     * @param response The response to be checked
+     * @param selectedProperties The list of selected properties
+     * @param expandedRelations The list of expanded properties
+     */
+    private void checkEntitiesRelations(EntityType entityType, String response, List<String> selectedProperties, List<String> expandedRelations) {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = null;
@@ -1204,7 +1317,14 @@ public class Capability3Tests {
 
     }
 
-    public void checkEntityRelations(EntityType entityType, Object response, List<String> selectedProperties, List<String> expandedRelations) {
+    /**
+     * This method is checking the related entities of selected and/or expanded entities for a single entity
+     * @param entityType Entity type from EntityType enum list
+     * @param response The response to be checked
+     * @param selectedProperties The list of selected properties
+     * @param expandedRelations The list of expanded properties
+     */
+    private void checkEntityRelations(EntityType entityType, Object response, List<String> selectedProperties, List<String> expandedRelations) {
         try {
             JSONObject entity = new JSONObject(response.toString());
             String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -1269,6 +1389,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $expand for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkExpandtForEntityType(EntityType entityType) {
         List<String> expandedRelations;
         String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -1286,6 +1410,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $expand for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkExpandtForEntityTypeRelations(EntityType entityType) {
         try {
             String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
@@ -1321,6 +1449,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking multilevel $expand for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkExpandtForEntityTypeMultilevelRelations(EntityType entityType) {
         try {
             String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
@@ -1363,6 +1495,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking multilevel $expand for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkExpandtForEntityTypeMultilevel(EntityType entityType) {
 
         List<String> expandedRelations;
@@ -1388,6 +1524,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $count for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkCountForEntityType(EntityType entityType) {
 
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$count=true");
@@ -1430,6 +1570,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $count for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkCountForEntityTypeRelations(EntityType entityType) {
         try {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -1501,10 +1645,20 @@ public class Capability3Tests {
         }
     }
 
-    public void checkEntitiesAllAspectsForExpandResponse(EntityType entityType, String response, List<String> expandedRelations) {
+    /**
+     * This helper method is the start point for checking $expand response.
+     * @param entityType Entity type from EntityType enum list
+     * @param response The response to be checked
+     * @param expandedRelations List of expanded relations
+     */
+    private void checkEntitiesAllAspectsForExpandResponse(EntityType entityType, String response, List<String> expandedRelations) {
         checkEntitiesRelations(entityType, response, null, expandedRelations);
     }
 
+    /**
+     * This helper method is checking $filter for a collection.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkFilterForEntityType(EntityType entityType){
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
         List<String> filteredProperties;
@@ -1548,6 +1702,10 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This helper method is checking $filter for 2 level of entities.
+     * @param entityType  Entity type from EntityType enum list
+     */
     private void checkFilterForEntityTypeRelations(EntityType entityType){
         String[] relations = EntityRelations.getRelationsListFor(entityType);
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
@@ -1620,6 +1778,13 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * This method is checking the properties of the filtered collection
+     * @param response The response to be checked
+     * @param properties List of filtered properties
+     * @param values List of values for filtered properties
+     * @param operator The operator of the filter
+     */
     private void checkPropertiesForFilter(String response, List<String> properties, List<String> values, int operator){
         try {
             JSONObject entities = new JSONObject(response);
@@ -1662,6 +1827,11 @@ public class Capability3Tests {
         }
     }
 
+    /**
+     * Find EntityType from its name string
+     * @param name entity type name string
+     * @return The entity type from EntityType enum list
+     */
     private EntityType getEntityTypeFor(String name) {
         switch (name.toLowerCase()) {
             case "thing":
@@ -1694,7 +1864,9 @@ public class Capability3Tests {
 
 
 
-
+    /**
+     * Create entities as a pre-process for testing query options.
+     */
     private void createEntities(){
         try {
             //First Thing
@@ -2027,6 +2199,12 @@ public class Capability3Tests {
 
     }
 
+    /**
+     * The helper method to check if a list contains a entity name string
+     * @param list The list to be searched
+     * @param entity The entity name to be checked
+     * @return True if the entity name exists is the list, false otherwise
+     */
     private boolean listContainsString(List<String> list, String entity){
         for(String item:list) {
             if (item.toLowerCase().contains(entity.toLowerCase())){
@@ -2043,8 +2221,11 @@ public class Capability3Tests {
         return false;
     }
 
+    /**
+     * This method is run after all the tests of this class is run and clean the database.
+     */
     @AfterClass
-    private void deleteEverythings(){
+    public void deleteEverythings(){
         deleteEntityType(EntityType.OBSERVATION);
         deleteEntityType(EntityType.FEATURE_OF_INTEREST);
         deleteEntityType(EntityType.DATASTREAM);
@@ -2055,7 +2236,10 @@ public class Capability3Tests {
         deleteEntityType(EntityType.THING);
     }
 
-
+    /**
+     * Delete all the entities of a certain entity type
+     * @param entityType The entity type from EntityType enum
+     */
     private void deleteEntityType(EntityType entityType){
         JSONArray array = null;
         do {
@@ -2076,6 +2260,11 @@ public class Capability3Tests {
         } while (array.length() >0);
     }
 
+    /**
+     * This method created the URL string for the entity with specific id and then send DELETE request to that URl.
+     * @param entityType Entity type in from EntityType enum
+     * @param id The id of requested entity
+     */
     private void deleteEntity(EntityType entityType, long id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
         Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);

@@ -31,8 +31,8 @@ public class Capability1Tests {
     private final int resourcePathLevel = 4;
 
     /**
-     * This method will be run before starting the test for this conformance class. It cleans the database to start test.
-     * @param testContext The test context to find out whether thsi class is requested to test or not
+     * This method will be run before starting the test for this conformance class.
+     * @param testContext The test context to find out whether this class is requested to test or not
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {

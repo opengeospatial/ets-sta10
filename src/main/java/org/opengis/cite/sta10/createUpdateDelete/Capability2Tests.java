@@ -27,39 +27,39 @@ public class Capability2Tests {
     /**
      * The list of ids for all the Things created during test procedure (will be used for clean-up)
      */
-    List<Long> thingIds = new ArrayList<>();
+    private List<Long> thingIds = new ArrayList<>();
     /**
      * The list of ids for all the Locations created during test procedure (will be used for clean-up)
      */
-    List<Long> locationIds = new ArrayList<>();
+    private List<Long> locationIds = new ArrayList<>();
     /**
      * The list of ids for all the HistoricalLocations created during test procedure (will be used for clean-up)
      */
-    List<Long> historicalLocationIds = new ArrayList<>();
+    private List<Long> historicalLocationIds = new ArrayList<>();
     /**
      * The list of ids for all the Datastreams created during test procedure (will be used for clean-up)
      */
-    List<Long> datastreamIds = new ArrayList<>();
+    private List<Long> datastreamIds = new ArrayList<>();
     /**
      * The list of ids for all the Observations created during test procedure (will be used for clean-up)
      */
-    List<Long> observationIds = new ArrayList<>();
+    private List<Long> observationIds = new ArrayList<>();
     /**
      * The list of ids for all the Sensors created during test procedure (will be used for clean-up)
      */
-    List<Long> sensorIds = new ArrayList<>();
+    private List<Long> sensorIds = new ArrayList<>();
     /**
      * The list of ids for all the ObservedPropeties created during test procedure (will be used for clean-up)
      */
-    List<Long> obsPropIds = new ArrayList<>();
+    private List<Long> obsPropIds = new ArrayList<>();
     /**
      * The list of ids for all the FeaturesOfInterest created during test procedure (will be used for clean-up)
      */
-    List<Long> foiIds = new ArrayList<>();
+    private List<Long> foiIds = new ArrayList<>();
 
     /**
      * This method will be run before starting the test for this conformance class. It cleans the database to start test.
-     * @param testContext The test context to find out whether thsi class is requested to test or not
+     * @param testContext The test context to find out whether this class is requested to test or not
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
