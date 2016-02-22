@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opengis.cite</groupId>
     <artifactId>ets-common</artifactId>
-    <version>4</version>
+    <version>6</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ets-sta10</artifactId>

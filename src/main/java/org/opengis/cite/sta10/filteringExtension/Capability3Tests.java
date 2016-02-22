@@ -230,7 +230,7 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $filter query option for <, <=, =, >=, > on properties.
+     * This method is testing $filter query option for {@literal <, <=, =, >=, >} on properties.
      * It tests $filter for collection of entities with 1 level and 2 levels resource path.
      */
     @Test(description = "GET Entities with $filter", groups = "level-3")
