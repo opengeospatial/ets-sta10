@@ -38,9 +38,14 @@
   </issueManagement>
   <developers>
     <developer>
-      <name>Alpha Beta</name>
-      <url>https://github.com/</url>
-      <timezone>UTC</timezone>
+      <name>T. Khalafbeigi</name>
+      <url>https://github.com/taniakhalafbeigi</url>
+      <timezone>Canada/Mountain</timezone>
+    </developer>
+    <developer>
+      <name>Luis Bermudez</name>
+      <url>https://github.com/bermud</url>
+      <timezone>US/Eastern</timezone>
     </developer>
   </developers>
 
