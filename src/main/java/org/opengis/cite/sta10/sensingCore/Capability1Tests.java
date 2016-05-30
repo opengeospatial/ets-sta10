@@ -160,7 +160,7 @@ public class Capability1Tests {
         try {
             Map<String,Object> responseMap = getEntity(entityType, id, property);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+            Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the existing " + entityType.name() + " with id " + id + " failed.");
             String response = responseMap.get("response").toString();
             JSONObject entity = null;
             entity = new JSONObject(response.toString());
@@ -185,7 +185,7 @@ public class Capability1Tests {
     private void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
         Map<String,Object> responseMap = getEntity(entityType, id, property+"/$value");
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
+        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the existing " + entityType.name() + " with id " + id + " failed.");
         String response = responseMap.get("response").toString();
         if(!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
             Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
@@ -331,7 +331,7 @@ public class Capability1Tests {
             Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
             Map<String,Object> responseMap = getEntity(entityType, id, null);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Reading exitixting " + entityType.name() + " with id " + id + " failed.");
+            Assert.assertEquals(responseCode, 200, "Reading existing " + entityType.name() + " with id " + id + " failed.");
             response = responseMap.get("response").toString();
             return response;
         } catch (JSONException e) {
@@ -348,7 +348,7 @@ public class Capability1Tests {
     private void readNonexistentEntityWithEntityType(EntityType entityType) {
         long id = Long.MAX_VALUE;
         int responseCode = Integer.parseInt(getEntity(entityType, id, null).get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "Reading non-exitixting " + entityType.name() + " with id " + id + " failed.");
+        Assert.assertEquals(responseCode, 404, "Reading non-existing " + entityType.name() + " with id " + id + " failed.");
     }
 
     /**
