@@ -617,7 +617,7 @@ public class Capability2Tests {
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
                     "  \"Thing\": { \"@iot.id\": " + thingIds.get(0) + " },\n" +
-                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "}\n" +
                     "}";
             postInvalidEntity(EntityType.DATASTREAM, urlParameters);
             //Without ObservedProperty
@@ -1450,7 +1450,7 @@ public class Capability2Tests {
     private void checkForObservationResultTime(JSONObject observation, String resultTimeValue){
         try {
             if(resultTimeValue == null){
-                    Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong(ControlInformation.ID)+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
+                Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong(ControlInformation.ID)+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
             } else {
                 Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
             }
