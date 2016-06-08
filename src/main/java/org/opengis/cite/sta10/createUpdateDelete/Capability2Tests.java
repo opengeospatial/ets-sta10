@@ -1087,7 +1087,7 @@ public class Capability2Tests {
                 "        \"name\": \"Lumen\",\n" +
                 "        \"symbol\": \"lm\",\n" +
                 "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
-                "      }]}";
+                "      }}]}";
         invalidPatchEntity(EntityType.THING, urlParameters, thingId);
 
 //        /** Location **/
