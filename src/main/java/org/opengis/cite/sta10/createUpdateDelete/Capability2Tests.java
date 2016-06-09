@@ -918,15 +918,6 @@ public class Capability2Tests {
             deleteEntity(EntityType.THING, thingIds.get(i));
         }
 
-        deleteNonExsistentEntity(EntityType.THING);
-        deleteNonExsistentEntity(EntityType.LOCATION);
-        deleteNonExsistentEntity(EntityType.HISTORICAL_LOCATION);
-        deleteNonExsistentEntity(EntityType.SENSOR);
-        deleteNonExsistentEntity(EntityType.OBSERVED_PROPERTY);
-        deleteNonExsistentEntity(EntityType.DATASTREAM);
-        deleteNonExsistentEntity(EntityType.OBSERVATION);
-        deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
-
         checkDeleteIntegrityConstraint();
     }
 
