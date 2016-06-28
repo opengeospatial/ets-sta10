@@ -195,17 +195,6 @@ public class Capability2Tests {
             long obsId3 = entity.getLong(ControlInformation.ID);
             observationIds.add(obsId3);
             checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
-
-            /** HistoricalLocation **/
-            urlParameters = "{\n" +
-                    "  \"time\": \"2015-03-01T00:40:00.000Z\",\n" +
-                    "  \"Thing\":{\"@iot.id\": " + thingId + "},\n" +
-                    "  \"Locations\": [{\"@iot.id\": " + locationId + "}]  \n" +
-                    "}";
-            entity = postEntity(EntityType.HISTORICAL_LOCATION, urlParameters);
-            long histLocId = entity.getLong(ControlInformation.ID);
-            historicalLocationIds.add(histLocId);
-
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
