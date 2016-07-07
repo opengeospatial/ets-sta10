@@ -23,10 +23,93 @@ Classes A.4 to A.8 have not been implemented.
 Here are the preconditions and postconditions for running SensorThings Test Suite on a service.
 
 ### Preconditions
-The service under test should have at least one instance of each entity in SensorThings.
+The service under test should have a small number of each entity type in SensorThings. In other words, the service under test needs to have at least one entity for each entity type and the number of entities for each entityType must be less that the pagination limit. It means that we can access the entities of each entity type without the need to follow the @iot.nextLink.
+If your service supports "Deep Insert" You can POST the following JSON to create the required entities before starting the test:
+```
+{
+    "description": "thing 1",
+    "properties": {
+        "reference": "first"
+    },
+    "Locations": [
+        {
+            "description": "location 1",
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    -117.05,
+                    51.05
+                ]
+            },
+            "encodingType": "http://example.org/location_types/GeoJSON"
+        }
+    ],
+    "Datastreams": [
+        {
+            "unitOfMeasurement": {
+                "name": "Lumen",
+                "symbol": "lm",
+                "definition": "http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen"
+            },
+            "description": "datastream 1",
+            "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+            "ObservedProperty": {
+                "name": "Luminous Flux",
+                "definition": "http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux",
+                "description": "observedProperty 1"
+            },
+            "Sensor": {
+                "description": "sensor 1",
+                "encodingType": "http://schema.org/description",
+                "metadata": "Light flux sensor"
+            },
+            "Observations":[
+                {
+                    "phenomenonTime": "2015-03-03T00:00:00Z",
+                    "result": 3 
+                },
+                {
+                    "phenomenonTime": "2015-03-04T00:00:00Z",
+                    "result": 4 
+                }
+            ]
+        },
+        {
+            "unitOfMeasurement": {
+                "name": "Centigrade",
+                "symbol": "C",
+                "definition": "http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen"
+            },
+            "description": "datastream 2",
+            "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+            "ObservedProperty": {
+                "name": "Tempretaure",
+                "definition": "http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/Tempreture",
+                "description": "observedProperty 2"
+            },
+            "Sensor": {
+                "description": "sensor 2",
+                "encodingType": "http://schema.org/description",
+                "metadata": "Tempreture sensor"
+            },
+            "Observations":[
+                {
+                    "phenomenonTime": "2015-03-05T00:00:00Z",
+                    "result": 5
+                },
+                {
+                    "phenomenonTime": "2015-03-06T00:00:00Z",
+                    "result": 6 
+                }
+            ]
+        }
+    ]
+}
+```
 
 ### Postconditions
-After finishing test process, <b>all the data in the service under test will be DELETED</b>.
+If you are testing only <b>"Sensing core"</b> there will be no postcondition.<br/>
+If you are testing <b>"Create-Update-Delete"</b> or <b>"Filtering extension"</b>, after finishing the test process, <b>all the data in the service under test will be DELETED</b>.
 
 ## Release Notes
 
