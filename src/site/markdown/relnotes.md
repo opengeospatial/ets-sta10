@@ -2,6 +2,12 @@ SensorThings API Conformance Test Release Notes
 ==================================================
 
 
+0.4 (2016-07-08)
+-------------------
+- Add sample request for creating entities before starting the test.
+- Clarifying the preconditions and postconditions for the test.
+- Merge PULL requests to fix a few bugs.
+
 0.3 (2016-01-25)
 -------------------
 - Add more tests to "A.2 Filtering Extension" and "A.1 Sensing Core" conformance classes.
