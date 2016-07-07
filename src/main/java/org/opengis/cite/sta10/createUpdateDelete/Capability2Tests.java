@@ -96,7 +96,7 @@ public class Capability2Tests {
             /** Location **/
             urlParameters = "{\n" +
                     "  \"description\": \"bow river\",\n" +
-                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                    "  \"encodingType\": \"application/vnd.geo+json\",\n" +
                     "  \"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }\n" +
                     "}";
             entity = postEntity(EntityType.LOCATION, urlParameters);
@@ -127,7 +127,7 @@ public class Capability2Tests {
             /** FeatureOfInterest **/
             urlParameters = "{\n" +
                     "  \"description\": \"A weather station.\",\n" +
-                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                    "  \"encodingType\": \"application/vnd.geo+json\",\n" +
                     "  \"feature\": {\n" +
                     "    \"type\": \"Point\",\n" +
                     "    \"coordinates\": [\n" +
@@ -229,7 +229,7 @@ public class Capability2Tests {
                     "    {\n" +
                     "      \"description\": \"West Roof\",\n" +
                     "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
-                    "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "      \"encodingType\": \"application/vnd.geo+json\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"Datastreams\": [\n" +
@@ -272,7 +272,7 @@ public class Capability2Tests {
             deepInsertedObj = new JSONObject("{\n" +
                     "      \"description\": \"West Roof\",\n" +
                     "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
-                    "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "      \"encodingType\": \"application/vnd.geo+json\"\n" +
                     "    }\n");
             locationIds.add(checkRelatedEntity(EntityType.THING, thingId, EntityType.LOCATION, deepInsertedObj));
             //Check Sensor
@@ -348,7 +348,7 @@ public class Capability2Tests {
                     "  \"result\": 100,\n" +
                     "  \"FeatureOfInterest\": {\n" +
                     "  \t\"description\": \"A weather station.\",\n" +
-                    "  \t\"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                    "  \t\"encodingType\": \"application/vnd.geo+json\",\n" +
                     "    \"feature\": {\n" +
                     "      \"type\": \"Point\",\n" +
                     "      \"coordinates\": [\n" +
@@ -364,7 +364,7 @@ public class Capability2Tests {
             //Check FeaturOfInterest
             deepInsertedObj = new JSONObject("{\n" +
                     "  \"description\": \"A weather station.\",\n" +
-                    "  \"encodingType\": \"http://example.org/location_types#GeoJSON\",\n" +
+                    "  \"encodingType\": \"application/vnd.geo+json\",\n" +
                     "    \"feature\": {\n" +
                     "      \"type\": \"Point\",\n" +
                     "      \"coordinates\": [\n" +
@@ -399,7 +399,7 @@ public class Capability2Tests {
                     "    {\n" +
                     "      \"description\": \"West Roof\",\n" +
                     "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
-                    "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "      \"encodingType\": \"application/vnd.geo+json\"\n" +
                     "    }\n" +
                     "  ],\n" +
                     "  \"Datastreams\": [\n" +
@@ -617,7 +617,7 @@ public class Capability2Tests {
                     "  \"description\": \"test datastream.\",\n" +
                     "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
                     "  \"Thing\": { \"@iot.id\": " + thingIds.get(0) + " },\n" +
-                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "},\n" +
+                    "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropIds.get(0) + "}\n" +
                     "}";
             postInvalidEntity(EntityType.DATASTREAM, urlParameters);
             //Without ObservedProperty
@@ -918,15 +918,6 @@ public class Capability2Tests {
             deleteEntity(EntityType.THING, thingIds.get(i));
         }
 
-        deleteNonExsistentEntity(EntityType.THING);
-        deleteNonExsistentEntity(EntityType.LOCATION);
-        deleteNonExsistentEntity(EntityType.HISTORICAL_LOCATION);
-        deleteNonExsistentEntity(EntityType.SENSOR);
-        deleteNonExsistentEntity(EntityType.OBSERVED_PROPERTY);
-        deleteNonExsistentEntity(EntityType.DATASTREAM);
-        deleteNonExsistentEntity(EntityType.OBSERVATION);
-        deleteNonExsistentEntity(EntityType.FEATURE_OF_INTEREST);
-
         checkDeleteIntegrityConstraint();
     }
 
@@ -1077,7 +1068,7 @@ public class Capability2Tests {
                 "    {\n" +
                 "      \"description\": \"West Roof\",\n" +
                 "      \"location\": { \"type\": \"Point\", \"coordinates\": [-117.05, 51.05] },\n" +
-                "      \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                "      \"encodingType\": \"application/vnd.geo+json\"\n" +
                 "    }\n" +
                 "  ]}";
         invalidPatchEntity(EntityType.THING, urlParameters, thingId);
@@ -1087,7 +1078,7 @@ public class Capability2Tests {
                 "        \"name\": \"Lumen\",\n" +
                 "        \"symbol\": \"lm\",\n" +
                 "        \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html#Lumen\"\n" +
-                "      }]}";
+                "      }}]}";
         invalidPatchEntity(EntityType.THING, urlParameters, thingId);
 
 //        /** Location **/
@@ -1450,7 +1441,7 @@ public class Capability2Tests {
     private void checkForObservationResultTime(JSONObject observation, String resultTimeValue){
         try {
             if(resultTimeValue == null){
-                    Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong(ControlInformation.ID)+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
+                Assert.assertEquals(observation.get("resultTime").toString(),"null","The resultTime of the Observation "+observation.getLong(ControlInformation.ID)+" should have been null but it is now \""+observation.get("resultTime").toString()+"\".");
             } else {
                 Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
             }
@@ -1569,7 +1560,7 @@ public class Capability2Tests {
                     "                    51.05\n" +
                     "                ]\n" +
                     "            },\n" +
-                    "            \"encodingType\": \"http://example.org/location_types#GeoJSON\"\n" +
+                    "            \"encodingType\": \"application/vnd.geo+json\"\n" +
                     "        }\n" +
                     "    ],\n" +
                     "    \"Datastreams\": [\n" +
