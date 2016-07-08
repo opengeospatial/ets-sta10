@@ -38,7 +38,7 @@ public class EntityPropertiesSampleValue {
      */
     public static final Comparable[] OBSERVATION_PROPERTIES_Values = {
         ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z"),
-        Integer.valueOf(2),
+        "'2'",
         ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z")};
     /**
      * Sample properties for FeatureOfInterest entity.
