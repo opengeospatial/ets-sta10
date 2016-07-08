@@ -272,7 +272,7 @@ public class Capability3Tests {
             Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code"));
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
-            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 9, but the service returned "+new JSONObject(response).getLong("@iot.count"));
+            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned "+new JSONObject(response).getLong("@iot.count"));
             Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned "+array.length()+" entities.");
             Assert.assertEquals(array.getJSONObject(0).getString("result"),"6", "The query order of execution is not correct. The expected Observation result is 6, but it is "+array.getJSONObject(0).getString("result"));
         } catch (JSONException e) {
