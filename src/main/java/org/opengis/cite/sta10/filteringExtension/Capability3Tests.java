@@ -1,5 +1,13 @@
 package org.opengis.cite.sta10.filteringExtension;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,12 +18,6 @@ import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 
 /**
  * Includes various tests of "A.2 Filtering Extension" Conformance class.
@@ -129,9 +131,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $top query option.
-     * It tests $top for collection of entities with 1 level and 2 levels resource path.
-     * It also tests @iot.nextLink with regard to $top.
+     * This method is testing $top query option. It tests $top for collection of
+     * entities with 1 level and 2 levels resource path. It also tests
+     * {@literal @iot.nextLink} with regard to $top.
      */
     @Test(description = "GET Entities with $top", groups = "level-3")
     public void readEntitiesWithTopQO() {
@@ -155,9 +157,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $skip query option.
-     * It tests $skip for collection of entities with 1 level and 2 levels resource path.
-     * It also tests @iot.nextLink with regard to $skip.
+     * This method is testing $skip query option. It tests $skip for collection
+     * of entities with 1 level and 2 levels resource path. It also tests
+     * {@literal @iot.nextLink} with regard to $skip.
      */
     @Test(description = "GET Entities with $skip", groups = "level-3")
     public void readEntitiesWithSkipQO() {
@@ -230,11 +232,15 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $filter query option for {@literal <, <=, =, >=, >} on properties.
-     * It tests $filter for collection of entities with 1 level and 2 levels resource path.
+     * This method is testing $filter query option for
+     * {@literal <, <=, =, >=, >} on properties. It tests $filter for collection
+     * of entities with 1 level and 2 levels resource path.
+     *
+     * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
+     * should always be supported.
      */
     @Test(description = "GET Entities with $filter", groups = "level-3")
-    public void readEntitiesWithFilterQO() {
+    public void readEntitiesWithFilterQO() throws UnsupportedEncodingException {
         checkFilterForEntityType(EntityType.THING);
         checkFilterForEntityType(EntityType.LOCATION);
         checkFilterForEntityType(EntityType.HISTORICAL_LOCATION);
@@ -254,8 +260,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing the correct priority of the query options.
-     * It uses $count, $top, $skip, $orderby, and $filter togther and check the priority in result.
+     * This method is testing the correct priority of the query options. It uses
+     * $count, $top, $skip, $orderby, and $filter togther and check the priority
+     * in result.
      */
     @Test(description = "Check priotity of query options", groups = "level-3")
     public void checkQueriesPriorityOrdering() {
@@ -1144,7 +1151,8 @@ public class Capability3Tests {
                 }
                 selectedProperties = new ArrayList<>();
                 for (String property : properties) {
-                    selectedProperties.add(property);response = getEntities(entityType, id, relationEntityType, selectedProperties, null);
+                    selectedProperties.add(property);
+                    response = getEntities(entityType, id, relationEntityType, selectedProperties, null);
                     checkEntitiesAllAspectsForSelectResponse(relationEntityType, response, selectedProperties);
                 }
             }
@@ -1342,31 +1350,31 @@ public class Capability3Tests {
                             } else {
                                 expandedEntityArray = entity.getJSONArray(relation);
                             }
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
                         }
-                            checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(relation))));
-                            if(listContainsString(expandedRelations, "/")) {
-                                String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
-                                JSONObject expandedEntity = expandedEntityArray.getJSONObject(0);
-                                for (String secondLeveleRelation : secondLevelRelations) {
-                                    if (listContainsString(expandedRelations, relation+"/"+secondLeveleRelation)) {
+                        checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(relation))));
+                        if (listContainsString(expandedRelations, "/")) {
+                            String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
+                            JSONObject expandedEntity = expandedEntityArray.getJSONObject(0);
+                            for (String secondLeveleRelation : secondLevelRelations) {
+                                if (listContainsString(expandedRelations, relation + "/" + secondLeveleRelation)) {
 
-                                        expandedEntityArray = null;
-                                        try {
-                                            if (secondLeveleRelation.charAt(secondLeveleRelation.length() - 1) != 's' && !secondLeveleRelation.equals("FeaturesOfInterest")) {
-                                                expandedEntityArray = new JSONArray();
-                                                expandedEntityArray.put(expandedEntity.getJSONObject(secondLeveleRelation));
-                                            } else {
-                                                expandedEntityArray = expandedEntity.getJSONArray(secondLeveleRelation);
-                                            }
-                                        } catch (JSONException e){
-                                            Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "/"+secondLeveleRelation+"\".");
+                                    expandedEntityArray = null;
+                                    try {
+                                        if (secondLeveleRelation.charAt(secondLeveleRelation.length() - 1) != 's' && !secondLeveleRelation.equals("FeaturesOfInterest")) {
+                                            expandedEntityArray = new JSONArray();
+                                            expandedEntityArray.put(expandedEntity.getJSONObject(secondLeveleRelation));
+                                        } else {
+                                            expandedEntityArray = expandedEntity.getJSONArray(secondLeveleRelation);
                                         }
-                                        checkPropertiesForEntityArray(getEntityTypeFor(secondLeveleRelation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(secondLeveleRelation))));
+                                    } catch (JSONException e) {
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "/" + secondLeveleRelation + "\".");
                                     }
+                                    checkPropertiesForEntityArray(getEntityTypeFor(secondLeveleRelation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(secondLeveleRelation))));
                                 }
                             }
+                        }
                     }
                 } else {
                     try {
@@ -1653,24 +1661,27 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $filter for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
+     * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
+     * should always be supported.
      */
-    private void checkFilterForEntityType(EntityType entityType){
+    private void checkFilterForEntityType(EntityType entityType) throws UnsupportedEncodingException {
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
         List<String> filteredProperties;
-        List<String> samplePropertyValues;
+        List<Comparable> samplePropertyValues;
         for (int i = 0; i < properties.length; i++) {
-            filteredProperties=new ArrayList<>();
+            filteredProperties = new ArrayList<>();
             samplePropertyValues = new ArrayList<>();
             String property = properties[i];
             filteredProperties.add(property);
-            if(property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement")){
+            if (property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement")) {
                 continue;
             }
-            String propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(entityType, i);
+            Comparable propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(entityType, i);
             samplePropertyValues.add(propertyValue);
 
-            propertyValue = propertyValue.replaceAll(" ","%20");
+            propertyValue = URLEncoder.encode(propertyValue.toString(), "UTF-8");
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20lt%20" + propertyValue);
             Map responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
@@ -1700,9 +1711,12 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $filter for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
+     * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
+     * should always be supported.
      */
-    private void checkFilterForEntityTypeRelations(EntityType entityType){
+    private void checkFilterForEntityTypeRelations(EntityType entityType) throws UnsupportedEncodingException {
         String[] relations = EntityRelations.getRelationsListFor(entityType);
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
         Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
@@ -1733,7 +1747,7 @@ public class Capability3Tests {
 
             String[] properties = EntityProperties.getPropertiesListFor(relationEntityType);
             List<String> filteredProperties;
-            List<String> samplePropertyValues;
+            List<Comparable> samplePropertyValues;
             for (int i = 0; i < properties.length; i++) {
                 filteredProperties = new ArrayList<>();
                 samplePropertyValues = new ArrayList<>();
@@ -1742,10 +1756,10 @@ public class Capability3Tests {
                 if (property.equals("location") || property.equals("feature") || property.equals("unitOfMeasurement")) {
                     continue;
                 }
-                String propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(relationEntityType, i);
+                Comparable propertyValue = EntityPropertiesSampleValue.getPropertyValueFor(relationEntityType, i);
                 samplePropertyValues.add(propertyValue);
 
-                propertyValue = propertyValue.replaceAll(" ", "%20");
+                propertyValue = URLEncoder.encode(propertyValue.toString(), "UTF-8");
                 urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20lt%20" + propertyValue);
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
@@ -1776,43 +1790,52 @@ public class Capability3Tests {
 
     /**
      * This method is checking the properties of the filtered collection
+     *
      * @param response The response to be checked
      * @param properties List of filtered properties
      * @param values List of values for filtered properties
      * @param operator The operator of the filter
      */
-    private void checkPropertiesForFilter(String response, List<String> properties, List<String> values, int operator){
+    private void checkPropertiesForFilter(String response, List<String> properties, List<Comparable> values, int operator) {
         try {
             JSONObject entities = new JSONObject(response);
             JSONArray entityArray = entities.getJSONArray("value");
             for (int i = 0; i < entityArray.length(); i++) {
                 JSONObject entity = entityArray.getJSONObject(i);
                 for (int j = 0; j < properties.size(); j++) {
-                    String propertyValue = null;
+                    Object propertyValue = "";
                     try {
-                        propertyValue = entity.get(properties.get(j)).toString();
-                    } catch (JSONException e){
-                        Assert.fail("The entity does not have property "+properties.get(j));
+                        propertyValue = entity.get(properties.get(j));
+                    } catch (JSONException e) {
+                        Assert.fail("The entity does not have property " + properties.get(j));
                     }
-                    String value = values.get(j);
-                    if(value.charAt(0)=='\''){
-                        value = value.substring(1,value.length()-1);
+                    if (propertyValue == null) {
+                        Assert.fail("The entity has null value for property " + properties.get(j));
                     }
-                    switch (operator){
+                    Comparable value = values.get(j);
+                    if (value instanceof String && ((String) value).charAt(0) == '\'') {
+                        String sValue = (String) value;
+                        value = sValue.substring(1, sValue.length() - 1);
+                    }
+                    if (value instanceof DateTime) {
+                        propertyValue = ISODateTimeFormat.dateTime().parseDateTime(propertyValue.toString());
+                    }
+                    int result = value.compareTo(propertyValue);
+                    switch (operator) {
                         case -2:
-                            Assert.assertTrue(propertyValue.compareTo(value)<0,properties.get(j)+" should be less than "+value+". But the property value is "+propertyValue);
+                            Assert.assertTrue(result > 0, properties.get(j) + " should be less than " + value + ". But the property value is " + propertyValue);
                             break;
                         case -1:
-                            Assert.assertTrue(propertyValue.compareTo(value)<=0,properties.get(j)+" should be less than or equal to "+value+". But the property value is "+propertyValue);
+                            Assert.assertTrue(result >= 0, properties.get(j) + " should be less than or equal to " + value + ". But the property value is " + propertyValue);
                             break;
                         case 0:
-                            Assert.assertTrue(propertyValue.compareTo(value)==0,properties.get(j)+" should be equal to than "+value+". But the property value is "+propertyValue);
+                            Assert.assertTrue(result == 0, properties.get(j) + " should be equal to than " + value + ". But the property value is " + propertyValue);
                             break;
                         case 1:
-                            Assert.assertTrue(propertyValue.compareTo(value)>=0,properties.get(j)+" should be greate than or equal to "+value+". But the property value is "+propertyValue);
+                            Assert.assertTrue(result <= 0, properties.get(j) + " should be greate than or equal to " + value + ". But the property value is " + propertyValue);
                             break;
                         case 2:
-                            Assert.assertTrue(propertyValue.compareTo(value)>0,properties.get(j)+" should be greater than "+value+". But the property value is "+propertyValue);
+                            Assert.assertTrue(result < 0, properties.get(j) + " should be greater than " + value + ". But the property value is " + propertyValue);
                             break;
                     }
                 }
