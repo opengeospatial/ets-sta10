@@ -1,10 +1,14 @@
 package org.opengis.cite.sta10.util;
 
+import org.joda.time.format.ISODateTimeFormat;
+
 /**
- * Provides list of sample values for each property of each entity for testing $filter.
- * These values are the same as the properties of one of the entities that is created in pre-test.
+ * Provides list of sample values for each property of each entity for testing
+ * $filter. These values are the same as the properties of one of the entities
+ * that is created in pre-test.
  */
 public class EntityPropertiesSampleValue {
+
     /**
      * Sample properties for Thing entity.
      */
@@ -12,11 +16,11 @@ public class EntityPropertiesSampleValue {
     /**
      * Sample properties for Location entity.
      */
-    public static final String[] LOCATION_PROPERTIES_Values = {"'location 2'", "'http://example.org/location_types/GeoJSON'", "location" };
+    public static final String[] LOCATION_PROPERTIES_Values = {"'location 2'", "'application/vnd.geo+json'", "location"};
     /**
      * Sample properties for HistoricalLocation entity.
      */
-    public static final String[] HISTORICAL_LOCATION_PROPERTIES_Values = {"'2015-10-14T21:30:00.104Z'"};
+    public static final Comparable[] HISTORICAL_LOCATION_PROPERTIES_Values = {ISODateTimeFormat.dateTime().parseDateTime("2015-10-14T21:30:00.104Z")};
     /**
      * Sample properties for Datastream entity.
      */
@@ -28,15 +32,18 @@ public class EntityPropertiesSampleValue {
     /**
      * Sample properties for ObservedProperty entity.
      */
-    public static final String[] OBSERVED_PROPETY_PROPERTIES_Values = { "'Luminous Flux'", "'http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux'", "'observedProperty 1'"};
+    public static final String[] OBSERVED_PROPETY_PROPERTIES_Values = {"'Luminous Flux'", "'http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux'", "'observedProperty 1'"};
     /**
      * Sample properties for Observation entity.
      */
-    public static final String[] OBSERVATION_PROPERTIES_Values = {"'2015-03-02T00:00:00.000Z'","'2'","'2015-03-02T00:00:00.000Z'"};
+    public static final Comparable[] OBSERVATION_PROPERTIES_Values = {
+        ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z"),
+        Integer.valueOf(2),
+        ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z")};
     /**
      * Sample properties for FeatureOfInterest entity.
      */
-    public static final String[] FEATURE_OF_INTEREST_PROPERTIES_Values = {"'Generated using location details: location 1'", "'http://example.org/location_types/GeoJSON'", "feature" };
+    public static final String[] FEATURE_OF_INTEREST_PROPERTIES_Values = {"'Generated using location details: location 1'", "'application/vnd.geo+json'", "feature"};
 
 
     /**
@@ -45,10 +52,8 @@ public class EntityPropertiesSampleValue {
      * @param index The index of the requested properties in the properties list of the entityType
      * @return The sample value from the properties list of the given "entityType" positioned in location "index" in the list
      */
-    public static String getPropertyValueFor(EntityType entityType, int index) {
-        switch (entityType)
-
-        {
+    public static Comparable getPropertyValueFor(EntityType entityType, int index) {
+        switch (entityType) {
             case THING:
                 return THING_PROPERTIES_Values[index];
             case LOCATION:
