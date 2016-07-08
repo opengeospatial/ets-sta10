@@ -12,11 +12,11 @@ public class EntityPropertiesSampleValue {
     /**
      * Sample properties for Thing entity.
      */
-    public static final String[] THING_PROPERTIES_Values = {"'thing 1'"};
+    public static final String[] THING_PROPERTIES_Values = {"'thing 1'", "'thing 1'"};
     /**
      * Sample properties for Location entity.
      */
-    public static final String[] LOCATION_PROPERTIES_Values = {"'location 2'", "'application/vnd.geo+json'", "location"};
+    public static final String[] LOCATION_PROPERTIES_Values = {"'location 2'", "'location 2'", "'application/vnd.geo+json'", "location"};
     /**
      * Sample properties for HistoricalLocation entity.
      */
@@ -24,11 +24,11 @@ public class EntityPropertiesSampleValue {
     /**
      * Sample properties for Datastream entity.
      */
-    public static final String[] DATASTREAM_PROPERTIES_Values = {"'datastream 1'", "unitOfMeasurement", "'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement'"};
+    public static final String[] DATASTREAM_PROPERTIES_Values = {"'datastream 1'", "'datastream 1'", "unitOfMeasurement", "'http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement'"};
     /**
      * Sample properties for Sensor entity.
      */
-    public static final String[] SENSOR_PROPERTIES_Values = {"'sensor 1'", "'http://schema.org/description'", "'Light flux sensor'"};
+    public static final String[] SENSOR_PROPERTIES_Values = {"'sensor 1'", "'sensor 1'", "'http://schema.org/description'", "'Light flux sensor'"};
     /**
      * Sample properties for ObservedProperty entity.
      */
@@ -43,14 +43,17 @@ public class EntityPropertiesSampleValue {
     /**
      * Sample properties for FeatureOfInterest entity.
      */
-    public static final String[] FEATURE_OF_INTEREST_PROPERTIES_Values = {"'Generated using location details: location 1'", "'application/vnd.geo+json'", "feature"};
-
+    public static final String[] FEATURE_OF_INTEREST_PROPERTIES_Values = {"'Generated using location details: location 1'", "'Generated using location details: location 1'", "'application/vnd.geo+json'", "feature"};
 
     /**
-     * Returning the sample property value for the properties[index] of the entityType
+     * Returning the sample property value for the properties[index] of the
+     * entityType
+     *
      * @param entityType The type of the entity in the format of EntityType enum
-     * @param index The index of the requested properties in the properties list of the entityType
-     * @return The sample value from the properties list of the given "entityType" positioned in location "index" in the list
+     * @param index The index of the requested properties in the properties list
+     * of the entityType
+     * @return The sample value from the properties list of the given
+     * "entityType" positioned in location "index" in the list
      */
     public static Comparable getPropertyValueFor(EntityType entityType, int index) {
         switch (entityType) {

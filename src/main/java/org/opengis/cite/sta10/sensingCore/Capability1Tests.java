@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
-import org.opengis.cite.sta10.util.*;
+import org.opengis.cite.sta10.util.ControlInformation;
+import org.opengis.cite.sta10.util.EntityProperties;
+import org.opengis.cite.sta10.util.EntityRelations;
+import org.opengis.cite.sta10.util.EntityType;
+import org.opengis.cite.sta10.util.HTTPMethods;
+import org.opengis.cite.sta10.util.ServiceURLBuilder;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 
 /**
  * Includes various tests of "A.1 Sensing Core" Conformance class.
@@ -26,13 +29,17 @@ public class Capability1Tests {
      */
     public String rootUri;//="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
     /**
-     * The variable tha defines to which recursive level the resource path should be tested
+     * The variable that defines to which recursive level the resource path
+     * should be tested
      */
     private final int resourcePathLevel = 4;
 
     /**
-     * This method will be run before starting the test for this conformance class.
-     * @param testContext The test context to find out whether this class is requested to test or not
+     * This method will be run before starting the test for this conformance
+     * class.
+     *
+     * @param testContext The test context to find out whether this class is
+     * requested to test or not
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -47,15 +54,16 @@ public class Capability1Tests {
         rootUri = testContext.getSuite().getAttribute(
                 SuiteAttribute.TEST_SUBJECT.getName()).toString();
         rootUri = rootUri.trim();
-        if(rootUri.lastIndexOf('/')==rootUri.length()-1) {
+        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
             rootUri = rootUri.substring(0, rootUri.length() - 1);
         }
 
     }
 
     /**
-     * This method is testing GET entities.
-     * It should return 200. Then the response entities are tested for control information, mandatory properties, and mandatory related entities.
+     * This method is testing GET entities. It should return 200. Then the
+     * response entities are tested for control information, mandatory
+     * properties, and mandatory related entities.
      */
     @Test(description = "GET Entities", groups = "level-1")
     public void readEntitiesAndCheckResponse() {
@@ -78,8 +86,8 @@ public class Capability1Tests {
     }
 
     /**
-     * This method is testing GET when requesting a nonexistent entity.
-     * The response should be 404.
+     * This method is testing GET when requesting a nonexistent entity. The
+     * response should be 404.
      */
     @Test(description = "GET nonexistent Entity", groups = "level-1")
     public void readNonexistentEntity() {
@@ -94,8 +102,9 @@ public class Capability1Tests {
     }
 
     /**
-     * This method is testing GET for a specific entity with its id.
-     * It checks the control information, mandatory properties and mandatory related entities for the response entity.
+     * This method is testing GET for a specific entity with its id. It checks
+     * the control information, mandatory properties and mandatory related
+     * entities for the response entity.
      */
     @Test(description = "GET Specific Entity", groups = "level-1")
     public void readEntityAndCheckResponse() {
@@ -121,7 +130,7 @@ public class Capability1Tests {
      * This method is testing GET for a property of an entity.
      */
     @Test(description = "GET Property of an Entity", groups = "level-1")
-    public void readPropertyOfEntityAndCheckResponse(){
+    public void readPropertyOfEntityAndCheckResponse() {
         readPropertyOfEntityWithEntityType(EntityType.THING);
         readPropertyOfEntityWithEntityType(EntityType.LOCATION);
         readPropertyOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
@@ -133,7 +142,9 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is testing property and property/$value for single entity of a given entity type
+     * This helper method is testing property and property/$value for single
+     * entity of a given entity type
+     *
      * @param entityType Entity type from EntityType enum list
      */
     private void readPropertyOfEntityWithEntityType(EntityType entityType) {
@@ -151,14 +162,16 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method sending GET request for requesting a property and check the response is 200.
+     * This helper method sending GET request for requesting a property and
+     * check the response is 200.
+     *
      * @param entityType Entity type from EntityType enum list
      * @param id The id of the entity
      * @param property The property to get requested
      */
-    private void checkGetPropertyOfEntity(EntityType entityType, long id, String property){
+    private void checkGetPropertyOfEntity(EntityType entityType, long id, String property) {
         try {
-            Map<String,Object> responseMap = getEntity(entityType, id, property);
+            Map<String, Object> responseMap = getEntity(entityType, id, property);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the existing " + entityType.name() + " with id " + id + " failed.");
             String response = responseMap.get("response").toString();
@@ -166,10 +179,10 @@ public class Capability1Tests {
             entity = new JSONObject(response.toString());
             try {
                 Assert.assertNotNull(entity.get(property), "Reading property \"" + property + "\"of \"" + entityType + "\" fails.");
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 Assert.fail("Reading property \"" + property + "\"of \"" + entityType + "\" fails.");
             }
-            Assert.assertEquals(entity.length(), 1, "The response for getting property "+property+" of a "+entityType+" returns more properties!");
+            Assert.assertEquals(entity.length(), 1, "The response for getting property " + property + " of a " + entityType + " returns more properties!");
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -177,17 +190,19 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method sending GET request for requesting a property $value and check the response is 200.
+     * This helper method sending GET request for requesting a property $value
+     * and check the response is 200.
+     *
      * @param entityType Entity type from EntityType enum list
      * @param id The id of the entity
      * @param property The property to get requested
      */
     private void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
-        Map<String,Object> responseMap = getEntity(entityType, id, property+"/$value");
+        Map<String, Object> responseMap = getEntity(entityType, id, property + "/$value");
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the existing " + entityType.name() + " with id " + id + " failed.");
+        Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
         String response = responseMap.get("response").toString();
-        if(!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
+        if (!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
             Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
         } else {
             Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
@@ -195,10 +210,11 @@ public class Capability1Tests {
     }
 
     /**
-     * This method is testing the resource paths based on specification to the specified level.
+     * This method is testing the resource paths based on specification to the
+     * specified level.
      */
     @Test(description = "Check Resource Path", groups = "level-1")
-    public void checkResourcePaths(){
+    public void checkResourcePaths() {
         readRelatedEntityOfEntityWithEntityType(EntityType.THING);
         readRelatedEntityOfEntityWithEntityType(EntityType.LOCATION);
         readRelatedEntityOfEntityWithEntityType(EntityType.HISTORICAL_LOCATION);
@@ -210,8 +226,10 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is the start point for testing resource path.
-     * It adds the entity type to be tested to resource path chain and call the other method to test the chain.
+     * This helper method is the start point for testing resource path. It adds
+     * the entity type to be tested to resource path chain and call the other
+     * method to test the chain.
+     *
      * @param entityType Entity type from EntityType enum list
      */
     private void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
@@ -219,50 +237,53 @@ public class Capability1Tests {
         List<Long> ids = new ArrayList<>();
         switch (entityType) {
             case THING:
-                entityTypes.add( "Things");
+                entityTypes.add("Things");
                 break;
             case LOCATION:
                 entityTypes.add("Locations");
                 break;
             case HISTORICAL_LOCATION:
-                entityTypes.add( "HistoricalLocations");
+                entityTypes.add("HistoricalLocations");
                 break;
             case DATASTREAM:
                 entityTypes.add("Datastreams");
                 break;
             case SENSOR:
-                entityTypes.add( "Sensors");
+                entityTypes.add("Sensors");
                 break;
             case OBSERVATION:
-                entityTypes.add( "Observations");
+                entityTypes.add("Observations");
                 break;
             case OBSERVED_PROPERTY:
-                entityTypes.add( "ObservedProperties");
+                entityTypes.add("ObservedProperties");
                 break;
             case FEATURE_OF_INTEREST:
-                entityTypes.add( "FeaturesOfInterest");
+                entityTypes.add("FeaturesOfInterest");
                 break;
             default:
                 Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
         }
-        readRelatedEntity(entityTypes,ids);
+        readRelatedEntity(entityTypes, ids);
     }
 
     /**
-     * This helper method is testing the chain to the specified level. It confirms that the response is 200.
-     * @param entityTypes List of entity type from EntityType enum list for the chain
+     * This helper method is testing the chain to the specified level. It
+     * confirms that the response is 200.
+     *
+     * @param entityTypes List of entity type from EntityType enum list for the
+     * chain
      * @param ids List of ids for teh chain
      */
-    private void readRelatedEntity(List<String> entityTypes, List<Long> ids){
-        if(entityTypes.size() > resourcePathLevel){
+    private void readRelatedEntity(List<String> entityTypes, List<Long> ids) {
+        if (entityTypes.size() > resourcePathLevel) {
             return;
         }
         try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"),200, "Reading relation of the entity failed: "+entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
             String response = responseMap.get("response").toString();
-            if(!entityTypes.get(entityTypes.size()-1).toLowerCase().equals("featuresofinterest") && !entityTypes.get(entityTypes.size()-1).endsWith("s")){
+            if (!entityTypes.get(entityTypes.size() - 1).toLowerCase().equals("featuresofinterest") && !entityTypes.get(entityTypes.size() - 1).endsWith("s")) {
                 return;
             }
             Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
@@ -270,20 +291,20 @@ public class Capability1Tests {
             //check $ref
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, "$ref");
             responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"),200, "Reading relation of the entity failed: "+entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
             response = responseMap.get("response").toString();
             checkAssociationLinks(response, entityTypes, ids);
 
-            if(entityTypes.size()==resourcePathLevel){
+            if (entityTypes.size() == resourcePathLevel) {
                 return;
             }
             ids.add(id);
-            for(String relation: EntityRelations.getRelationsListFor(entityTypes.get(entityTypes.size()-1))){
+            for (String relation : EntityRelations.getRelationsListFor(entityTypes.get(entityTypes.size() - 1))) {
                 entityTypes.add(relation);
                 readRelatedEntity(entityTypes, ids);
-                entityTypes.remove(entityTypes.size()-1);
+                entityTypes.remove(entityTypes.size() - 1);
             }
-            ids.remove(ids.size()-1);
+            ids.remove(ids.size() - 1);
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -294,25 +315,27 @@ public class Capability1Tests {
     /**
      * This method is checking the response for the request of Association Link.
      * It confirms that it contains a list of selfLinks.
+     *
      * @param response The response for GET association link request
-     * @param entityTypes List of entity type from EntityType enum list for the chain
+     * @param entityTypes List of entity type from EntityType enum list for the
+     * chain
      * @param ids List of ids for teh chain
      */
     private void checkAssociationLinks(String response, List<String> entityTypes, List<Long> ids) {
 
         try {
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response does not match SensorThings API : missing \"value\" in response.: "+entityTypes.toString()+ids.toString());
+            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response does not match SensorThings API : missing \"value\" in response.: " + entityTypes.toString() + ids.toString());
             JSONArray value = new JSONObject(response.toString()).getJSONArray("value");
             int count = 0;
-            for (int i = 0; i < value.length()&& count < 2 ; i++) {
-                count ++;
+            for (int i = 0; i < value.length() && count < 2; i++) {
+                count++;
                 JSONObject obj = value.getJSONObject(i);
                 try {
-                    Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link does not contain self-links.: "+entityTypes.toString()+ids.toString());
-                }catch (JSONException e){
-                    Assert.fail("The Association Link does not contain self-links.: "+entityTypes.toString()+ids.toString());
+                    Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link does not contain self-links.: " + entityTypes.toString() + ids.toString());
+                } catch (JSONException e) {
+                    Assert.fail("The Association Link does not contain self-links.: " + entityTypes.toString() + ids.toString());
                 }
-                Assert.assertEquals(obj.length(), 1, "The Association Link contains properties other than self-link.: "+entityTypes.toString()+ids.toString());
+                Assert.assertEquals(obj.length(), 1, "The Association Link contains properties other than self-link.: " + entityTypes.toString() + ids.toString());
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -322,6 +345,7 @@ public class Capability1Tests {
 
     /**
      * This method is reading a specific entity and return it as a string.
+     *
      * @param entityType Entity type from EntityType enum list
      * @return The entity response as a string
      */
@@ -329,7 +353,7 @@ public class Capability1Tests {
         try {
             String response = getEntities(entityType);
             Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
-            Map<String,Object> responseMap = getEntity(entityType, id, null);
+            Map<String, Object> responseMap = getEntity(entityType, id, null);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading existing " + entityType.name() + " with id " + id + " failed.");
             response = responseMap.get("response").toString();
@@ -342,7 +366,9 @@ public class Capability1Tests {
     }
 
     /**
-     * This method is check the response of sending a GET request to m=nonexistent entity is 404.
+     * This method is check the response of sending a GET request to
+     * m=nonexistent entity is 404.
+     *
      * @param entityType Entity type from EntityType enum list
      */
     private void readNonexistentEntityWithEntityType(EntityType entityType) {
@@ -352,7 +378,8 @@ public class Capability1Tests {
     }
 
     /**
-     * This method is testing the root URL of the service under test. It basically checks the first page.
+     * This method is testing the root URL of the service under test. It
+     * basically checks the first page.
      */
     @Test(description = "Check Service Root UI", groups = "level-1")
     public void checkServiceRootUri() {
@@ -374,7 +401,7 @@ public class Capability1Tests {
                 try {
                     Assert.assertNotNull(entity.get("name"));
                     Assert.assertNotNull(entity.get("url"));
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     Assert.fail("Service root URI does not have proper JSON keys: name and value.");
                 }
                 String name = entity.getString("name");
@@ -437,18 +464,19 @@ public class Capability1Tests {
 
     /**
      * This helper method is sending GET request to a collection of entities.
+     *
      * @param entityType Entity type from EntityType enum list
      * @return The response of GET request in string format.
      */
     private String getEntities(EntityType entityType) {
         String urlString = rootUri;
-        if(entityType!= null) {
+        if (entityType != null) {
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
         }
-        Map<String,Object> responseMap = HTTPMethods.doGet(urlString);
+        Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + ((entityType!=null)?entityType.name():"root URI"));
+        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + ((entityType != null) ? entityType.name() : "root URI"));
         if (entityType != null) {
             Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
         } else { // GET Service Base URI
@@ -459,53 +487,60 @@ public class Capability1Tests {
 
     /**
      * This helper method is sending Get request to a specific entity
+     *
      * @param entityType Entity type from EntityType enum list
      * @param id The if of the specific entity
      * @param property The requested property of the entity
-     * @return The response-code and response (body) of the request in Map format.
+     * @return The response-code and response (body) of the request in Map
+     * format.
      */
-    private Map<String,Object> getEntity(EntityType entityType, long id, String property) {
+    private Map<String, Object> getEntity(EntityType entityType, long id, String property) {
         if (id == -1) {
             return null;
         }
-        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,property);
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, property);
         return HTTPMethods.doGet(urlString);
     }
 
     /**
-     * This helper method is the start point for checking the response for a collection in all aspects.
+     * This helper method is the start point for checking the response for a
+     * collection in all aspects.
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response of the GET request to be checked
      */
-    private void checkEntitiesAllAspectsForResponse(EntityType entityType, String response){
+    private void checkEntitiesAllAspectsForResponse(EntityType entityType, String response) {
         checkEntitiesControlInformation(response);
         checkEntitiesProperties(entityType, response);
         checkEntitiesRelations(entityType, response);
     }
 
     /**
-     * This helper method is the start point for checking the response for a specific entity in all aspects.
+     * This helper method is the start point for checking the response for a
+     * specific entity in all aspects.
+     *
      * @param entityType Entity type from EntityType enum list
-     * @param response  The response of the GET request to be checked
+     * @param response The response of the GET request to be checked
      */
-    private void checkEntityAllAspectsForResponse(EntityType entityType, String response){
+    private void checkEntityAllAspectsForResponse(EntityType entityType, String response) {
         checkEntityControlInformation(response);
         checkEntityProperties(entityType, response);
         checkEntityRelations(entityType, response);
     }
 
-
     /**
-     * This helper method is checking the control information of the response for a collection
+     * This helper method is checking the control information of the response
+     * for a collection
+     *
      * @param response The response of the GET request to be checked
      */
-    private void checkEntitiesControlInformation(String response){
+    private void checkEntitiesControlInformation(String response) {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
             int count = 0;
-            for (int i = 0; i < entities.length() && count <2; i++) {
-                count ++;
+            for (int i = 0; i < entities.length() && count < 2; i++) {
+                count++;
                 JSONObject entity = entities.getJSONObject(i);
                 checkEntityControlInformation(entity);
             }
@@ -516,20 +551,22 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is checking the control information of the response for a specific entity
+     * This helper method is checking the control information of the response
+     * for a specific entity
+     *
      * @param response The response of the GET request to be checked
      */
-    private void checkEntityControlInformation(Object response){
+    private void checkEntityControlInformation(Object response) {
         try {
             JSONObject entity = new JSONObject(response.toString());
             try {
                 Assert.assertNotNull(entity.get(ControlInformation.ID), "The entity does not have mandatory control information : " + ControlInformation.ID);
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 Assert.fail("The entity does not have mandatory control information : " + ControlInformation.ID);
             }
             try {
                 Assert.assertNotNull(entity.get(ControlInformation.SELF_LINK), "The entity does not have mandatory control information : " + ControlInformation.SELF_LINK);
-            }catch (JSONException e){
+            } catch (JSONException e) {
                 Assert.fail("The entity does not have mandatory control information : " + ControlInformation.SELF_LINK);
             }
         } catch (JSONException e) {
@@ -539,16 +576,18 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is checking the mandatory properties of the response for a collection
+     * This helper method is checking the mandatory properties of the response
+     * for a collection
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response of the GET request to be checked
      */
-    private void checkEntitiesProperties(EntityType entityType, String response){
+    private void checkEntitiesProperties(EntityType entityType, String response) {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = jsonResponse.getJSONArray("value");
             int count = 0;
-            for (int i = 0; i < entities.length() && count<2; i++) {
+            for (int i = 0; i < entities.length() && count < 2; i++) {
                 count++;
                 JSONObject entity = entities.getJSONObject(i);
                 checkEntityProperties(entityType, entity);
@@ -562,17 +601,19 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is checking the mandatory properties of the response for a specific entity
+     * This helper method is checking the mandatory properties of the response
+     * for a specific entity
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response of the GET request to be checked
      */
-    private void checkEntityProperties(EntityType entityType, Object response){
+    private void checkEntityProperties(EntityType entityType, Object response) {
         try {
             JSONObject entity = new JSONObject(response.toString());
             for (String property : EntityProperties.getPropertiesListFor(entityType)) {
                 try {
                     Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
-                }catch (JSONException e){
+                } catch (JSONException e) {
                     Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
                 }
             }
@@ -585,17 +626,19 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is checking the mandatory relations of the response for a collection
+     * This helper method is checking the mandatory relations of the response
+     * for a collection
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response of the GET request to be checked
      */
-    private void checkEntitiesRelations(EntityType entityType, String response){
+    private void checkEntitiesRelations(EntityType entityType, String response) {
         try {
             JSONObject jsonResponse = new JSONObject(response);
             JSONArray entities = jsonResponse.getJSONArray("value");
             int count = 0;
             for (int i = 0; i < entities.length() && count < 2; i++) {
-                count ++;
+                count++;
                 JSONObject entity = entities.getJSONObject(i);
                 checkEntityRelations(entityType, entity);
             }
@@ -607,17 +650,19 @@ public class Capability1Tests {
     }
 
     /**
-     * This helper method is checking the mandatory relations of the response for a specific entity
+     * This helper method is checking the mandatory relations of the response
+     * for a specific entity
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response of the GET request to be checked
      */
-    private void checkEntityRelations(EntityType entityType, Object response){
+    private void checkEntityRelations(EntityType entityType, Object response) {
         try {
             JSONObject entity = new JSONObject(response.toString());
             for (String relation : EntityRelations.getRelationsListFor(entityType)) {
                 try {
                     Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
                 }
             }
