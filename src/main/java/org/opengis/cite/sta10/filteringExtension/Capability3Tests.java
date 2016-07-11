@@ -275,7 +275,7 @@ public class Capability3Tests {
      * $count, $top, $skip, $orderby, and $filter togther and check the priority
      * in result.
      */
-    @Test(description = "Check priotity of query options", groups = "level-3")
+    @Test(description = "Check priority of query options", groups = "level-3")
     public void checkQueriesPriorityOrdering() {
         try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
@@ -286,6 +286,58 @@ public class Capability3Tests {
             Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned " + new JSONObject(response).getLong("@iot.count"));
             Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned " + array.length() + " entities.");
             Assert.assertEquals(array.getJSONObject(0).getString("result"), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).getString("result"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+        }
+    }
+
+    /**
+     * This method is testing the operator precedence of the AND and OR
+     * operators and parenthesis.
+     */
+    @Test(description = "Check precedence of AND and OR", groups = "level-3")
+    public void checkAndOrPrecendece() {
+        String fetchError = "There is problem for GET Observations using a filter with AND and OR";
+        String error = "result eq 2 and result eq 1 or result eq 1 should be true for all Observations with a result of 1.";
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$filter=result%20eq%202%20and%20result%20eq%201%20or%20result%20eq%201");
+        checkResults(urlString, 1, "1", fetchError, error);
+
+        fetchError = "There is problem for GET Observations using a filter with AND, OR and parenthesis";
+        error = "(result eq 2 and result eq 1) or result eq 1 should be true for all Observations with a result of 1.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$filter=(result%20eq%202%20and%20result%20eq%201)%20or%20result%20eq%201");
+        checkResults(urlString, 1, "1", fetchError, error);
+
+        error = "result eq 2 and (result eq 1 or result eq 1) should never be true.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$filter=result%20eq%202%20and%20(result%20eq%201%20or%20result%20eq%201)");
+        checkResults(urlString, 0, "1", fetchError, error);
+    }
+
+    /**
+     * Checks the results in the given response. The expectedResult is a string,
+     * since any result can be represented as a String.
+     *
+     * @param urlString The url to call.
+     * @param expectedCount The expected number of results.
+     * @param expectedResult The expected result as a String.
+     * @param fetchError The message to use when the GET response is not 200.
+     * The actual response is appended to the message.
+     * @param resultError The message to use when the count or result is not the
+     * expected value. The actual count or result is appended to the message.
+     */
+    private void checkResults(String urlString, int expectedCount, String expectedResult, String fetchError, String resultError) {
+        try {
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, fetchError + ": " + responseMap.get("response-code"));
+            String response = responseMap.get("response").toString();
+            JSONArray array = new JSONObject(response).getJSONArray("value");
+            int length = array.length();
+            Assert.assertTrue(length == expectedCount, resultError + " Expected " + expectedCount + " Observations, but got " + length + ".");
+            for (int i = 0; i < length; i++) {
+                JSONObject obs = array.getJSONObject(i);
+                String result = obs.getString("result");
+                Assert.assertEquals(result, expectedResult, resultError + " The expected Observation result is " + expectedResult + ", but the given result is " + result);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
