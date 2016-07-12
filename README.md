@@ -6,9 +6,9 @@ The OGC SensorThings API Test Suite provides the Executable Test Script (ETS) to
 
 https://github.com/opengeospatial/sensorthings
 
-Detailed information about this test suite is available [here]( http://opengeospatial.github.io/ets-sta10/).
+Detailed information about this test suite is available [here](http://opengeospatial.github.io/ets-sta10/).
 
-The  [OGC's SensorThings API GitHub page][https://github.com/opengeospatial/sensorthings] provides more information bout this standard.
+The  [OGC's SensorThings API GitHub page](https://github.com/opengeospatial/sensorthings) provides more information bout this standard.
 
 
 ## License
