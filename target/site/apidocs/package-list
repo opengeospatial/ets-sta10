@@ -1,0 +1,5 @@
+org.opengis.cite.sta10
+org.opengis.cite.sta10.createUpdateDelete
+org.opengis.cite.sta10.filteringExtension
+org.opengis.cite.sta10.sensingCore
+org.opengis.cite.sta10.util
