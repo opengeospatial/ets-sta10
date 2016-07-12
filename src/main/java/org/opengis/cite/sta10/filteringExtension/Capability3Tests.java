@@ -295,22 +295,57 @@ public class Capability3Tests {
     /**
      * This method is testing the operator precedence of the AND and OR
      * operators and parenthesis.
+     *
+     * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
+     * should always be supported.
      */
     @Test(description = "Check precedence of AND and OR", groups = "level-3")
-    public void checkAndOrPrecendece() {
-        String fetchError = "There is problem for GET Observations using a filter with AND and OR";
-        String error = "result eq 2 and result eq 1 or result eq 1 should be true for all Observations with a result of 1.";
-        String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$filter=result%20eq%202%20and%20result%20eq%201%20or%20result%20eq%201");
+    public void checkAndOrPrecendece() throws UnsupportedEncodingException {
+        String filter = "$filter=result eq 2 and result eq 1 or result eq 1";
+        String fetchError = "There is problem for GET Observations using " + filter;
+        String error = filter + "  should return all Observations with a result of 1.";
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
         checkResults(urlString, 1, "1", fetchError, error);
 
-        fetchError = "There is problem for GET Observations using a filter with AND, OR and parenthesis";
-        error = "(result eq 2 and result eq 1) or result eq 1 should be true for all Observations with a result of 1.";
-        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$filter=(result%20eq%202%20and%20result%20eq%201)%20or%20result%20eq%201");
+        filter = "$filter=(result eq 2 and result eq 1) or result eq 1";
+        fetchError = "There is problem for GET Observations using " + filter;
+        error = filter + "  should return all Observations with a result of 1.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
         checkResults(urlString, 1, "1", fetchError, error);
 
-        error = "result eq 2 and (result eq 1 or result eq 1) should never be true.";
-        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$filter=result%20eq%202%20and%20(result%20eq%201%20or%20result%20eq%201)");
+        filter = "$filter=result eq 2 and (result eq 1 or result eq 1)";
+        fetchError = "There is problem for GET Observations using " + filter;
+        error = filter + "  should return no results.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
         checkResults(urlString, 0, "1", fetchError, error);
+    }
+
+    /**
+     * This method is testing the operator precedence of the ADD, SUB, MUL, DIV
+     * and MOD operators and parenthesis.
+     *
+     * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
+     * should always be supported.
+     */
+    @Test(description = "Check precedence of Arithmetic operators", groups = "level-3")
+    public void checkArithmeticPrecendece() throws UnsupportedEncodingException {
+        String filter = "$filter=1 add result mul 2 sub -1 eq 4";
+        String fetchError = "There is problem for GET Observations using " + filter;
+        String error = filter + "  should return all Observations with a result of 1.";
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
+        checkResults(urlString, 1, "1", fetchError, error);
+
+        filter = "$filter=6 div 2 sub result eq 2";
+        fetchError = "There is problem for GET Observations using " + filter;
+        error = filter + "  should return all Observations with a result of 1.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
+        checkResults(urlString, 1, "1", fetchError, error);
+
+        filter = "$filter=1 add 2.0 mod (result add 1) eq 1";
+        fetchError = "There is problem for GET Observations using " + filter;
+        error = filter + "  should return all Observations with a result of 1.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
+        checkResults(urlString, 1, "1", fetchError, error);
     }
 
     /**
