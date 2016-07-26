@@ -318,6 +318,12 @@ public class Capability3Tests {
         error = filter + "  should return no results.";
         urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
         checkResults(urlString, 0, "1", fetchError, error);
+
+        filter = "$filter=not result lt 1 and not result gt 1";
+        fetchError = "There is problem for GET Observations using " + filter;
+        error = filter + "  should return all Observations with a result of 1.";
+        urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?" + URLEncoder.encode(filter, "UTF-8"));
+        checkResults(urlString, 1, "1", fetchError, error);
     }
 
     /**
