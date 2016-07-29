@@ -1697,6 +1697,11 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 0);
 
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20ne%20" + propertyValue);
+            responseMap = HTTPMethods.doGet(urlString);
+            response = responseMap.get("response").toString();
+            checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -3);
+
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property + "%20ge%20" + propertyValue);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
@@ -1822,6 +1827,9 @@ public class Capability3Tests {
                     }
                     int result = value.compareTo(propertyValue);
                     switch (operator) {
+                        case -3:
+                            Assert.assertTrue(result != 0, properties.get(j) + " should not be equal to " + value + ". But the property value is " + propertyValue);
+                            break;
                         case -2:
                             Assert.assertTrue(result > 0, properties.get(j) + " should be less than " + value + ". But the property value is " + propertyValue);
                             break;
