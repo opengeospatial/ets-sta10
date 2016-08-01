@@ -862,7 +862,10 @@ public class Capability2Tests {
                     "    \"name\": \"Entropy\",\n" +
                     "    \"symbol\": \"S\",\n" +
                     "    \"definition\": \"http://qudt.org/vocab/unit#Entropy\"\n" +
-                    "  }\n" +
+                    "  },\n" +
+                    + "  \"Thing\": {\"@iot.id\" : " + thingId + "},\n"
+                    + "  \"ObservedProperty\": {\"@iot.id\" : " + obsPropId + "},\n"
+                    + "  \"Sensor\": {\"@iot.id\" :" + sensorId + "}\n"
                     "}\n";
             diffs = new HashMap<>();
             diffs.put("description", "Data coming from sensor on ISS.");
