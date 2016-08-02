@@ -814,7 +814,10 @@ public class Capability2Tests {
             /** HistoricalLocation **/
             long histLocId = historicalLocationIds.get(0);
             entity = getEntity(EntityType.HISTORICAL_LOCATION, histLocId);
-            urlParameters = "{\"time\": \"2015-08-01T00:00:00.000Z\"}";
+            urlParameters = "{"
+                    + "  \"Thing\": {\"@iot.id\" : " + thingId + "},\n"
+                    + "  \"Locations\": [{\"@iot.id\" : " + locationId + "}],\n"
+                    + "\"time\": \"2015-08-01T00:00:00.000Z\"}";
             diffs = new HashMap<>();
             diffs.put("time", "2015-08-01T00:00:00.000Z");
             updatedEntity = updateEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
@@ -877,7 +880,10 @@ public class Capability2Tests {
             /** Observation **/
             long obsId1 = observationIds.get(0);
             entity = getEntity(EntityType.OBSERVATION, obsId1);
-            urlParameters = "{\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
+            urlParameters = "{"
+                    + "  \"Datastream\": {\"@iot.id\" : " + datastreamId + "},\n"
+                    + "  \"FeatureOfInterest\": {\"@iot.id\" : " +  foiId  + "},\n"
+                    + "\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
             diffs = new HashMap<>();
             diffs.put("result", "99");
             diffs.put("phenomenonTime", "2015-08-01T00:40:00.000Z");
