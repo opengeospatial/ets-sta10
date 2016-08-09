@@ -35,6 +35,7 @@ import org.opengis.cite.sta10.util.EntityRelations;
 import org.opengis.cite.sta10.util.EntityType;
 import org.testng.Assert;
 import org.testng.ITestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -68,8 +69,8 @@ public class Capability8Test {
             EntityType.THING);
 
     private EntityHelper entityHelper;
-    private MqttHelper mqttHelper;
     private final Map<EntityType, Long> ids = new HashMap<>();
+    private MqttHelper mqttHelper;
     private String rootUri;
 
     @Test(description = "Subcribe to EntitySet and insert Entity", groups = "level-8", priority = 1)
@@ -275,10 +276,20 @@ public class Capability8Test {
     }
 
     /**
-     * This method will be run before starting the test for this conformance class. It initializes all objects and
-     * connections used within the test.
+     * This method is run after all the tests of this class is run and clean the
+     * database.
+     */
+    @AfterClass
+    public void clearDatabase() {
+        entityHelper.deleteEverything();
+    }
+
+    /**
+     * This method will be run before starting the test for this conformance
+     * class. It initializes all objects and connections used within the test.
      *
-     * @param testContext The test context to find out whether this class is requested to test or not
+     * @param testContext The test context to find out whether this class is
+     * requested to test or not
      */
     @BeforeClass
     public void init(ITestContext testContext) {
@@ -307,27 +318,6 @@ public class Capability8Test {
 
         this.entityHelper = new EntityHelper(rootUri);
         this.mqttHelper = new MqttHelper(mqttServerUri, mqttTimeout);
-    }
-
-    private String getPathToRelatedEntity(EntityType sourceEntityType, EntityType destinationEntityType) {
-        Queue<BFSStructure> queue = new LinkedList<>();
-        queue.offer(new BFSStructure(sourceEntityType, ""));
-        while (queue.peek() != null) {
-            BFSStructure currentElement = queue.poll();
-            List<String> relations = Arrays.asList(EntityRelations.getRelationsListFor(currentElement.entityType));
-            for (String relation : relations) {
-                EntityType relatedType = EntityRelations.getEntityTypeOfRelation(relation);
-                if (relatedType.equals(destinationEntityType)) {
-                    return currentElement.path
-                            + (currentElement.path.isEmpty()
-                                    ? relation
-                                    : "/" + relation);
-                } else {
-                    queue.offer(new BFSStructure(relatedType, currentElement.path + (currentElement.path.isEmpty() ? relation : "/" + relation)));
-                }
-            }
-        }
-        return "";
     }
 
     private void createEntities() {
@@ -399,6 +389,27 @@ public class Capability8Test {
             throw new IllegalArgumentException("Unknown EntityType '" + entityType.toString() + "'");
         };
         return trigger;
+    }
+
+    private String getPathToRelatedEntity(EntityType sourceEntityType, EntityType destinationEntityType) {
+        Queue<BFSStructure> queue = new LinkedList<>();
+        queue.offer(new BFSStructure(sourceEntityType, ""));
+        while (queue.peek() != null) {
+            BFSStructure currentElement = queue.poll();
+            List<String> relations = Arrays.asList(EntityRelations.getRelationsListFor(currentElement.entityType));
+            for (String relation : relations) {
+                EntityType relatedType = EntityRelations.getEntityTypeOfRelation(relation);
+                if (relatedType.equals(destinationEntityType)) {
+                    return currentElement.path
+                            + (currentElement.path.isEmpty()
+                                    ? relation
+                                    : "/" + relation);
+                } else {
+                    queue.offer(new BFSStructure(relatedType, currentElement.path + (currentElement.path.isEmpty() ? relation : "/" + relation)));
+                }
+            }
+        }
+        return "";
     }
 
     private List<String> getSelectedProperties(EntityType entityType) {

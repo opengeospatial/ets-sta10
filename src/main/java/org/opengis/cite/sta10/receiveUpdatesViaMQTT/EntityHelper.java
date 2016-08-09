@@ -53,6 +53,42 @@ public class EntityHelper {
         return s1 + s2.substring(idx + 1);
     }
 
+    public void deleteEverything() {
+        deleteEntityType(EntityType.OBSERVATION);
+        deleteEntityType(EntityType.FEATURE_OF_INTEREST);
+        deleteEntityType(EntityType.DATASTREAM);
+        deleteEntityType(EntityType.SENSOR);
+        deleteEntityType(EntityType.OBSERVED_PROPERTY);
+        deleteEntityType(EntityType.HISTORICAL_LOCATION);
+        deleteEntityType(EntityType.LOCATION);
+        deleteEntityType(EntityType.THING);
+    }
+
+    /**
+     * Delete all the entities of a certain entity type
+     *
+     * @param entityType The entity type from EntityType enum
+     */
+    private void deleteEntityType(EntityType entityType) {
+        JSONArray array = null;
+        do {
+            try {
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+                int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+                JSONObject result = new JSONObject(responseMap.get("response").toString());
+                array = result.getJSONArray("value");
+                for (int i = 0; i < array.length(); i++) {
+                    long id = array.getJSONObject(i).getLong(ControlInformation.ID);
+                    deleteEntity(entityType, id);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            }
+        } while (array.length() > 0);
+    }
+
     public long createDatastream(long thingId, long observedPropertyId, long sensorId) {
         try {
             String urlParameters = "{\n"
