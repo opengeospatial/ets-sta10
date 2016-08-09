@@ -73,8 +73,9 @@ public class Capability8Test {
     private MqttHelper mqttHelper;
     private String rootUri;
 
-    @Test(description = "Subcribe to EntitySet and insert Entity", groups = "level-8", priority = 1)
+    @Test(description = "Subcribe to EntitySet and insert Entity", groups = "level-8")
     public void checkSubscribeToEntitySetInsert() {
+        deleteCreatedEntities();
         ENTITY_TYPES_FOR_CREATE.stream().forEach((entityType) -> {
             MqttBatchResult<Long> result = mqttHelper.executeRequests(getInsertEntityAction(entityType), MqttHelper.getTopic(entityType));
             ids.put(entityType, result.getActionResult());
@@ -82,7 +83,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to EntitySet and update (PATCH) Entity", groups = "level-8", priority = 3)
+    @Test(description = "Subcribe to EntitySet and update (PATCH) Entity", groups = "level-8")
     public void checkSubscribeToEntitySetUpdatePATCH() {
         deleteCreatedEntities();
         createEntities();
@@ -92,15 +93,17 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to EntitySet and update (PUT) Entity", groups = "level-8", priority = 2)
+    @Test(description = "Subcribe to EntitySet and update (PUT) Entity", groups = "level-8")
     public void checkSubscribeToEntitySetUpdatePUT() {
+        deleteCreatedEntities();
+        createEntities();
         ENTITY_TYPES_FOR_CREATE.stream().forEach((entityType) -> {
             MqttBatchResult<JSONObject> result = mqttHelper.executeRequests(getUpdatePutEntityAction(entityType), MqttHelper.getTopic(entityType));
             Assert.assertTrue(jsonEqualsWithLinkResolving(result.getActionResult(), result.getMessages().values().iterator().next(), MqttHelper.getTopic(entityType)));
         });
     }
 
-    @Test(description = "Subcribe to EntitySet with multiple $select and insert Entity", groups = "level-8", priority = 8)
+    @Test(description = "Subcribe to EntitySet with multiple $select and insert Entity", groups = "level-8")
     public void checkSubscribeToEntitySetWithMultipleSelectInsert() {
         deleteCreatedEntities();
         ENTITY_TYPES_FOR_CREATE.stream().forEach((entityType) -> {
@@ -113,7 +116,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to EntitySet with multiple $select and update (PATCH) Entity", groups = "level-8", priority = 10)
+    @Test(description = "Subcribe to EntitySet with multiple $select and update (PATCH) Entity", groups = "level-8")
     public void checkSubscribeToEntitySetWithMultipleSelectUpdatePATCH() {
         deleteCreatedEntities();
         createEntities();
@@ -130,8 +133,10 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to EntitySet with multiple $select and update (PUT) Entity", groups = "level-8", priority = 9)
+    @Test(description = "Subcribe to EntitySet with multiple $select and update (PUT) Entity", groups = "level-8")
     public void checkSubscribeToEntitySetWithMultipleSelectUpdatePUT() {
+        deleteCreatedEntities();
+        createEntities();
         ENTITY_TYPES_FOR_CREATE.stream().forEach((entityType) -> {
             List<String> selectedProperties = getSelectedProperties(entityType);
 
@@ -145,7 +150,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to EntitySet via relative topic", groups = "level-8", priority = 8)
+    @Test(description = "Subcribe to EntitySet via relative topic", groups = "level-8")
     public void checkSubscribeToEntitySetWithRelativeTopicUpdatePUT() {
         deleteCreatedEntities();
         createEntities();
@@ -168,7 +173,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to multiple EntitySets and deep insert multiple entites", groups = "level-8", priority = 8)
+    @Test(description = "Subcribe to multiple EntitySets and deep insert multiple entites", groups = "level-8")
     public void checkSubscribeToEntitySetsWithDeepInsert() {
         deleteCreatedEntities();
         ENTITY_TYPES_FOR_DEEP_INSERT.stream().forEach((EntityType entityType) -> {
@@ -199,7 +204,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to Entity and update (PATCH) Entity", groups = "level-8", priority = 5)
+    @Test(description = "Subcribe to Entity and update (PATCH) Entity", groups = "level-8")
     public void checkSubscribeToEntityUpdatePATCH() {
         deleteCreatedEntities();
         createEntities();
@@ -209,7 +214,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to Entity and update (PUT) Entity", groups = "level-8", priority = 4)
+    @Test(description = "Subcribe to Entity and update (PUT) Entity", groups = "level-8")
     public void checkSubscribeToEntityUpdatePUT() {
         deleteCreatedEntities();
         createEntities();
@@ -219,7 +224,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to Entity via relative topic", groups = "level-8", priority = 8)
+    @Test(description = "Subcribe to Entity via relative topic", groups = "level-8")
     public void checkSubscribeToEntityWithRelativeTopicUpdatePUT() {
         deleteCreatedEntities();
         createEntities();
@@ -237,7 +242,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to Property and update (PATCH) Entity", groups = "level-8", priority = 7)
+    @Test(description = "Subcribe to Property and update (PATCH) Entity", groups = "level-8")
     public void checkSubscribeToPropertyUpdatePATCH() {
         deleteCreatedEntities();
         createEntities();
@@ -256,7 +261,7 @@ public class Capability8Test {
         });
     }
 
-    @Test(description = "Subcribe to Property and update (PUT) Entity", groups = "level-8", priority = 6)
+    @Test(description = "Subcribe to Property and update (PUT) Entity", groups = "level-8")
     public void checkSubscribeToPropertyUpdatePUT() {
         deleteCreatedEntities();
         createEntities();
