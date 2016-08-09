@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suite name="${ets-code}-${version}" verbose="0" configfailurepolicy="continue">
-  <parameter name="iut"  value=""/>
-  <parameter name="ics"  value=""/>
+    <parameter name="iut"  value=""/>
+    <parameter name="ics"  value=""/>
 
-  <listeners>
-    <listener class-name="org.opengis.cite.sta10.TestRunListener" />
-    <listener class-name="org.opengis.cite.sta10.SuiteFixtureListener" />
-    <listener class-name="org.opengis.cite.sta10.TestFailureListener" />
-  </listeners>
+    <listeners>
+        <listener class-name="org.opengis.cite.sta10.TestRunListener" />
+        <listener class-name="org.opengis.cite.sta10.SuiteFixtureListener" />
+        <listener class-name="org.opengis.cite.sta10.TestFailureListener" />
+    </listeners>
 
-  <test name="Conformance Level 1">
-    <packages>
-      <package name="org.opengis.cite.sta10.sensingCore" />
-    </packages>
-  </test>
-  <test name="Conformance Level 2">
-    <packages>
-      <package name="org.opengis.cite.sta10.createUpdateDelete" />
-    </packages>
-  </test>
-  <test name="Conformance Level 3">
-    <packages>
-      <package name="org.opengis.cite.sta10.filteringExtension" />
-    </packages>
-  </test>
+    <test name="Conformance Level 1">
+        <packages>
+            <package name="org.opengis.cite.sta10.sensingCore" />
+        </packages>
+    </test>
+    <test name="Conformance Level 2">
+        <packages>
+            <package name="org.opengis.cite.sta10.createUpdateDelete" />
+        </packages>
+    </test>
+    <test name="Conformance Level 3">
+        <packages>
+            <package name="org.opengis.cite.sta10.filteringExtension" />
+        </packages>
+    </test>
+    <test name="Conformance Level 8">
+        <packages>
+            <package name="org.opengis.cite.sta10.receiveUpdatesViaMQTT" />
+        </packages>
+    </test>
 </suite>

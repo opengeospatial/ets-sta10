@@ -1,13 +1,11 @@
 package org.opengis.cite.sta10;
 
 import com.sun.jersey.api.client.Client;
-
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,9 +44,8 @@ public class SuiteFixtureListener implements ISuiteListener {
      * entity referenced by the {@link TestRunArg#IUT iut} argument is parsed
      * and the resulting Document is set as the value of the "testSubject"
      * attribute.
-     * 
-     * @param suite
-     *            An ISuite object representing a TestNG test suite.
+     *
+     * @param suite An ISuite object representing a TestNG test suite.
      */
     void processSuiteParameters(ISuite suite) {
         Map<String, String> params = suite.getXmlSuite().getParameters();
@@ -67,16 +64,27 @@ public class SuiteFixtureListener implements ISuiteListener {
         String iutParam = params.get(TestRunArg.IUT.toString());
 
         String response = checkServiceRootUri(iutParam);
-        if(!response.equals("")){
+        if (!response.equals("")) {
             throw new IllegalArgumentException(
                     response);
         }
         suite.setAttribute(SuiteAttribute.TEST_SUBJECT.getName(), iutParam);
+        suite.setAttribute(SuiteAttribute.MQTT_SERVER.getName(), params.get(TestRunArg.MQTT_SERVER.toString()));
+        // defaulting to 30s timeout
+        Long mqttTimeout = new Long(30000);
+        if (null != params.get(TestRunArg.MQTT_TIMEOUT.toString())) {
+            try {
+                mqttTimeout = Long.valueOf(params.get(TestRunArg.MQTT_TIMEOUT.toString()));
+            } catch (NumberFormatException nfe) { // use default value instead
+                mqttTimeout = 30000l;
+            }
+        }
+        suite.setAttribute(SuiteAttribute.MQTT_TIMEOUT.getName(), mqttTimeout);
         if (TestSuiteLogger.isLoggable(Level.FINE)) {
             StringBuilder logMsg = new StringBuilder(
                     "Parsed resource retrieved from ");
             logMsg.append(TestRunArg.IUT).append("\n");
-           // logMsg.append(XMLUtils.writeNodeToString(iutDoc));
+            // logMsg.append(XMLUtils.writeNodeToString(iutDoc));
             TestSuiteLogger.log(Level.FINE, logMsg.toString());
         }
     }
@@ -97,13 +105,16 @@ public class SuiteFixtureListener implements ISuiteListener {
 
     /**
      * Checking the service root URL to be compliant with SensorThings API
+     *
      * @param rootUri The root URL for the service under test
-     * @return If the root URL of the service is not compliant to SensorThings API, it will return the reason it is not compliant. Otherwise it returns empty String.
+     * @return If the root URL of the service is not compliant to SensorThings
+     * API, it will return the reason it is not compliant. Otherwise it returns
+     * empty String.
      */
     private String checkServiceRootUri(String rootUri) {
         rootUri = rootUri.trim();
-        if(rootUri.lastIndexOf('/')==rootUri.length()-1){
-            rootUri = rootUri.substring(0,rootUri.length()-1);
+        if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
+            rootUri = rootUri.substring(0, rootUri.length() - 1);
         }
         HttpURLConnection connection = null;
         String response = null;
@@ -112,7 +123,7 @@ public class SuiteFixtureListener implements ISuiteListener {
         try {
             url = new URL(rootUri);
 
-             connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Content-Type",
                     "application/json");
@@ -133,13 +144,13 @@ public class SuiteFixtureListener implements ISuiteListener {
             rd.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            return "Cannot connect to "+rootUri+".";
+            return "Cannot connect to " + rootUri + ".";
         } catch (ProtocolException e) {
             e.printStackTrace();
-            return "Cannot connect to "+rootUri+".";
+            return "Cannot connect to " + rootUri + ".";
         } catch (IOException e) {
             e.printStackTrace();
-            return "Cannot connect to "+rootUri+".";
+            return "Cannot connect to " + rootUri + ".";
         }
         JSONObject jsonResponse = null;
         JSONArray entities = null;
@@ -148,7 +159,7 @@ public class SuiteFixtureListener implements ISuiteListener {
             entities = jsonResponse.getJSONArray("value");
         } catch (JSONException e) {
             e.printStackTrace();
-            return "The service response for the root URI \""+rootUri+"\" is not JSON.";
+            return "The service response for the root URI \"" + rootUri + "\" is not JSON.";
         }
         Map<String, Boolean> addedLinks = new HashMap<>();
         addedLinks.put("Things", false);
@@ -164,70 +175,70 @@ public class SuiteFixtureListener implements ISuiteListener {
             String name, nameUrl;
             try {
                 entity = entities.getJSONObject(i);
-                if(entity.get("name") == null){
+                if (entity.get("name") == null) {
                     return "The name component of Service root URI response is not available.";
                 }
-                if(entity.get("url") == null){
+                if (entity.get("url") == null) {
                     return "The name component of Service root URI response is not available.";
                 }
                 name = entity.getString("name");
                 nameUrl = entity.getString("url");
             } catch (JSONException e) {
                 e.printStackTrace();
-                return "The service response for the root URI \""+rootUri+"\" is not JSON.";
+                return "The service response for the root URI \"" + rootUri + "\" is not JSON.";
             }
             switch (name) {
                 case "Things":
-                    if(!nameUrl.equals(rootUri + "/Things") ){
-                    return "The URL for Things in Service Root URI is not compliant to SensorThings API.";
+                    if (!nameUrl.equals(rootUri + "/Things")) {
+                        return "The URL for Things in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("Things");
                     addedLinks.put(name, true);
                     break;
                 case "Locations":
-                    if(!nameUrl.equals(rootUri + "/Locations")) {
+                    if (!nameUrl.equals(rootUri + "/Locations")) {
                         return "The URL for Locations in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("Locations");
                     addedLinks.put(name, true);
                     break;
                 case "HistoricalLocations":
-                    if(!nameUrl.equals(rootUri + "/HistoricalLocations")) {
+                    if (!nameUrl.equals(rootUri + "/HistoricalLocations")) {
                         return "The URL for HistoricalLocations in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("HistoricalLocations");
                     addedLinks.put(name, true);
                     break;
                 case "Datastreams":
-                    if(!nameUrl.equals(rootUri + "/Datastreams")) {
+                    if (!nameUrl.equals(rootUri + "/Datastreams")) {
                         return "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("Datastreams");
                     addedLinks.put(name, true);
                     break;
                 case "Sensors":
-                    if(!nameUrl.equals(rootUri + "/Sensors")) {
+                    if (!nameUrl.equals(rootUri + "/Sensors")) {
                         return "The URL for Sensors in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("Sensors");
                     addedLinks.put(name, true);
                     break;
                 case "Observations":
-                    if(!nameUrl.equals(rootUri + "/Observations")) {
+                    if (!nameUrl.equals(rootUri + "/Observations")) {
                         return "The URL for Observations in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("Observations");
                     addedLinks.put(name, true);
                     break;
                 case "ObservedProperties":
-                    if(!nameUrl.equals(rootUri + "/ObservedProperties")) {
+                    if (!nameUrl.equals(rootUri + "/ObservedProperties")) {
                         return "The URL for ObservedProperties in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("ObservedProperties");
                     addedLinks.put(name, true);
                     break;
                 case "FeaturesOfInterest":
-                    if(!nameUrl.equals(rootUri + "/FeaturesOfInterest")) {
+                    if (!nameUrl.equals(rootUri + "/FeaturesOfInterest")) {
                         return "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.";
                     }
                     addedLinks.remove("FeaturesOfInterest");
@@ -238,8 +249,8 @@ public class SuiteFixtureListener implements ISuiteListener {
             }
         }
         for (String key : addedLinks.keySet()) {
-            if(addedLinks.get(key) == false){
-                 return "The Service Root URI response does not contain ";
+            if (addedLinks.get(key) == false) {
+                return "The Service Root URI response does not contain ";
             }
         }
         return "";

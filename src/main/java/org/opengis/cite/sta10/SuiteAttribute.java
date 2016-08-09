@@ -10,7 +10,7 @@ import org.w3c.dom.Document;
 @SuppressWarnings("rawtypes")
 public enum SuiteAttribute {
 
-	/**
+    /**
      * A client component for interacting with HTTP endpoints.
      */
     CLIENT("httpClient", Client.class),
@@ -22,7 +22,16 @@ public enum SuiteAttribute {
      * An integer denoting the conformance level to check. A given conformance
      * level includes all lower levels.
      */
-    LEVEL("level", Integer.class);
+    LEVEL("level", Integer.class),
+    /**
+     * Address of the MQTT server including port (e.g. tcp://localhost:1883)
+     */
+    MQTT_SERVER("mqttServer", String.class),
+    /**
+     * Timeout used to wait for messages on MQTT in milliseconds (e.g. 3000
+     * equals 3 seconds)
+     */
+    MQTT_TIMEOUT("mqttTimeout", Long.class);
 
     private final Class attrType;
     private final String attrName;
