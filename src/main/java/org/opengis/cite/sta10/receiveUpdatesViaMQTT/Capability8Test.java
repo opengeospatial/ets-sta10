@@ -26,13 +26,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
+import org.opengis.cite.sta10.util.EntityHelper;
 import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityRelations;
 import org.opengis.cite.sta10.util.EntityType;
+import org.opengis.cite.sta10.util.mqtt.MqttBatchResult;
+import org.opengis.cite.sta10.util.mqtt.MqttHelper;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
@@ -485,6 +490,10 @@ public class Capability8Test {
                     if (!jsonEqualsWithLinkResolving(arr1.toJSONObject(arr1), obj2.getJSONArray(key).toJSONObject(obj2.getJSONArray(key)), topic)) {
                         return false;
                     }
+                } else if (key.toLowerCase().endsWith("time")) {
+                    if (!checkTimeEquals(val1.toString(), obj2.get(key).toString())) {
+                        return false;
+                    }
                 } else if (topic != null && !topic.isEmpty() && key.endsWith("@iot.navigationLink")) {
                     String version = topic.substring(0, topic.indexOf("/"));
 
@@ -505,6 +514,29 @@ public class Capability8Test {
             }
         }
         return true;
+    }
+
+    private static boolean checkTimeEquals(String val1, String val2) {
+        if (val1.equals(val2)) {
+            return true;
+        }
+
+        try {
+            DateTime dateTime1 = DateTime.parse(val1);
+            DateTime dateTime2 = DateTime.parse(val2);
+            return dateTime1.isEqual(dateTime2);
+        } catch (Exception ex) {
+            // do nothing
+        }
+        try {
+            Interval interval1 = Interval.parse(val1);
+            Interval interval2 = Interval.parse(val2);
+            return interval1.isEqual(interval2);
+        } catch (Exception ex) {
+            Assert.fail("time properies could neither be parsed as time nor as interval");
+        }
+
+        return false;
     }
 
     private class BFSStructure {

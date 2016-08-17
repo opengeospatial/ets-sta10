@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opengis.cite.sta10.receiveUpdatesViaMQTT;
+package org.opengis.cite.sta10.util.mqtt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +26,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.util.EntityType;
 import org.testng.Assert;
@@ -36,6 +39,8 @@ import org.testng.Assert;
  */
 public class MqttHelper {
 
+    public static final int QOS = 2;
+    public final static String CLIENT_ID = "STA-test_suite";
     private static final String MQTT_TOPIC_PREFIX = "v1.0/";
     private final String mqttServerUri;
     private final long mqttTimeout;
@@ -43,6 +48,31 @@ public class MqttHelper {
     public MqttHelper(String mqttServerUri, long mqttTimeout) {
         this.mqttServerUri = mqttServerUri;
         this.mqttTimeout = mqttTimeout;
+    }
+
+    public void publish(String topic, String message) {
+        publish(topic, message, QOS, false);
+    }
+
+    public void publish(String topic, String message, int qos, boolean retained) {
+        MqttClient client = null;
+        try {
+            client = new MqttClient(mqttServerUri, CLIENT_ID);
+            MqttConnectOptions connOpts = new MqttConnectOptions();
+            connOpts.setCleanSession(true);
+            client.connect(connOpts);
+            client.publish(topic, message.getBytes(), qos, retained);
+        } catch (MqttException ex) {
+            Assert.fail("error publishing message on MQTT", ex);
+        } finally {
+            if (client != null) {
+                try {
+                    client.disconnect();
+                    client.close();
+                } catch (MqttException ex) {
+                }
+            }
+        }
     }
 
     public <T> MqttBatchResult<T> executeRequests(Callable<T> action, String... topics) {

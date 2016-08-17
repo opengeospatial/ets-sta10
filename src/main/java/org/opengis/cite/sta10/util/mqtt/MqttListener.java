@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opengis.cite.sta10.receiveUpdatesViaMQTT;
+package org.opengis.cite.sta10.util.mqtt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -32,6 +31,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
+import org.opengis.cite.sta10.receiveUpdatesViaMQTT.Capability8Test;
 import org.testng.Assert;
 
 /**
@@ -39,9 +39,6 @@ import org.testng.Assert;
  * @author jab
  */
 public class MqttListener implements Callable<JSONObject> {
-
-    private final static String CLIENT_ID = "STA-test_suite";
-    private static final int QOS = 2;
 
     private final CountDownLatch barrier;
     private final String topic;
@@ -59,7 +56,7 @@ public class MqttListener implements Callable<JSONObject> {
     public void connect() {
         try {
             final CountDownLatch connectBarrier = new CountDownLatch(1);
-            mqttClient = new MqttAsyncClient(mqttServerUri, CLIENT_ID + "-" + topic + "-" + UUID.randomUUID(), new MemoryPersistence());
+            mqttClient = new MqttAsyncClient(mqttServerUri, MqttHelper.CLIENT_ID + "-" + topic + "-" + UUID.randomUUID(), new MemoryPersistence());
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             mqttClient.connect(connOpts, new IMqttActionListener() {
@@ -84,7 +81,7 @@ public class MqttListener implements Callable<JSONObject> {
                         }
                     });
                     try {
-                        mqttClient.subscribe(topic, QOS, null, new IMqttActionListener() {
+                        mqttClient.subscribe(topic, MqttHelper.QOS, null, new IMqttActionListener() {
                             @Override
                             public void onSuccess(IMqttToken imt) {
                                 connectBarrier.countDown();

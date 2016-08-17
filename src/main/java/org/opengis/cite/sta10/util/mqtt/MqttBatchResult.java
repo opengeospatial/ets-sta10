@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opengis.cite.sta10.receiveUpdatesViaMQTT;
+package org.opengis.cite.sta10.util.mqtt;
 
 import java.util.HashMap;
 import java.util.Map;

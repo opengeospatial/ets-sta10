@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opengis.cite.sta10.receiveUpdatesViaMQTT;
+package org.opengis.cite.sta10.util;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,10 +23,7 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.opengis.cite.sta10.util.ControlInformation;
-import org.opengis.cite.sta10.util.EntityType;
-import org.opengis.cite.sta10.util.HTTPMethods;
-import org.opengis.cite.sta10.util.ServiceURLBuilder;
+import org.opengis.cite.sta10.receiveUpdatesViaMQTT.DeepInsertInfo;
 import org.testng.Assert;
 
 /**
@@ -398,6 +395,23 @@ public class EntityHelper {
         String urlString = concatOverlapping(rootUri, relativeUrl);
         try {
             return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString());
+        } catch (JSONException e) {
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            return null;
+        }
+    }
+
+    public JSONObject getLatestEntity(EntityType entityType) {
+        return getLatestEntity(entityType, null);
+    }
+
+    public JSONObject getLatestEntity(EntityType entityType, String queryOptions) {
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null) + "?$orderby=id%20desc&$top=1";
+        if (queryOptions != null && !queryOptions.isEmpty()) {
+            urlString += "&" + queryOptions;
+        }
+        try {
+            return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString()).getJSONArray("value").getJSONObject(0);
         } catch (JSONException e) {
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             return null;
