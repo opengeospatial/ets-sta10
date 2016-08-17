@@ -21,6 +21,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -109,7 +110,7 @@ public class MqttListener implements Callable<JSONObject> {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Capability8Test.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (MqttException ex) {
+        } catch (MqttException | IllegalArgumentException ex) {
             Assert.fail("Could not connect to MQTT server.", ex);
         }
     }
