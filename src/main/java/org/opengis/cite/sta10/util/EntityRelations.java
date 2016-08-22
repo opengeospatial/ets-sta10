@@ -68,6 +68,31 @@ public class EntityRelations {
         return null;
     }
 
+    public static EntityType getEntityTypeOfRelation(String relation) {
+        switch (relation.toLowerCase()) {
+            case "datastream":
+            case "datastreams":
+                return EntityType.DATASTREAM;
+            case "location":
+            case "locations":
+                return EntityType.LOCATION;
+            case "historicallocations":
+                return EntityType.HISTORICAL_LOCATION;
+            case "thing":
+            case "things":
+                return EntityType.THING;
+            case "sensor":
+                return EntityType.SENSOR;
+            case "observedproperty":
+                return EntityType.OBSERVED_PROPERTY;
+            case "observations":
+                return EntityType.OBSERVATION;
+            case "featureofinterest":
+                return EntityType.FEATURE_OF_INTEREST;
+        }
+        throw new IllegalArgumentException("Unknown relation.");
+    }
+
     /**
      * Returning the list of entity relations for the given entity name.
      *
