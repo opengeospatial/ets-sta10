@@ -28,12 +28,14 @@ If your service supports "Deep Insert" You can POST the following JSON to create
 ```
 {
     "description": "thing 1",
+    "name": "thing name 1",
     "properties": {
         "reference": "first"
     },
     "Locations": [
         {
             "description": "location 1",
+            "name": "location name 1",
             "location": {
                 "type": "Point",
                 "coordinates": [
@@ -41,7 +43,7 @@ If your service supports "Deep Insert" You can POST the following JSON to create
                     51.05
                 ]
             },
-            "encodingType": "http://example.org/location_types/GeoJSON"
+            "encodingType": "application/vnd.geo+json"
         }
     ],
     "Datastreams": [
@@ -52,6 +54,7 @@ If your service supports "Deep Insert" You can POST the following JSON to create
                 "definition": "http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen"
             },
             "description": "datastream 1",
+            "name": "datastream name 1",
             "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
             "ObservedProperty": {
                 "name": "Luminous Flux",
@@ -60,7 +63,8 @@ If your service supports "Deep Insert" You can POST the following JSON to create
             },
             "Sensor": {
                 "description": "sensor 1",
-                "encodingType": "http://schema.org/description",
+                "name": "sensor name 1",
+                "encodingType": "application/pdf",
                 "metadata": "Light flux sensor"
             },
             "Observations":[
@@ -81,6 +85,7 @@ If your service supports "Deep Insert" You can POST the following JSON to create
                 "definition": "http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen"
             },
             "description": "datastream 2",
+            "name": "datastream name 2",
             "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
             "ObservedProperty": {
                 "name": "Tempretaure",
@@ -89,7 +94,8 @@ If your service supports "Deep Insert" You can POST the following JSON to create
             },
             "Sensor": {
                 "description": "sensor 2",
-                "encodingType": "http://schema.org/description",
+                "name": "sensor name 2",
+                "encodingType": "application/pdf",
                 "metadata": "Tempreture sensor"
             },
             "Observations":[
