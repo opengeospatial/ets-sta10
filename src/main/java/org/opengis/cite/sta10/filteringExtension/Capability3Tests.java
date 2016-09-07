@@ -12,7 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
-import org.opengis.cite.sta10.util.*;
+import org.opengis.cite.sta10.util.ControlInformation;
+import org.opengis.cite.sta10.util.EntityProperties;
+import org.opengis.cite.sta10.util.EntityPropertiesSampleValue;
+import org.opengis.cite.sta10.util.EntityRelations;
+import org.opengis.cite.sta10.util.EntityType;
+import org.opengis.cite.sta10.util.HTTPMethods;
+import org.opengis.cite.sta10.util.ServiceURLBuilder;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
@@ -39,8 +45,11 @@ public class Capability3Tests {
             featureOfInterestId1, featureOfInterestId2;
 
     /**
-     * This method will be run before starting the test for this conformance class. It creates a set of entities to start testing query options.
-     * @param testContext The test context to find out whether this class is requested to test or not
+     * This method will be run before starting the test for this conformance
+     * class. It creates a set of entities to start testing query options.
+     *
+     * @param testContext The test context to find out whether this class is
+     * requested to test or not
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -62,9 +71,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $select query option.
-     * It tests $select for collection of entities with 1 level and 2 levels resource path.
-     * It also tests $select for one or more properties.
+     * This method is testing $select query option. It tests $select for
+     * collection of entities with 1 level and 2 levels resource path. It also
+     * tests $select for one or more properties.
      */
     @Test(description = "Check Query Evaluation Priority.", groups = "level-3")
     public void readEntitiesWithSelectQO() {
@@ -88,9 +97,10 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $expand query option.
-     * It tests $expand for collection of entities with 1 level and 2 levels resource path.
-     * It also tests $expand for one or more collections, and also tests multilevel $expand.
+     * This method is testing $expand query option. It tests $expand for
+     * collection of entities with 1 level and 2 levels resource path. It also
+     * tests $expand for one or more collections, and also tests multilevel
+     * $expand.
      */
     @Test(description = "GET Entities with $expand", groups = "level-3")
     public void readEntitiesWithExpandQO() {
@@ -126,7 +136,6 @@ public class Capability3Tests {
         checkExpandtForEntityTypeMultilevelRelations(EntityType.OBSERVED_PROPERTY);
         checkExpandtForEntityTypeMultilevelRelations(EntityType.OBSERVATION);
         checkExpandtForEntityTypeMultilevelRelations(EntityType.FEATURE_OF_INTEREST);
-
 
     }
 
@@ -183,9 +192,10 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $orderby query option.
-     * It tests $orderby for collection of entities with 1 level and 2 levels resource path.
-     * It also tests $orderby for one or more properties, and ascending and descending sorting.
+     * This method is testing $orderby query option. It tests $orderby for
+     * collection of entities with 1 level and 2 levels resource path. It also
+     * tests $orderby for one or more properties, and ascending and descending
+     * sorting.
      */
     @Test(description = "GET Entities with $orderby", groups = "level-3")
     public void readEntitiesWithOrderbyQO() {
@@ -208,8 +218,8 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is testing $count query option.
-     * It tests $count for collection of entities with 1 level and 2 levels resource path.
+     * This method is testing $count query option. It tests $count for
+     * collection of entities with 1 level and 2 levels resource path.
      */
     @Test(description = "GET Entities with $count", groups = "level-3")
     public void readEntitiesWithCountQO() {
@@ -266,15 +276,15 @@ public class Capability3Tests {
      */
     @Test(description = "Check priotity of query options", groups = "level-3")
     public void checkQueriesPriorityOrdering() {
-        try{
+        try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code"));
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
-            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned "+new JSONObject(response).getLong("@iot.count"));
-            Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned "+array.length()+" entities.");
-            Assert.assertEquals(array.getJSONObject(0).getString("result"),"6", "The query order of execution is not correct. The expected Observation result is 6, but it is "+array.getJSONObject(0).getString("result"));
+            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned " + new JSONObject(response).getLong("@iot.count"));
+            Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned " + array.length() + " entities.");
+            Assert.assertEquals(array.getJSONObject(0).getString("result"), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).getString("result"));
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -283,7 +293,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $orderby for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
         String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -396,14 +407,15 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n"+e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
 
     /**
      * This helper method is checking $orderby for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkOrderbyForEntityType(EntityType entityType) {
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
@@ -659,7 +671,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $skip for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkSkipForEntityTypeRelation(EntityType entityType) {
         try {
@@ -745,7 +758,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $top for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkTopForEntityType(EntityType entityType) {
         try {
@@ -993,7 +1007,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $top for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkTopForEntityTypeRelation(EntityType entityType) {
         try {
@@ -1041,7 +1056,7 @@ public class Capability3Tests {
                         }
                         switch (relationEntityType) {
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains "+ array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length());
                                 break;
                             case THING:
                                 Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains" + array.length());
@@ -1104,7 +1119,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $select for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkSelectForEntityType(EntityType entityType) {
         List<String> selectedProperties;
@@ -1125,7 +1141,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $select for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkSelectForEntityTypeRelations(EntityType entityType) {
         try {
@@ -1164,9 +1181,11 @@ public class Capability3Tests {
 
     /**
      * Send GET request with $select and $expand and check the response.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      * @param id The id of the entity
-     * @param relationEntityType The relation entity type from EntityType enum list
+     * @param relationEntityType The relation entity type from EntityType enum
+     * list
      * @param selectedProperties The list of selected properties
      * @param expandedRelations The list of expanded properties
      * @return The response of GET request in string format
@@ -1205,6 +1224,7 @@ public class Capability3Tests {
 
     /**
      * This helper method is the start point for checking $select response
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response to be checked
      * @param selectedProperties The list of selected properties
@@ -1215,7 +1235,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is checking properties for the $select response of a collection
+     * This method is checking properties for the $select response of a
+     * collection
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response to be checked
      * @param selectedProperties The list of selected properties
@@ -1224,9 +1246,9 @@ public class Capability3Tests {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = null;
-            if(response.contains("value")) {
+            if (response.contains("value")) {
                 entities = jsonResponse.getJSONArray("value");
-            }else{
+            } else {
                 entities = new JSONArray();
                 entities.put(jsonResponse);
             }
@@ -1241,6 +1263,7 @@ public class Capability3Tests {
 
     /**
      * This method is checking properties for the $select array of entities
+     *
      * @param entityType Entity type from EntityType enum list
      * @param entities The JSONArray of entities to be checked
      * @param selectedProperties The list of selected properties
@@ -1261,7 +1284,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is checking properties for the $select response of a single entity
+     * This method is checking properties for the $select response of a single
+     * entity
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response to be checked
      * @param selectedProperties The list of selected properties
@@ -1286,13 +1311,15 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n"+e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
     }
 
     /**
-     * This method is checking the related entities of selected and/or expanded entities for a collection
+     * This method is checking the related entities of selected and/or expanded
+     * entities for a collection
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response to be checked
      * @param selectedProperties The list of selected properties
@@ -1302,9 +1329,9 @@ public class Capability3Tests {
         try {
             JSONObject jsonResponse = new JSONObject(response.toString());
             JSONArray entities = null;
-            if(response.contains("value")) {
+            if (response.contains("value")) {
                 entities = jsonResponse.getJSONArray("value");
-            }else{
+            } else {
                 entities = new JSONArray();
                 entities.put(jsonResponse);
             }
@@ -1322,7 +1349,9 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is checking the related entities of selected and/or expanded entities for a single entity
+     * This method is checking the related entities of selected and/or expanded
+     * entities for a single entity
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response to be checked
      * @param selectedProperties The list of selected properties
@@ -1341,8 +1370,8 @@ public class Capability3Tests {
                             Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
                         }
                     } else {
-                            Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
-                            JSONArray expandedEntityArray = null;
+                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                        JSONArray expandedEntityArray = null;
                         try {
                             if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInterest")) {
                                 expandedEntityArray = new JSONArray();
@@ -1395,7 +1424,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $expand for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkExpandtForEntityType(EntityType entityType) {
         List<String> expandedRelations;
@@ -1416,7 +1446,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $expand for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkExpandtForEntityTypeRelations(EntityType entityType) {
         try {
@@ -1430,7 +1461,7 @@ public class Capability3Tests {
             }
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
-            for(String parentRelation: parentRelations) {
+            for (String parentRelation : parentRelations) {
                 EntityType relationEntityType = getEntityTypeFor(parentRelation);
                 List<String> expandedRelations;
                 String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
@@ -1454,8 +1485,10 @@ public class Capability3Tests {
     }
 
     /**
-     * This helper method is checking multilevel $expand for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     * This helper method is checking multilevel $expand for 2 level of
+     * entities.
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkExpandtForEntityTypeMultilevelRelations(EntityType entityType) {
         try {
@@ -1469,14 +1502,14 @@ public class Capability3Tests {
             }
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
-            for(String parentRelation: parentRelations) {
+            for (String parentRelation : parentRelations) {
                 EntityType relationEntityType = getEntityTypeFor(parentRelation);
                 List<String> expandedRelations;
                 String[] relations = EntityRelations.getRelationsListFor(relationEntityType);
                 for (String relation : relations) {
                     String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
 
-                    for (String secondLevelRelation: secondLevelRelations) {
+                    for (String secondLevelRelation : secondLevelRelations) {
                         expandedRelations = new ArrayList<>();
                         expandedRelations.add(relation + "/" + secondLevelRelation);
                         response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
@@ -1486,8 +1519,8 @@ public class Capability3Tests {
                 expandedRelations = new ArrayList<>();
                 for (String relation : relations) {
                     String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
-                    for (String secondLevelRelation: secondLevelRelations) {
-                        expandedRelations.add(relation+"/"+secondLevelRelation);
+                    for (String secondLevelRelation : secondLevelRelations) {
+                        expandedRelations.add(relation + "/" + secondLevelRelation);
                         response = getEntities(entityType, id, relationEntityType, null, expandedRelations);
                         checkEntitiesAllAspectsForExpandResponse(relationEntityType, response, expandedRelations);
                     }
@@ -1501,7 +1534,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking multilevel $expand for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkExpandtForEntityTypeMultilevel(EntityType entityType) {
 
@@ -1510,7 +1544,7 @@ public class Capability3Tests {
         for (String relation : relations) {
             String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
 
-            for (String secondLevelRelation: secondLevelRelations) {
+            for (String secondLevelRelation : secondLevelRelations) {
                 expandedRelations = new ArrayList<>();
                 expandedRelations.add(relation + "/" + secondLevelRelation);
                 String response = getEntities(entityType, -1, null, null, expandedRelations);
@@ -1520,8 +1554,8 @@ public class Capability3Tests {
         expandedRelations = new ArrayList<>();
         for (String relation : relations) {
             String[] secondLevelRelations = EntityRelations.getRelationsListFor(relation);
-            for (String secondLevelRelation: secondLevelRelations) {
-                expandedRelations.add(relation+"/"+secondLevelRelation);
+            for (String secondLevelRelation : secondLevelRelations) {
+                expandedRelations.add(relation + "/" + secondLevelRelation);
                 String response = getEntities(entityType, -1, null, null, expandedRelations);
                 checkEntitiesAllAspectsForExpandResponse(entityType, response, expandedRelations);
             }
@@ -1530,7 +1564,8 @@ public class Capability3Tests {
 
     /**
      * This helper method is checking $count for a collection.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkCountForEntityType(EntityType entityType) {
 
@@ -1540,25 +1575,25 @@ public class Capability3Tests {
         int count = -1;
         try {
             count = new JSONObject(response).getInt("@iot.count");
-        } catch (JSONException e){
-            Assert.fail("the query asked for count but the response does not contain count, for getting collection: "+entityType);
+        } catch (JSONException e) {
+            Assert.fail("the query asked for count but the response does not contain count, for getting collection: " + entityType);
         }
         switch (entityType) {
             case THING:
             case LOCATION:
             case FEATURE_OF_INTEREST:
-                Assert.assertEquals(count, 2, "The count for "+entityType+"should be 2, but it is " + count);
+                Assert.assertEquals(count, 2, "The count for " + entityType + "should be 2, but it is " + count);
                 break;
             case OBSERVED_PROPERTY:
-                Assert.assertEquals(count, 3, "The count for "+entityType+"should be 3, but it is " + count);
+                Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count);
                 break;
             case HISTORICAL_LOCATION:
             case SENSOR:
             case DATASTREAM:
-                Assert.assertEquals(count, 4, "The count for "+entityType+"should be 4, but it is " + count);
+                Assert.assertEquals(count, 4, "The count for " + entityType + "should be 4, but it is " + count);
                 break;
             case OBSERVATION:
-                Assert.assertEquals(count, 12, "The count for "+entityType+"should be 12, but it is " + count);
+                Assert.assertEquals(count, 12, "The count for " + entityType + "should be 12, but it is " + count);
                 break;
             default:
                 break;
@@ -1568,15 +1603,16 @@ public class Capability3Tests {
         responseMap = HTTPMethods.doGet(urlString);
         response = responseMap.get("response").toString();
         try {
-            Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: "+entityType);
-            Assert.fail("the query asked for not count but the response does contain count, for getting collection: "+entityType);
-        } catch (JSONException e){
+            Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: " + entityType);
+            Assert.fail("the query asked for not count but the response does contain count, for getting collection: " + entityType);
+        } catch (JSONException e) {
         }
     }
 
     /**
      * This helper method is checking $count for 2 level of entities.
-     * @param entityType  Entity type from EntityType enum list
+     *
+     * @param entityType Entity type from EntityType enum list
      */
     private void checkCountForEntityTypeRelations(EntityType entityType) {
         try {
@@ -1591,7 +1627,7 @@ public class Capability3Tests {
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
             for (String relation : relations) {
-                if(relation.charAt(relation.length()-1)!='s' && !relation.equals("FeatureOfInterest")){
+                if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeatureOfInterest")) {
                     return;
                 }
                 EntityType relationEntityType = getEntityTypeFor(relation);
@@ -1624,9 +1660,9 @@ public class Capability3Tests {
                         }
                         break;
                     case OBSERVATION:
-                        if(entityType.equals(EntityType.DATASTREAM)) {
+                        if (entityType.equals(EntityType.DATASTREAM)) {
                             Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count);
-                        } else if(entityType.equals(EntityType.FEATURE_OF_INTEREST)) {
+                        } else if (entityType.equals(EntityType.FEATURE_OF_INTEREST)) {
                             Assert.assertEquals(count, 6, "The count for " + entityType + "should be 6, but it is " + count);
                         }
                         break;
@@ -1651,6 +1687,7 @@ public class Capability3Tests {
 
     /**
      * This helper method is the start point for checking $expand response.
+     *
      * @param entityType Entity type from EntityType enum list
      * @param response The response to be checked
      * @param expandedRelations List of expanded relations
@@ -1848,6 +1885,7 @@ public class Capability3Tests {
 
     /**
      * Find EntityType from its name string
+     *
      * @param name entity type name string
      * @return The entity type from EntityType enum list
      */
@@ -1881,73 +1919,77 @@ public class Capability3Tests {
         return null;
     }
 
-
-
     /**
      * Create entities as a pre-process for testing query options.
      */
-    private void createEntities(){
+    private void createEntities() {
         try {
             //First Thing
-            String urlParameters = "{\n" +
-                    "    \"description\": \"thing 1\",\n" +
-                    "    \"properties\": {\n" +
-                    "        \"reference\": \"first\"\n" +
-                    "    },\n" +
-                    "    \"Locations\": [\n" +
-                    "        {\n" +
-                    "            \"description\": \"location 1\",\n" +
-                    "            \"location\": {\n" +
-                    "                \"type\": \"Point\",\n" +
-                    "                \"coordinates\": [\n" +
-                    "                    -117.05,\n" +
-                    "                    51.05\n" +
-                    "                ]\n" +
-                    "            },\n" +
-                    "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"Datastreams\": [\n" +
-                    "        {\n" +
-                    "            \"unitOfMeasurement\": {\n" +
-                    "                \"name\": \"Lumen\",\n" +
-                    "                \"symbol\": \"lm\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
-                    "            },\n" +
-                    "            \"description\": \"datastream 1\",\n" +
-                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "            \"ObservedProperty\": {\n" +
-                    "                \"name\": \"Luminous Flux\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux\",\n" +
-                    "                \"description\": \"observedProperty 1\"\n" +
-                    "            },\n" +
-                    "            \"Sensor\": {\n" +
-                    "                \"description\": \"sensor 1\",\n" +
-                    "                \"encodingType\": \"http://schema.org/description\",\n" +
-                    "                \"metadata\": \"Light flux sensor\"\n" +
-                    "            }\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"unitOfMeasurement\": {\n" +
-                    "                \"name\": \"Centigrade\",\n" +
-                    "                \"symbol\": \"C\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
-                    "            },\n" +
-                    "            \"description\": \"datastream 2\",\n" +
-                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "            \"ObservedProperty\": {\n" +
-                    "                \"name\": \"Tempretaure\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/Tempreture\",\n" +
-                    "                \"description\": \"observedProperty 2\"\n" +
-                    "            },\n" +
-                    "            \"Sensor\": {\n" +
-                    "                \"description\": \"sensor 2\",\n" +
-                    "                \"encodingType\": \"http://schema.org/description\",\n" +
-                    "                \"metadata\": \"Tempreture sensor\"\n" +
-                    "            }\n" +
-                    "        }\n" +
-                    "    ]\n" +
-                    "}";
+            String urlParameters = "{\n"
+                    + "    \"name\": \"thing 1\",\n"
+                    + "    \"description\": \"thing 1\",\n"
+                    + "    \"properties\": {\n"
+                    + "        \"reference\": \"first\"\n"
+                    + "    },\n"
+                    + "    \"Locations\": [\n"
+                    + "        {\n"
+                    + "            \"name\": \"location 1\",\n"
+                    + "            \"description\": \"location 1\",\n"
+                    + "            \"location\": {\n"
+                    + "                \"type\": \"Point\",\n"
+                    + "                \"coordinates\": [\n"
+                    + "                    -117.05,\n"
+                    + "                    51.05\n"
+                    + "                ]\n"
+                    + "            },\n"
+                    + "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n"
+                    + "        }\n"
+                    + "    ],\n"
+                    + "    \"Datastreams\": [\n"
+                    + "        {\n"
+                    + "            \"unitOfMeasurement\": {\n"
+                    + "                \"name\": \"Lumen\",\n"
+                    + "                \"symbol\": \"lm\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n"
+                    + "            },\n"
+                    + "            \"name\": \"datastream 1\",\n"
+                    + "            \"description\": \"datastream 1\",\n"
+                    + "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n"
+                    + "            \"ObservedProperty\": {\n"
+                    + "                \"name\": \"Luminous Flux\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux\",\n"
+                    + "                \"description\": \"observedProperty 1\"\n"
+                    + "            },\n"
+                    + "            \"Sensor\": {\n"
+                    + "                \"name\": \"sensor 1\",\n"
+                    + "                \"description\": \"sensor 1\",\n"
+                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"metadata\": \"Light flux sensor\"\n"
+                    + "            }\n"
+                    + "        },\n"
+                    + "        {\n"
+                    + "            \"unitOfMeasurement\": {\n"
+                    + "                \"name\": \"Centigrade\",\n"
+                    + "                \"symbol\": \"C\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n"
+                    + "            },\n"
+                    + "            \"name\": \"datastream 2\",\n"
+                    + "            \"description\": \"datastream 2\",\n"
+                    + "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n"
+                    + "            \"ObservedProperty\": {\n"
+                    + "                \"name\": \"Tempretaure\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/Tempreture\",\n"
+                    + "                \"description\": \"observedProperty 2\"\n"
+                    + "            },\n"
+                    + "            \"Sensor\": {\n"
+                    + "                \"name\": \"sensor 2\",\n"
+                    + "                \"description\": \"sensor 2\",\n"
+                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"metadata\": \"Tempreture sensor\"\n"
+                    + "            }\n"
+                    + "        }\n"
+                    + "    ]\n"
+                    + "}";
             String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
             String response = responseMap.get("response").toString();
@@ -1984,65 +2026,70 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             observedPropertyId2 = new JSONObject(response).getLong(ControlInformation.ID);
 
-
             //Second Thing
-            urlParameters = "{\n" +
-                    "    \"description\": \"thing 2\",\n" +
-                    "    \"properties\": {\n" +
-                    "        \"reference\": \"second\"\n" +
-                    "    },\n" +
-                    "    \"Locations\": [\n" +
-                    "        {\n" +
-                    "            \"description\": \"location 2\",\n" +
-                    "            \"location\": {\n" +
-                    "                \"type\": \"Point\",\n" +
-                    "                \"coordinates\": [\n" +
-                    "                    -100.05,\n" +
-                    "                    50.05\n" +
-                    "                ]\n" +
-                    "            },\n" +
-                    "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"Datastreams\": [\n" +
-                    "        {\n" +
-                    "            \"unitOfMeasurement\": {\n" +
-                    "                \"name\": \"Lumen\",\n" +
-                    "                \"symbol\": \"lm\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
-                    "            },\n" +
-                    "            \"description\": \"datastream 3\",\n" +
-                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "            \"ObservedProperty\": {\n" +
-                    "                \"name\": \"Second Luminous Flux\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux\",\n" +
-                    "                \"description\": \"observedProperty 3\"\n" +
-                    "            },\n" +
-                    "            \"Sensor\": {\n" +
-                    "                \"description\": \"sensor 3\",\n" +
-                    "                \"encodingType\": \"http://schema.org/description\",\n" +
-                    "                \"metadata\": \"Second Light flux sensor\"\n" +
-                    "            }\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"unitOfMeasurement\": {\n" +
-                    "                \"name\": \"Centigrade\",\n" +
-                    "                \"symbol\": \"C\",\n" +
-                    "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n" +
-                    "            },\n" +
-                    "            \"description\": \"datastream 2\",\n" +
-                    "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n" +
-                    "            \"ObservedProperty\": {\n" +
-                    "                \"@iot.id\": "+observedPropertyId2+"\n" +
-                    "            },\n" +
-                    "            \"Sensor\": {\n" +
-                    "                \"description\": \"sensor 4 \",\n" +
-                    "                \"encodingType\": \"http://schema.org/description\",\n" +
-                    "                \"metadata\": \"Second Tempreture sensor\"\n" +
-                    "            }\n" +
-                    "        }\n" +
-                    "    ]\n" +
-                    "}";
+            urlParameters = "{\n"
+                    + "    \"name\": \"thing 2\",\n"
+                    + "    \"description\": \"thing 2\",\n"
+                    + "    \"properties\": {\n"
+                    + "        \"reference\": \"second\"\n"
+                    + "    },\n"
+                    + "    \"Locations\": [\n"
+                    + "        {\n"
+                    + "            \"name\": \"location 2\",\n"
+                    + "            \"description\": \"location 2\",\n"
+                    + "            \"location\": {\n"
+                    + "                \"type\": \"Point\",\n"
+                    + "                \"coordinates\": [\n"
+                    + "                    -100.05,\n"
+                    + "                    50.05\n"
+                    + "                ]\n"
+                    + "            },\n"
+                    + "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n"
+                    + "        }\n"
+                    + "    ],\n"
+                    + "    \"Datastreams\": [\n"
+                    + "        {\n"
+                    + "            \"unitOfMeasurement\": {\n"
+                    + "                \"name\": \"Lumen\",\n"
+                    + "                \"symbol\": \"lm\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n"
+                    + "            },\n"
+                    + "            \"name\": \"datastream 3\",\n"
+                    + "            \"description\": \"datastream 3\",\n"
+                    + "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n"
+                    + "            \"ObservedProperty\": {\n"
+                    + "                \"name\": \"Second Luminous Flux\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/quantity/Instances.html/LuminousFlux\",\n"
+                    + "                \"description\": \"observedProperty 3\"\n"
+                    + "            },\n"
+                    + "            \"Sensor\": {\n"
+                    + "                \"name\": \"sensor 3\",\n"
+                    + "                \"description\": \"sensor 3\",\n"
+                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"metadata\": \"Second Light flux sensor\"\n"
+                    + "            }\n"
+                    + "        },\n"
+                    + "        {\n"
+                    + "            \"unitOfMeasurement\": {\n"
+                    + "                \"name\": \"Centigrade\",\n"
+                    + "                \"symbol\": \"C\",\n"
+                    + "                \"definition\": \"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Lumen\"\n"
+                    + "            },\n"
+                    + "            \"name\": \"datastream 2\",\n"
+                    + "            \"description\": \"datastream 2\",\n"
+                    + "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n"
+                    + "            \"ObservedProperty\": {\n"
+                    + "                \"@iot.id\": " + observedPropertyId2 + "\n"
+                    + "            },\n"
+                    + "            \"Sensor\": {\n"
+                    + "                \"name\": \"sensor 4 \",\n"
+                    + "                \"description\": \"sensor 4 \",\n"
+                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"metadata\": \"Second Tempreture sensor\"\n"
+                    + "            }\n"
+                    + "        }\n"
+                    + "    ]\n"
+                    + "}";
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
@@ -2077,19 +2124,19 @@ public class Capability3Tests {
 
             //HistoricalLocations
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, null, null);
-            urlParameters = "{\"Locations\": [\n" +
-                    "    {\n" +
-                    "      \"@iot.id\": "+locationId2+"\n" +
-                    "    }\n" +
-                    "  ]}";
+            urlParameters = "{\"Locations\": [\n"
+                    + "    {\n"
+                    + "      \"@iot.id\": " + locationId2 + "\n"
+                    + "    }\n"
+                    + "  ]}";
             HTTPMethods.doPatch(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, null, null);
-            urlParameters = "{\"Locations\": [\n" +
-                    "    {\n" +
-                    "      \"@iot.id\": "+locationId1+"\n" +
-                    "    }\n" +
-                    "  ]}";
+            urlParameters = "{\"Locations\": [\n"
+                    + "    {\n"
+                    + "      \"@iot.id\": " + locationId1 + "\n"
+                    + "    }\n"
+                    + "  ]}";
             HTTPMethods.doPatch(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, EntityType.HISTORICAL_LOCATION, null);
@@ -2108,93 +2155,93 @@ public class Capability3Tests {
 
             //Observations
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.OBSERVATION, null);
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n" +
-                    "  \"result\": 1 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n"
+                    + "  \"result\": 1 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId1 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-02T00:00:00Z\",\n" +
-                    "  \"result\": 2 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-02T00:00:00Z\",\n"
+                    + "  \"result\": 2 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId2 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-03T00:00:00Z\",\n" +
-                    "  \"result\": 3 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-03T00:00:00Z\",\n"
+                    + "  \"result\": 3 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId3 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId2, EntityType.OBSERVATION, null);
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-04T00:00:00Z\",\n" +
-                    "  \"result\": 4 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-04T00:00:00Z\",\n"
+                    + "  \"result\": 4 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId4 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-05T00:00:00Z\",\n" +
-                    "  \"result\": 5 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-05T00:00:00Z\",\n"
+                    + "  \"result\": 5 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId5 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-06T00:00:00Z\",\n" +
-                    "  \"result\": 6 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-06T00:00:00Z\",\n"
+                    + "  \"result\": 6 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId6 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.OBSERVATION, null);
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-07T00:00:00Z\",\n" +
-                    "  \"result\": 7 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-07T00:00:00Z\",\n"
+                    + "  \"result\": 7 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId7 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-08T00:00:00Z\",\n" +
-                    "  \"result\": 8 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-08T00:00:00Z\",\n"
+                    + "  \"result\": 8 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId8 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-09T00:00:00Z\",\n" +
-                    "  \"result\": 9 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-09T00:00:00Z\",\n"
+                    + "  \"result\": 9 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId9 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId4, EntityType.OBSERVATION, null);
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-10T00:00:00Z\",\n" +
-                    "  \"result\": 10 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-10T00:00:00Z\",\n"
+                    + "  \"result\": 10 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId10 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-11T00:00:00Z\",\n" +
-                    "  \"result\": 11 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-11T00:00:00Z\",\n"
+                    + "  \"result\": 11 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId11 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
-            urlParameters = "{\n" +
-                    "  \"phenomenonTime\": \"2015-03-12T00:00:00Z\",\n" +
-                    "  \"result\": 12 \n" +
-                    "   }";
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-12T00:00:00Z\",\n"
+                    + "  \"result\": 12 \n"
+                    + "   }";
             responseMap = HTTPMethods.doPost(urlString, urlParameters);
             response = responseMap.get("response").toString();
             observationId12 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
@@ -2215,22 +2262,22 @@ public class Capability3Tests {
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
 
-
     }
 
     /**
      * The helper method to check if a list contains a entity name string
+     *
      * @param list The list to be searched
      * @param entity The entity name to be checked
      * @return True if the entity name exists is the list, false otherwise
      */
-    private boolean listContainsString(List<String> list, String entity){
-        for(String item:list) {
-            if (item.toLowerCase().contains(entity.toLowerCase())){
-                if(entity.toLowerCase().equals("locations")&&(item.toLowerCase().equals("historicallocations/thing")||item.toLowerCase().equals("historicallocations") || item.toLowerCase().equals("things/historicallocations")  || item.toLowerCase().equals("thing/historicallocations"))){
+    private boolean listContainsString(List<String> list, String entity) {
+        for (String item : list) {
+            if (item.toLowerCase().contains(entity.toLowerCase())) {
+                if (entity.toLowerCase().equals("locations") && (item.toLowerCase().equals("historicallocations/thing") || item.toLowerCase().equals("historicallocations") || item.toLowerCase().equals("things/historicallocations") || item.toLowerCase().equals("thing/historicallocations"))) {
                     continue;
                 }
-                if(!entity.contains("/")&&item.contains("/"+entity)){
+                if (!entity.contains("/") && item.contains("/" + entity)) {
                     continue;
                 }
                 return true;
@@ -2241,10 +2288,11 @@ public class Capability3Tests {
     }
 
     /**
-     * This method is run after all the tests of this class is run and clean the database.
+     * This method is run after all the tests of this class is run and clean the
+     * database.
      */
     @AfterClass
-    public void deleteEverythings(){
+    public void deleteEverythings() {
         deleteEntityType(EntityType.OBSERVATION);
         deleteEntityType(EntityType.FEATURE_OF_INTEREST);
         deleteEntityType(EntityType.DATASTREAM);
@@ -2257,9 +2305,10 @@ public class Capability3Tests {
 
     /**
      * Delete all the entities of a certain entity type
+     *
      * @param entityType The entity type from EntityType enum
      */
-    private void deleteEntityType(EntityType entityType){
+    private void deleteEntityType(EntityType entityType) {
         JSONArray array = null;
         do {
             try {
@@ -2276,17 +2325,19 @@ public class Capability3Tests {
                 e.printStackTrace();
                 Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
             }
-        } while (array.length() >0);
+        } while (array.length() > 0);
     }
 
     /**
-     * This method created the URL string for the entity with specific id and then send DELETE request to that URl.
+     * This method created the URL string for the entity with specific id and
+     * then send DELETE request to that URl.
+     *
      * @param entityType Entity type in from EntityType enum
      * @param id The id of requested entity
      */
     private void deleteEntity(EntityType entityType, long id) {
-        String urlString = ServiceURLBuilder.buildURLString(rootUri,entityType,id,null,null);
-        Map<String,Object> responseMap = HTTPMethods.doDelete(urlString);
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
+        Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
 
