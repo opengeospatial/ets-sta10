@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +28,7 @@ public class Capability1Tests {
     /**
      * The root URL of the SensorThings service under the test
      */
-    public String rootUri;//="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
     /**
      * The variable that defines to which recursive level the resource path
      * should be tested
@@ -39,7 +40,7 @@ public class Capability1Tests {
      * class.
      *
      * @param testContext The test context to find out whether this class is
-     * requested to test or not
+     *                    requested to test or not
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -166,8 +167,8 @@ public class Capability1Tests {
      * check the response is 200.
      *
      * @param entityType Entity type from EntityType enum list
-     * @param id The id of the entity
-     * @param property The property to get requested
+     * @param id         The id of the entity
+     * @param property   The property to get requested
      */
     private void checkGetPropertyOfEntity(EntityType entityType, long id, String property) {
         try {
@@ -194,8 +195,8 @@ public class Capability1Tests {
      * and check the response is 200.
      *
      * @param entityType Entity type from EntityType enum list
-     * @param id The id of the entity
-     * @param property The property to get requested
+     * @param id         The id of the entity
+     * @param property   The property to get requested
      */
     private void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
         Map<String, Object> responseMap = getEntity(entityType, id, property + "/$value");
@@ -271,8 +272,8 @@ public class Capability1Tests {
      * confirms that the response is 200.
      *
      * @param entityTypes List of entity type from EntityType enum list for the
-     * chain
-     * @param ids List of ids for teh chain
+     *                    chain
+     * @param ids         List of ids for teh chain
      */
     private void readRelatedEntity(List<String> entityTypes, List<Long> ids) {
         if (entityTypes.size() > resourcePathLevel) {
@@ -316,10 +317,10 @@ public class Capability1Tests {
      * This method is checking the response for the request of Association Link.
      * It confirms that it contains a list of selfLinks.
      *
-     * @param response The response for GET association link request
+     * @param response    The response for GET association link request
      * @param entityTypes List of entity type from EntityType enum list for the
-     * chain
-     * @param ids List of ids for teh chain
+     *                    chain
+     * @param ids         List of ids for teh chain
      */
     private void checkAssociationLinks(String response, List<String> entityTypes, List<Long> ids) {
 
@@ -489,8 +490,8 @@ public class Capability1Tests {
      * This helper method is sending Get request to a specific entity
      *
      * @param entityType Entity type from EntityType enum list
-     * @param id The if of the specific entity
-     * @param property The requested property of the entity
+     * @param id         The if of the specific entity
+     * @param property   The requested property of the entity
      * @return The response-code and response (body) of the request in Map
      * format.
      */
@@ -507,7 +508,7 @@ public class Capability1Tests {
      * collection in all aspects.
      *
      * @param entityType Entity type from EntityType enum list
-     * @param response The response of the GET request to be checked
+     * @param response   The response of the GET request to be checked
      */
     private void checkEntitiesAllAspectsForResponse(EntityType entityType, String response) {
         checkEntitiesControlInformation(response);
@@ -520,7 +521,7 @@ public class Capability1Tests {
      * specific entity in all aspects.
      *
      * @param entityType Entity type from EntityType enum list
-     * @param response The response of the GET request to be checked
+     * @param response   The response of the GET request to be checked
      */
     private void checkEntityAllAspectsForResponse(EntityType entityType, String response) {
         checkEntityControlInformation(response);
@@ -580,7 +581,7 @@ public class Capability1Tests {
      * for a collection
      *
      * @param entityType Entity type from EntityType enum list
-     * @param response The response of the GET request to be checked
+     * @param response   The response of the GET request to be checked
      */
     private void checkEntitiesProperties(EntityType entityType, String response) {
         try {
@@ -605,7 +606,7 @@ public class Capability1Tests {
      * for a specific entity
      *
      * @param entityType Entity type from EntityType enum list
-     * @param response The response of the GET request to be checked
+     * @param response   The response of the GET request to be checked
      */
     private void checkEntityProperties(EntityType entityType, Object response) {
         try {
@@ -630,7 +631,7 @@ public class Capability1Tests {
      * for a collection
      *
      * @param entityType Entity type from EntityType enum list
-     * @param response The response of the GET request to be checked
+     * @param response   The response of the GET request to be checked
      */
     private void checkEntitiesRelations(EntityType entityType, String response) {
         try {
@@ -654,7 +655,7 @@ public class Capability1Tests {
      * for a specific entity
      *
      * @param entityType Entity type from EntityType enum list
-     * @param response The response of the GET request to be checked
+     * @param response   The response of the GET request to be checked
      */
     private void checkEntityRelations(EntityType entityType, Object response) {
         try {

@@ -20,9 +20,9 @@ public class TestSuiteLogger {
      * Logs a message at the specified logging level with the given message
      * parameters.
      *
-     * @param level The logging {@link Level level}.
+     * @param level   The logging {@link Level level}.
      * @param message A String representing the content of the log message.
-     * @param params An array of message parameters.
+     * @param params  An array of message parameters.
      */
     public static void log(Level level, String message, Object[] params) {
         if (LOGR.isLoggable(level)) {
@@ -34,9 +34,9 @@ public class TestSuiteLogger {
      * Logs a message at the specified logging level with the given Exception
      * object that represents a noteworthy error condition.
      *
-     * @param level The logging {@link Level level}.
+     * @param level   The logging {@link Level level}.
      * @param message A String representing the content of the log message.
-     * @param except An object that indicates an exceptional situation.
+     * @param except  An object that indicates an exceptional situation.
      */
     public static void log(Level level, String message, Exception except) {
         if (LOGR.isLoggable(level)) {
@@ -47,7 +47,7 @@ public class TestSuiteLogger {
     /**
      * Logs a simple message at the specified logging level.
      *
-     * @param level The logging {@link Level level}.
+     * @param level   The logging {@link Level level}.
      * @param message A String representing the content of the log message.
      */
     public static void log(Level level, String message) {

@@ -40,12 +40,12 @@ public class EntityRelations {
 
     /**
      * Returning the list of entity relations for the given entityType.
+     *
      * @param entityType The type of entity from EntityType enum
      * @return List of all entity relations for the given entityType
      */
     public static String[] getRelationsListFor(EntityType entityType) {
-        switch (entityType)
-        {
+        switch (entityType) {
             case THING:
                 return THING_RELATIONS;
             case LOCATION:
@@ -70,6 +70,7 @@ public class EntityRelations {
 
     /**
      * Returning the list of entity relations for the given entity name.
+     *
      * @param name The type of entity in String format
      * @return List of all entity relations for the given entity
      */

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONArray;
@@ -33,7 +34,7 @@ public class Capability3Tests {
     /**
      * The root URL of the SensorThings service under the test
      */
-    public String rootUri;//="http://localhost:8080/OGCSensorThings-NewQueries/v1.0";
+    public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
 
     private long thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
@@ -49,7 +50,7 @@ public class Capability3Tests {
      * class. It creates a set of entities to start testing query options.
      *
      * @param testContext The test context to find out whether this class is
-     * requested to test or not
+     *                    requested to test or not
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
@@ -247,7 +248,7 @@ public class Capability3Tests {
      * of entities with 1 level and 2 levels resource path.
      *
      * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
-     * should always be supported.
+     *                                              should always be supported.
      */
     @Test(description = "GET Entities with $filter", groups = "level-3")
     public void readEntitiesWithFilterQO() throws UnsupportedEncodingException {
@@ -1182,12 +1183,12 @@ public class Capability3Tests {
     /**
      * Send GET request with $select and $expand and check the response.
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param id The id of the entity
+     * @param entityType         Entity type from EntityType enum list
+     * @param id                 The id of the entity
      * @param relationEntityType The relation entity type from EntityType enum
-     * list
+     *                           list
      * @param selectedProperties The list of selected properties
-     * @param expandedRelations The list of expanded properties
+     * @param expandedRelations  The list of expanded properties
      * @return The response of GET request in string format
      */
     private String getEntities(EntityType entityType, long id, EntityType relationEntityType, List<String> selectedProperties, List<String> expandedRelations) {
@@ -1225,8 +1226,8 @@ public class Capability3Tests {
     /**
      * This helper method is the start point for checking $select response
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param response The response to be checked
+     * @param entityType         Entity type from EntityType enum list
+     * @param response           The response to be checked
      * @param selectedProperties The list of selected properties
      */
     private void checkEntitiesAllAspectsForSelectResponse(EntityType entityType, String response, List<String> selectedProperties) {
@@ -1238,8 +1239,8 @@ public class Capability3Tests {
      * This method is checking properties for the $select response of a
      * collection
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param response The response to be checked
+     * @param entityType         Entity type from EntityType enum list
+     * @param response           The response to be checked
      * @param selectedProperties The list of selected properties
      */
     private void checkEntitiesProperties(EntityType entityType, String response, List<String> selectedProperties) {
@@ -1264,8 +1265,8 @@ public class Capability3Tests {
     /**
      * This method is checking properties for the $select array of entities
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param entities The JSONArray of entities to be checked
+     * @param entityType         Entity type from EntityType enum list
+     * @param entities           The JSONArray of entities to be checked
      * @param selectedProperties The list of selected properties
      */
     private void checkPropertiesForEntityArray(EntityType entityType, JSONArray entities, List<String> selectedProperties) {
@@ -1287,8 +1288,8 @@ public class Capability3Tests {
      * This method is checking properties for the $select response of a single
      * entity
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param response The response to be checked
+     * @param entityType         Entity type from EntityType enum list
+     * @param response           The response to be checked
      * @param selectedProperties The list of selected properties
      */
     private void checkEntityProperties(EntityType entityType, Object response, List<String> selectedProperties) {
@@ -1320,10 +1321,10 @@ public class Capability3Tests {
      * This method is checking the related entities of selected and/or expanded
      * entities for a collection
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param response The response to be checked
+     * @param entityType         Entity type from EntityType enum list
+     * @param response           The response to be checked
      * @param selectedProperties The list of selected properties
-     * @param expandedRelations The list of expanded properties
+     * @param expandedRelations  The list of expanded properties
      */
     private void checkEntitiesRelations(EntityType entityType, String response, List<String> selectedProperties, List<String> expandedRelations) {
         try {
@@ -1352,10 +1353,10 @@ public class Capability3Tests {
      * This method is checking the related entities of selected and/or expanded
      * entities for a single entity
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param response The response to be checked
+     * @param entityType         Entity type from EntityType enum list
+     * @param response           The response to be checked
      * @param selectedProperties The list of selected properties
-     * @param expandedRelations The list of expanded properties
+     * @param expandedRelations  The list of expanded properties
      */
     private void checkEntityRelations(EntityType entityType, Object response, List<String> selectedProperties, List<String> expandedRelations) {
         try {
@@ -1688,8 +1689,8 @@ public class Capability3Tests {
     /**
      * This helper method is the start point for checking $expand response.
      *
-     * @param entityType Entity type from EntityType enum list
-     * @param response The response to be checked
+     * @param entityType        Entity type from EntityType enum list
+     * @param response          The response to be checked
      * @param expandedRelations List of expanded relations
      */
     private void checkEntitiesAllAspectsForExpandResponse(EntityType entityType, String response, List<String> expandedRelations) {
@@ -1701,7 +1702,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
-     * should always be supported.
+     *                                              should always be supported.
      */
     private void checkFilterForEntityType(EntityType entityType) throws UnsupportedEncodingException {
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
@@ -1756,7 +1757,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
-     * should always be supported.
+     *                                              should always be supported.
      */
     private void checkFilterForEntityTypeRelations(EntityType entityType) throws UnsupportedEncodingException {
         String[] relations = EntityRelations.getRelationsListFor(entityType);
@@ -1833,10 +1834,10 @@ public class Capability3Tests {
     /**
      * This method is checking the properties of the filtered collection
      *
-     * @param response The response to be checked
+     * @param response   The response to be checked
      * @param properties List of filtered properties
-     * @param values List of values for filtered properties
-     * @param operator The operator of the filter
+     * @param values     List of values for filtered properties
+     * @param operator   The operator of the filter
      */
     private void checkPropertiesForFilter(String response, List<String> properties, List<Comparable> values, int operator) {
         try {
@@ -1950,7 +1951,7 @@ public class Capability3Tests {
                     + "                    51.05\n"
                     + "                ]\n"
                     + "            },\n"
-                    + "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n"
+                    + "            \"encodingType\": \"application/vnd.geo+json\"\n"
                     + "        }\n"
                     + "    ],\n"
                     + "    \"Datastreams\": [\n"
@@ -1971,7 +1972,7 @@ public class Capability3Tests {
                     + "            \"Sensor\": {\n"
                     + "                \"name\": \"sensor 1\",\n"
                     + "                \"description\": \"sensor 1\",\n"
-                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"encodingType\": \"application/pdf\",\n"
                     + "                \"metadata\": \"Light flux sensor\"\n"
                     + "            }\n"
                     + "        },\n"
@@ -1992,7 +1993,7 @@ public class Capability3Tests {
                     + "            \"Sensor\": {\n"
                     + "                \"name\": \"sensor 2\",\n"
                     + "                \"description\": \"sensor 2\",\n"
-                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"encodingType\": \"application/pdf\",\n"
                     + "                \"metadata\": \"Tempreture sensor\"\n"
                     + "            }\n"
                     + "        }\n"
@@ -2052,7 +2053,7 @@ public class Capability3Tests {
                     + "                    50.05\n"
                     + "                ]\n"
                     + "            },\n"
-                    + "            \"encodingType\": \"http://example.org/location_types/GeoJSON\"\n"
+                    + "            \"encodingType\": \"application/vnd.geo+json\"\n"
                     + "        }\n"
                     + "    ],\n"
                     + "    \"Datastreams\": [\n"
@@ -2073,7 +2074,7 @@ public class Capability3Tests {
                     + "            \"Sensor\": {\n"
                     + "                \"name\": \"sensor 3\",\n"
                     + "                \"description\": \"sensor 3\",\n"
-                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"encodingType\": \"application/pdf\",\n"
                     + "                \"metadata\": \"Second Light flux sensor\"\n"
                     + "            }\n"
                     + "        },\n"
@@ -2092,7 +2093,7 @@ public class Capability3Tests {
                     + "            \"Sensor\": {\n"
                     + "                \"name\": \"sensor 4 \",\n"
                     + "                \"description\": \"sensor 4 \",\n"
-                    + "                \"encodingType\": \"http://schema.org/description\",\n"
+                    + "                \"encodingType\": \"application/pdf\",\n"
                     + "                \"metadata\": \"Second Tempreture sensor\"\n"
                     + "            }\n"
                     + "        }\n"
@@ -2275,7 +2276,7 @@ public class Capability3Tests {
     /**
      * The helper method to check if a list contains a entity name string
      *
-     * @param list The list to be searched
+     * @param list   The list to be searched
      * @param entity The entity name to be checked
      * @return True if the entity name exists is the list, false otherwise
      */
@@ -2341,7 +2342,7 @@ public class Capability3Tests {
      * then send DELETE request to that URl.
      *
      * @param entityType Entity type in from EntityType enum
-     * @param id The id of requested entity
+     * @param id         The id of requested entity
      */
     private void deleteEntity(EntityType entityType, long id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);

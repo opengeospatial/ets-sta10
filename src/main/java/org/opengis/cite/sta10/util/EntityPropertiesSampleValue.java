@@ -28,7 +28,7 @@ public class EntityPropertiesSampleValue {
     /**
      * Sample properties for Sensor entity.
      */
-    public static final String[] SENSOR_PROPERTIES_Values = {"'sensor 1'", "'sensor 1'", "'http://schema.org/description'", "'Light flux sensor'"};
+    public static final String[] SENSOR_PROPERTIES_Values = {"'sensor 1'", "'sensor 1'", "'application/pdf'", "'Light flux sensor'"};
     /**
      * Sample properties for ObservedProperty entity.
      */
@@ -37,9 +37,9 @@ public class EntityPropertiesSampleValue {
      * Sample properties for Observation entity.
      */
     public static final Comparable[] OBSERVATION_PROPERTIES_Values = {
-        ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z"),
-        "'2'",
-        ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z")};
+            ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z"),
+            "'2'",
+            ISODateTimeFormat.dateTime().parseDateTime("2015-03-02T00:00:00.000Z")};
     /**
      * Sample properties for FeatureOfInterest entity.
      */
@@ -50,8 +50,8 @@ public class EntityPropertiesSampleValue {
      * entityType
      *
      * @param entityType The type of the entity in the format of EntityType enum
-     * @param index The index of the requested properties in the properties list
-     * of the entityType
+     * @param index      The index of the requested properties in the properties list
+     *                   of the entityType
      * @return The sample value from the properties list of the given
      * "entityType" positioned in location "index" in the list
      */
