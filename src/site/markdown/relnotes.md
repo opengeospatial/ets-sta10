@@ -1,6 +1,12 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
 
+0.6 (2016-09-09)
+-------------------
+- Merge PULL request to add checks for "name" property.
+- Merge PULL request to add test for "ne" not equal operator.
+- Change the "encodingType"s according to value tables in the specification.
+
 0.5 (2016-07-08)
 -------------------
 - Merge PULL request to compare time properties correctly.
