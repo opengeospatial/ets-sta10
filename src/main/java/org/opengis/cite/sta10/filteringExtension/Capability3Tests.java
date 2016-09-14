@@ -1859,10 +1859,13 @@ public class Capability3Tests {
                     if (value instanceof String && ((String) value).charAt(0) == '\'') {
                         String sValue = (String) value;
                         value = sValue.substring(1, sValue.length() - 1);
-                    }
-                    if (value instanceof DateTime) {
+                        if (!(propertyValue instanceof String)) {
+                            propertyValue = propertyValue.toString();
+                        }
+                    } else if (value instanceof DateTime) {
                         propertyValue = ISODateTimeFormat.dateTime().parseDateTime(propertyValue.toString());
                     }
+
                     int result = value.compareTo(propertyValue);
                     switch (operator) {
                         case -3:
