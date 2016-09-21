@@ -1818,6 +1818,11 @@ public class Capability3Tests {
                 response = responseMap.get("response").toString();
                 checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 0);
 
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20ne%20" + propertyValue);
+                responseMap = HTTPMethods.doGet(urlString);
+                response = responseMap.get("response").toString();
+                checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -3);
+
                 urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$filter=" + property + "%20ge%20" + propertyValue);
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
