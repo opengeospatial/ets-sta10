@@ -1,6 +1,11 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
 
+0.7 (2016-10-04)
+-------------------
+- [#23](https://github.com/opengeospatial/ets-sta10/pull/23) - Merge PULL request to fix a castException bug
+- [#24](https://github.com/opengeospatial/ets-sta10/issues/24) - Merge PULL request for adding additional tests for NotEqual operator
+
 0.6 (2016-09-09)
 -------------------
 - [#13](https://github.com/opengeospatial/ets-sta10/pull/13) - Name properties - Merge PULL request to add checks for "name" property.
