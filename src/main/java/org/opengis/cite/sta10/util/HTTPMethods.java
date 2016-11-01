@@ -48,17 +48,7 @@ public class HTTPMethods {
             Map<String, Object> result = new HashMap<String, Object>();
             result.put("response-code", connection.getResponseCode());
             if (connection.getResponseCode() == 200) {
-                //Get Response
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-                rd.close();
-                result.put("response", response.toString());
+                result.put("response", responseToString(connection));
             } else {
                 result.put("response", "");
             }
@@ -72,6 +62,20 @@ public class HTTPMethods {
             }
 
         }
+    }
+
+    private static String responseToString(HttpURLConnection connection) throws IOException {
+        //Get Response
+        InputStream is = connection.getInputStream();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+        StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
+        String line;
+        while ((line = rd.readLine()) != null) {
+            response.append(line);
+            response.append('\r');
+        }
+        rd.close();
+        return response.toString();
     }
 
     /**
@@ -104,7 +108,12 @@ public class HTTPMethods {
             Map<String, Object> result = new HashMap<String, Object>();
             result.put("response-code", connection.getResponseCode());
             if (connection.getResponseCode() == 201) {
-                result.put("response", connection.getHeaderField("location"));
+                String locationHeader = connection.getHeaderField("location");
+                if (locationHeader == null || locationHeader.isEmpty()) {
+                    result.put("response", responseToString(connection));
+                } else {
+                    result.put("response", locationHeader);
+                }
             } else {
                 result.put("response", "");
             }
@@ -150,16 +159,7 @@ public class HTTPMethods {
             result.put("response-code", connection.getResponseCode());
             if (connection.getResponseCode() == 200) {
                 //Get Response
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                StringBuilder response = new StringBuilder(); // or StringBuffer if not Java 5+
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-                rd.close();
-                result.put("response", response.toString());
+                result.put("response", responseToString(connection));
             } else {
                 result.put("response", "");
             }
