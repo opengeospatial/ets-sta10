@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.dao.BaseDao;
-import de.fraunhofer.iosb.ilt.sta.dao.ObservationDao;
-import de.fraunhofer.iosb.ilt.sta.dao.ThingDao;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
 import de.fraunhofer.iosb.ilt.sta.model.Entity;
 import de.fraunhofer.iosb.ilt.sta.model.FeatureOfInterest;
@@ -22,20 +20,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import org.geojson.LineString;
-import org.geojson.LngLatAlt;
 import org.geojson.Point;
-import org.geojson.Polygon;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.EntityType;
 import org.opengis.cite.sta10.util.EntityUtils;
@@ -48,7 +39,6 @@ import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.extra.Interval;
 
 /**
  * Some odd tests.
