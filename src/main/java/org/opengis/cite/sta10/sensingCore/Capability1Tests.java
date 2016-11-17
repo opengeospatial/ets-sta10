@@ -16,6 +16,7 @@ import org.opengis.cite.sta10.util.EntityType;
 import org.opengis.cite.sta10.util.HTTPMethods;
 import org.opengis.cite.sta10.util.ServiceURLBuilder;
 import org.testng.Assert;
+import org.testng.ISuite;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,6 +35,7 @@ public class Capability1Tests {
      * should be tested
      */
     private final int resourcePathLevel = 4;
+    private boolean hasMultiDatastream = false;
 
     /**
      * This method will be run before starting the test for this conformance
@@ -44,21 +46,20 @@ public class Capability1Tests {
      */
     @BeforeClass
     public void obtainTestSubject(ITestContext testContext) {
-        Object obj = testContext.getSuite().getAttribute(
-                SuiteAttribute.LEVEL.getName());
+        ISuite suite = testContext.getSuite();
+        Object obj = suite.getAttribute(SuiteAttribute.LEVEL.getName());
         if ((null != obj)) {
             Integer level = Integer.class.cast(obj);
             Assert.assertTrue(level.intValue() > 0,
                     "Conformance level 1 will not be checked since ics = " + level);
         }
 
-        rootUri = testContext.getSuite().getAttribute(
-                SuiteAttribute.TEST_SUBJECT.getName()).toString();
+        rootUri = suite.getAttribute(SuiteAttribute.TEST_SUBJECT.getName()).toString();
         rootUri = rootUri.trim();
         if (rootUri.lastIndexOf('/') == rootUri.length() - 1) {
             rootUri = rootUri.substring(0, rootUri.length() - 1);
         }
-
+        hasMultiDatastream = suite.getXmlSuite().getParameter("hasMultiDatastream") != null;
     }
 
     /**
@@ -397,6 +398,9 @@ public class Capability1Tests {
             addedLinks.put("Observations", false);
             addedLinks.put("ObservedProperties", false);
             addedLinks.put("FeaturesOfInterest", false);
+            if (hasMultiDatastream) {
+                addedLinks.put("MultiDatastreams", false);
+            }
             for (int i = 0; i < entities.length(); i++) {
                 JSONObject entity = entities.getJSONObject(i);
                 try {
@@ -410,42 +414,38 @@ public class Capability1Tests {
                 switch (name) {
                     case "Things":
                         Assert.assertEquals(nameUrl, rootUri + "/Things", "The URL for Things in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Things");
                         addedLinks.put(name, true);
                         break;
                     case "Locations":
                         Assert.assertEquals(nameUrl, rootUri + "/Locations", "The URL for Locations in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Locations");
                         addedLinks.put(name, true);
                         break;
                     case "HistoricalLocations":
                         Assert.assertEquals(nameUrl, rootUri + "/HistoricalLocations", "The URL for HistoricalLocations in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("HistoricalLocations");
                         addedLinks.put(name, true);
                         break;
                     case "Datastreams":
                         Assert.assertEquals(nameUrl, rootUri + "/Datastreams", "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Datastreams");
+                        addedLinks.put(name, true);
+                        break;
+                    case "MultiDatastreams":
+                        Assert.assertEquals(nameUrl, rootUri + "/MultiDatastreams", "The URL for MultiDatastreams in Service Root URI is not compliant to SensorThings API.");
                         addedLinks.put(name, true);
                         break;
                     case "Sensors":
                         Assert.assertEquals(nameUrl, rootUri + "/Sensors", "The URL for Sensors in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Sensors");
                         addedLinks.put(name, true);
                         break;
                     case "Observations":
                         Assert.assertEquals(nameUrl, rootUri + "/Observations", "The URL for Observations in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Observations");
                         addedLinks.put(name, true);
                         break;
                     case "ObservedProperties":
                         Assert.assertEquals(nameUrl, rootUri + "/ObservedProperties", "The URL for ObservedProperties in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("ObservedProperties");
                         addedLinks.put(name, true);
                         break;
                     case "FeaturesOfInterest":
                         Assert.assertEquals(nameUrl, rootUri + "/FeaturesOfInterest", "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("FeaturesOfInterest");
                         addedLinks.put(name, true);
                         break;
                     default:

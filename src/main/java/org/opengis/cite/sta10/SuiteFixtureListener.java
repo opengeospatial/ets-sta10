@@ -66,8 +66,8 @@ public class SuiteFixtureListener implements ISuiteListener {
 
         String iutParam = params.get(TestRunArg.IUT.toString());
 
-        String response = checkServiceRootUri(iutParam);
-        if(!response.equals("")){
+        String response = checkServiceRootUri(iutParam, params);
+        if (!response.equals("")) {
             throw new IllegalArgumentException(
                     response);
         }
@@ -100,7 +100,7 @@ public class SuiteFixtureListener implements ISuiteListener {
      * @param rootUri The root URL for the service under test
      * @return If the root URL of the service is not compliant to SensorThings API, it will return the reason it is not compliant. Otherwise it returns empty String.
      */
-    private String checkServiceRootUri(String rootUri) {
+    private String checkServiceRootUri(String rootUri, Map<String, String> params) {
         rootUri = rootUri.trim();
         if(rootUri.lastIndexOf('/')==rootUri.length()-1){
             rootUri = rootUri.substring(0,rootUri.length()-1);
@@ -181,56 +181,55 @@ public class SuiteFixtureListener implements ISuiteListener {
                     if(!nameUrl.equals(rootUri + "/Things") ){
                     return "The URL for Things in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("Things");
                     addedLinks.put(name, true);
                     break;
                 case "Locations":
                     if(!nameUrl.equals(rootUri + "/Locations")) {
                         return "The URL for Locations in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("Locations");
                     addedLinks.put(name, true);
                     break;
                 case "HistoricalLocations":
                     if(!nameUrl.equals(rootUri + "/HistoricalLocations")) {
                         return "The URL for HistoricalLocations in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("HistoricalLocations");
                     addedLinks.put(name, true);
                     break;
                 case "Datastreams":
                     if(!nameUrl.equals(rootUri + "/Datastreams")) {
                         return "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("Datastreams");
                     addedLinks.put(name, true);
+                    break;
+                case "MultiDatastreams":
+                    if (!nameUrl.equals(rootUri + "/MultiDatastreams")) {
+                        return "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    addedLinks.put(name, true);
+                    params.put("hasMultiDatastream", "true");
                     break;
                 case "Sensors":
                     if(!nameUrl.equals(rootUri + "/Sensors")) {
                         return "The URL for Sensors in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("Sensors");
                     addedLinks.put(name, true);
                     break;
                 case "Observations":
                     if(!nameUrl.equals(rootUri + "/Observations")) {
                         return "The URL for Observations in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("Observations");
                     addedLinks.put(name, true);
                     break;
                 case "ObservedProperties":
                     if(!nameUrl.equals(rootUri + "/ObservedProperties")) {
                         return "The URL for ObservedProperties in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("ObservedProperties");
                     addedLinks.put(name, true);
                     break;
                 case "FeaturesOfInterest":
                     if(!nameUrl.equals(rootUri + "/FeaturesOfInterest")) {
                         return "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.";
                     }
-                    addedLinks.remove("FeaturesOfInterest");
                     addedLinks.put(name, true);
                     break;
                 default:
