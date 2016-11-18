@@ -348,6 +348,13 @@ public class MultiDatastreamTests {
         entitiesHaveOneOf(json, "ObservedProperties", "MultiDatastreams@iot.navigationLink");
         json = getJsonValue(rootUri + "/Observations");
         entitiesHaveOneOf(json, "Observations", "MultiDatastream@iot.navigationLink", "Datastream@iot.navigationLink");
+        json = getJsonValue(rootUri + "/MultiDatastreams");
+        for (String property : EntityTypeMds.MULTI_DATASTREAM.getProperties()) {
+            entitiesHaveOneOf(json, "MultiDatastreams", property);
+        }
+        for (String relation : EntityTypeMds.MULTI_DATASTREAM.getRelations()) {
+            entitiesHaveOneOf(json, "MultiDatastreams", relation + "@iot.navigationLink");
+        }
     }
 
     @Test(description = "Test if all Datastreams and MultiDatastreams are linked to Thing 1.", groups = "level-5", priority = 2)
