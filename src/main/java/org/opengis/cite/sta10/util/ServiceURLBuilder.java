@@ -1,8 +1,7 @@
 package org.opengis.cite.sta10.util;
 
-import org.testng.Assert;
-
 import java.util.List;
+import org.testng.Assert;
 
 /**
  * Utility class that helps preparing the URL string for the targeted entity.
@@ -195,7 +194,11 @@ public class ServiceURLBuilder {
         for (int i = 0; i < entityTypes.size(); i++) {
             urlString += entityTypes.get(i);
             if (i < ids.size()) {
-                urlString += "(" + ids.get(i) + ")/";
+                if (ids.get(i) == null) {
+                    urlString += "/";
+                } else {
+                    urlString += "(" + ids.get(i) + ")/";
+                }
             }
         }
         if (urlString.charAt(urlString.length() - 1) == '/') {

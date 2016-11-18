@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.ControlInformation;
-import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityType;
 import org.opengis.cite.sta10.util.HTTPMethods;
 import org.opengis.cite.sta10.util.ServiceURLBuilder;
@@ -1460,7 +1459,7 @@ public class Capability2Tests {
      */
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
         try {
-            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+            for (String property : entityType.getProperties()) {
                 if (diffs.containsKey(property)) {
                     Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
                 } else {
@@ -1484,7 +1483,7 @@ public class Capability2Tests {
      */
     private void checkPut(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
         try {
-            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+            for (String property : entityType.getProperties()) {
                 if (diffs.containsKey(property)) {
                     Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for " + entityType + ".");
                 } else {
