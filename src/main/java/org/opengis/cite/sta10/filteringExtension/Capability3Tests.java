@@ -307,7 +307,7 @@ public class Capability3Tests {
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
             for (String relation : relations) {
-                if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInteret")) {
+                if (!EntityType.isPlural(relation)) {
                     continue;
                 }
                 EntityType relationEntityType = EntityType.getForRelation(relation);
@@ -685,7 +685,7 @@ public class Capability3Tests {
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
             for (String relation : relations) {
-                if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInterest")) {
+                if (!EntityType.isPlural(relation)) {
                     continue;
                 }
                 EntityType relationEntityType = EntityType.getForRelation(relation);
@@ -1021,7 +1021,7 @@ public class Capability3Tests {
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
             for (String relation : relations) {
-                if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInterest")) {
+                if (!EntityType.isPlural(relation)) {
                     continue;
                 }
                 EntityType relationEntityType = EntityType.getForRelation(relation);
@@ -1372,7 +1372,7 @@ public class Capability3Tests {
                         Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
                         JSONArray expandedEntityArray = null;
                         try {
-                            if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInterest")) {
+                            if (!EntityType.isPlural(relation)) {
                                 expandedEntityArray = new JSONArray();
                                 expandedEntityArray.put(entity.getJSONObject(relation));
                             } else {
@@ -1391,7 +1391,7 @@ public class Capability3Tests {
 
                                     expandedEntityArray = null;
                                     try {
-                                        if (secondLeveleRelation.charAt(secondLeveleRelation.length() - 1) != 's' && !secondLeveleRelation.equals("FeaturesOfInterest")) {
+                                        if (!EntityType.isPlural(secondLeveleRelation)) {
                                             expandedEntityArray = new JSONArray();
                                             expandedEntityArray.put(expandedEntity.getJSONObject(secondLeveleRelation));
                                         } else {
@@ -1630,7 +1630,7 @@ public class Capability3Tests {
             long id = array.getJSONObject(0).getLong(ControlInformation.ID);
 
             for (String relation : relations) {
-                if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeatureOfInterest")) {
+                if (!EntityType.isPlural(relation)) {
                     return;
                 }
                 EntityType relationEntityType = EntityType.getForRelation(relation);
@@ -1785,7 +1785,7 @@ public class Capability3Tests {
         }
 
         for (String relation : relations) {
-            if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeatureOfInterest")) {
+            if (!EntityType.isPlural(relation)) {
                 return;
             }
             EntityType relationEntityType = EntityType.getForRelation(relation);

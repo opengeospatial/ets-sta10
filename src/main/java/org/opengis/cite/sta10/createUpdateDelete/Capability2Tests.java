@@ -1539,7 +1539,7 @@ public class Capability2Tests {
     private long checkRelatedEntity(EntityType parentEntityType, long parentId, EntityType relationEntityType, JSONObject relationObj) {
         boolean isCollection = true;
         String urlString = ServiceURLBuilder.buildURLString(rootUri, parentEntityType, parentId, relationEntityType, null);
-        if (urlString.trim().charAt(urlString.trim().length() - 1) != 's') {
+        if (parentEntityType.getRelations().contains(relationEntityType.singular)) {
             isCollection = false;
         }
 
