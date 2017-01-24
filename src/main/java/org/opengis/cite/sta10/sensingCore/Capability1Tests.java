@@ -150,7 +150,7 @@ public class Capability1Tests {
         try {
             String response = getEntities(entityType);
             Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
-            for (String property : entityType.getProperties()) {
+            for (EntityType.EntityProperty property : entityType.getProperties()) {
                 checkGetPropertyOfEntity(entityType, id, property);
                 checkGetPropertyValueOfEntity(entityType, id, property);
             }
@@ -168,20 +168,20 @@ public class Capability1Tests {
      * @param id         The id of the entity
      * @param property   The property to get requested
      */
-    private void checkGetPropertyOfEntity(EntityType entityType, long id, String property) {
+    private void checkGetPropertyOfEntity(EntityType entityType, long id, EntityType.EntityProperty property) {
         try {
-            Map<String, Object> responseMap = getEntity(entityType, id, property);
+            Map<String, Object> responseMap = getEntity(entityType, id, property.name);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Reading property \"" + property + "\" of the existing " + entityType.name() + " with id " + id + " failed.");
+            Assert.assertEquals(responseCode, 200, "Reading property \"" + property.name + "\" of the existing " + entityType.name() + " with id " + id + " failed.");
             String response = responseMap.get("response").toString();
             JSONObject entity = null;
-            entity = new JSONObject(response.toString());
+            entity = new JSONObject(response);
             try {
-                Assert.assertNotNull(entity.get(property), "Reading property \"" + property + "\"of \"" + entityType + "\" fails.");
+                Assert.assertNotNull(entity.get(property.name), "Reading property \"" + property.name + "\"of \"" + entityType + "\" fails.");
             } catch (JSONException e) {
-                Assert.fail("Reading property \"" + property + "\"of \"" + entityType + "\" fails.");
+                Assert.fail("Reading property \"" + property.name + "\"of \"" + entityType + "\" fails.");
             }
-            Assert.assertEquals(entity.length(), 1, "The response for getting property " + property + " of a " + entityType + " returns more properties!");
+            Assert.assertEquals(entity.length(), 1, "The response for getting property " + property.name + " of a " + entityType + " returns more properties!");
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -196,15 +196,19 @@ public class Capability1Tests {
      * @param id         The id of the entity
      * @param property   The property to get requested
      */
-    private void checkGetPropertyValueOfEntity(EntityType entityType, long id, String property) {
-        Map<String, Object> responseMap = getEntity(entityType, id, property + "/$value");
+    private void checkGetPropertyValueOfEntity(EntityType entityType, long id, EntityType.EntityProperty property) {
+        Map<String, Object> responseMap = getEntity(entityType, id, property.name + "/$value");
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
+        if (responseCode != 200 && property.optional) {
+            // The property is optional, and probably not present.
+            return;
+        }
         Assert.assertEquals(responseCode, 200, "Reading property value of \"" + property + "\" of the exitixting " + entityType.name() + " with id " + id + " failed.");
         String response = responseMap.get("response").toString();
-        if (!property.equals("location") && !property.equals("feature") && !property.equals("unitOfMeasurement")) {
-            Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
+        if ("object".equalsIgnoreCase(property.jsonType)) {
+            Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + property + "\" of \"" + entityType + "\" fails.");
         } else {
-            Assert.assertEquals(response.indexOf("{"), 0, "Reading property value of \"" + property + "\"of \"" + entityType + "\" fails.");
+            Assert.assertEquals(response.indexOf("{"), -1, "Reading property value of \"" + property + "\" of \"" + entityType + "\" fails.");
         }
     }
 
@@ -601,9 +605,12 @@ public class Capability1Tests {
     private void checkEntityProperties(EntityType entityType, Object response) {
         try {
             JSONObject entity = new JSONObject(response.toString());
-            for (String property : entityType.getProperties()) {
+            for (EntityType.EntityProperty property : entityType.getProperties()) {
+                if (property.optional) {
+                    continue;
+                }
                 try {
-                    Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
+                    Assert.assertNotNull(entity.get(property.name), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
                 } catch (JSONException e) {
                     Assert.fail("Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
                 }

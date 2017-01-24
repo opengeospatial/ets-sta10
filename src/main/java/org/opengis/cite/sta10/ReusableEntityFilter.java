@@ -8,7 +8,7 @@ import com.sun.jersey.api.client.filter.ClientFilter;
 /**
  * Buffers the (response) entity so it can be read multiple times.
  * <p>
- * <p><strong>WARNING:</strong> The entity InputStream must be reset after each
+ * <strong>WARNING:</strong> The entity InputStream must be reset after each
  * read attempt.</p>
  */
 public class ReusableEntityFilter extends ClientFilter {

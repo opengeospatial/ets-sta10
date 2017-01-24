@@ -1459,11 +1459,13 @@ public class Capability2Tests {
      */
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
         try {
-            for (String property : entityType.getProperties()) {
-                if (diffs.containsKey(property)) {
-                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
+            for (EntityType.EntityProperty property : entityType.getProperties()) {
+                if (diffs.containsKey(property.name)) {
+                    Assert.assertEquals(newEntity.get(property.name).toString(), diffs.get(property.name).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property.name + ".");
+                } else if (newEntity.has(property.name) && oldEntity.has(property.name)) {
+                    Assert.assertEquals(newEntity.get(property.name).toString(), oldEntity.get(property.name).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property.name + ".");
                 } else {
-                    Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
+                    Assert.assertEquals(newEntity.has(property.name), oldEntity.has(property.name), "PATCH was not applied correctly for " + entityType + "'s " + property.name + ".");
                 }
             }
         } catch (JSONException e) {
@@ -1483,9 +1485,9 @@ public class Capability2Tests {
      */
     private void checkPut(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
         try {
-            for (String property : entityType.getProperties()) {
-                if (diffs.containsKey(property)) {
-                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for " + entityType + ".");
+            for (EntityType.EntityProperty property : entityType.getProperties()) {
+                if (diffs.containsKey(property.name)) {
+                    Assert.assertEquals(newEntity.get(property.name).toString(), diffs.get(property.name).toString(), "PUT was not applied correctly for " + entityType + ".");
                 } else {
 //                    Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
                 }
