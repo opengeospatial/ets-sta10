@@ -1,7 +1,0 @@
-{
-"description": "Polygon Patch",
-"encodingType": "http://example.org/location_types#GeoJSON",
-"location": {"type": "Polygon", "coordinates": [
-[-118.119, 35.086], [-165.668, 69.497], [-56.069, 58.712], [-79.623, 25.703], [-118.119, 35.086]
-]}
-}

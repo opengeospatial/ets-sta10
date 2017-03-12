@@ -1,7 +1,0 @@
-{
-  "description": "Southern Alberta Polygon",
-  "encodingType": "http://example.org/location_types#GeoJSON",
-  "location": {"type": "Polygon", "coordinates": [
-    [-117.0236, 49.1592], [-117.3311, 52.1932], [-110.0802, 52.1663], [-110.0361, 49.0297], [-117.0236, 49.1592]
-  ]}
-}

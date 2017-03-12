@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
-<properties version="1.0">
-  <comment>Sample test run arguments (ets-sta10)</comment>
-  <entry key="iut">http://192.168.1.13:8080/OGCSensorThings/v1.0</entry>
-  <entry key="ics">3</entry>
-</properties>

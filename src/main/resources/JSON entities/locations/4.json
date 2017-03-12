@@ -1,5 +1,0 @@
-{
-  "description": "YYC airport",
-  "encodingType": "http://example.org/location_types#GeoJSON",
-  "location": {"type": "Polygon", "coordinates": [ [0,0],[0,1000],[1000,1000],[1000,0],[0,0] ]}
-}

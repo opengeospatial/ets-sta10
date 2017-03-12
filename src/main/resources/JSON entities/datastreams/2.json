@@ -1,9 +1,0 @@
-{
-  "unitOfMeasurement": {
-    "name": "Celsius",
-    "symbol": "degC",
-    "definition": "http://qudt.org/vocab/unit#DegreeCelsius"
-  },
-  "description": "another test datastream.",
-  "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement"
-}

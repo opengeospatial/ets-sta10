@@ -1,7 +1,0 @@
-{
-  "description": "Snow Shovel",
-  "properties": {
-    "handle": "wood",
-    "blade": "plastic"
-  }
-}
