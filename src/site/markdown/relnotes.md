@@ -1,6 +1,10 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
 
+1.0 (2017-03-12)
+---------------------
+-  [#36](https://github.com/opengeospatial/ets-sta10/issues/36) Production release after TC /PC approval.
+
 0.7 (2016-10-04)
 -------------------
 - [#23](https://github.com/opengeospatial/ets-sta10/pull/23) - Merge PULL request to fix a castException bug
