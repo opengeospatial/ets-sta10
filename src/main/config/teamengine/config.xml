@@ -15,7 +15,7 @@
       </suite>
       <revision>
         <name>${version}</name>
-        <status>Beta</status>
+        <status>Final</status>
         <sources>
           <source>sta10/${spec-version}/ctl</source>
         </sources>
