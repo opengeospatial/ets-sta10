@@ -222,6 +222,81 @@ public class Capability2Tests {
             observationIds.add(obsId3);
             checkAutomaticInsertionOfFOI(obsId2, locationEntity, automatedFOIId);
 
+            // Move the Thing to a new location, create a new observation
+            // without FOI, check if a new FOI is created from this new location.
+            /* Second Location */
+            urlParameters = "{\n"
+                    + "  \"name\": \"spear river\",\n"
+                    + "  \"description\": \"spear river\",\n"
+                    + "  \"encodingType\": \"application/vnd.geo+json\",\n"
+                    + "  \"location\": { \"type\": \"Point\", \"coordinates\": [114.05, -51.05] }\n"
+                    + "}";
+            entity = postEntity(EntityType.LOCATION, urlParameters);
+            long location2Id = entity.getLong(ControlInformation.ID);
+            locationIds.add(location2Id);
+            JSONObject location2Entity = entity;
+
+            //Add second location to the Thing
+            urlParameters = "{\"Locations\":[{\"@iot.id\":" + location2Id + "}]}";
+            patchEntity(EntityType.THING, urlParameters, thingId);
+
+            // Create a new Observation for Thing1 with no FoI.
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-01T01:00:00.000Z\",\n"
+                    + "  \"resultTime\": \"2015-03-01T02:00:00.000Z\",\n"
+                    + "  \"result\": 200,\n"
+                    + "  \"Datastream\":{\"@iot.id\": " + datastreamId + "}\n"
+                    + "}";
+            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            long obsId4 = entity.getLong(ControlInformation.ID);
+            observationIds.add(obsId4);
+            long automatedFOI2Id = checkAutomaticInsertionOfFOI(obsId4, location2Entity, -1);
+            foiIds.add(automatedFOI2Id);
+            Assert.assertNotEquals(automatedFOIId, automatedFOI2Id, "A new FoI should have been created, since the Thing moved.");
+
+            // Create a new Thing with the same Location, create a new
+            // observation without FOI, check if the same FOI is used.
+            /* Thing2 */
+            urlParameters = "{"
+                    + "\"name\":\"Test Thing 2\","
+                    + "\"description\":\"This is a second Test Thing From TestNG\","
+                    + "\"Locations\":[{\"@iot.id\": " + locationId + "}]"
+                    + "}";
+            entity = postEntity(EntityType.THING, urlParameters);
+            long thing2Id = entity.getLong(ControlInformation.ID);
+            thingIds.add(thing2Id);
+
+            /* Datastream2 */
+            urlParameters = "{\n"
+                    + "  \"unitOfMeasurement\": {\n"
+                    + "    \"name\": \"Celsius\",\n"
+                    + "    \"symbol\": \"degC\",\n"
+                    + "    \"definition\": \"http://qudt.org/vocab/unit#DegreeCelsius\"\n"
+                    + "  },\n"
+                    + "  \"name\": \"test datastream 2.\",\n"
+                    + "  \"description\": \"test datastream 2.\",\n"
+                    + "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n"
+                    + "  \"Thing\": { \"@iot.id\": " + thing2Id + " },\n"
+                    + "  \"ObservedProperty\":{ \"@iot.id\":" + obsPropId + "},\n"
+                    + "  \"Sensor\": { \"@iot.id\": " + sensorId + " }\n"
+                    + "}";
+            entity = postEntity(EntityType.DATASTREAM, urlParameters);
+            long datastream2Id = entity.getLong(ControlInformation.ID);
+            datastreamIds.add(datastream2Id);
+
+            /* Post new Observation without FoI */
+            urlParameters = "{\n"
+                    + "  \"phenomenonTime\": \"2015-03-01T03:00:00.000Z\",\n"
+                    + "  \"resultTime\": \"2015-03-01T04:00:00.000Z\",\n"
+                    + "  \"result\": 300,\n"
+                    + "  \"Datastream\":{\"@iot.id\": " + datastream2Id + "}\n"
+                    + "}";
+            entity = postEntity(EntityType.OBSERVATION, urlParameters);
+            long obsId5 = entity.getLong(ControlInformation.ID);
+            observationIds.add(obsId5);
+            long automatedFOI3Id = checkAutomaticInsertionOfFOI(obsId5, locationEntity, -1);
+            Assert.assertEquals(automatedFOIId, automatedFOI3Id, "The generated FoI should be the same as the first generated FoI, since Thing2 has the same Location.");
+
             /* HistoricalLocation */
             urlParameters = "{\n"
                     + "  \"time\": \"2015-03-01T00:40:00.000Z\",\n"
