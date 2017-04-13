@@ -452,6 +452,29 @@ public class MultiDatastreamTests {
         updateForException("Linking MultiDatastream to Observed property.", modifiedObservedProp);
     }
 
+    @Test(description = "Check MultiDatastream(x)/Observations works.", groups = "level-5", priority = 11)
+    public void testFetchObservationsByMultiDatastream() throws ServiceFailureException {
+        EntityList<Observation> observations = MULTIDATASTREAMS.get(0).observations().query().list();
+        checkResult(
+                "Looking for all observations",
+                EntityUtils.resultContains(observations, getFromList(OBSERVATIONS, 2, 3, 4)));
+
+        observations = MULTIDATASTREAMS.get(1).observations().query().list();
+        checkResult(
+                "Looking for all observations",
+                EntityUtils.resultContains(observations, getFromList(OBSERVATIONS, 5, 6, 7)));
+
+        observations = MULTIDATASTREAMS.get(2).observations().query().list();
+        checkResult(
+                "Looking for all observations",
+                EntityUtils.resultContains(observations, getFromList(OBSERVATIONS, 8, 9, 10)));
+
+        observations = MULTIDATASTREAMS.get(3).observations().query().list();
+        checkResult(
+                "Looking for all observations",
+                EntityUtils.resultContains(observations, getFromList(OBSERVATIONS, 11, 12, 13)));
+    }
+
     @Test(description = "Check if all observations are there.", groups = "level-5", priority = 11)
     public void testObservations() throws ServiceFailureException {
         // Check if all observations are there.
