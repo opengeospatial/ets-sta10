@@ -295,7 +295,7 @@ public class GeoTests {
         }
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function geo.distance", groups = "level-3")
     public void testGeoDistance() throws ServiceFailureException {
         filterAndCheck(service.locations(), "geo.distance(location, geography'POINT(8 54.1)') lt 1", getFromList(LOCATIONS, 3));
         filterAndCheck(service.locations(), "geo.distance(location, geography'POINT(8 54.1)') gt 1", getFromList(LOCATIONS, 0, 1, 2, 4, 5, 6, 7));
@@ -303,13 +303,13 @@ public class GeoTests {
         filterAndCheck(service.observations(), "geo.distance(FeatureOfInterest/feature, geography'POINT(8 54.1)') gt 1", getFromList(OBSERVATIONS, 0, 1, 2));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function geo.intersects", groups = "level-3")
     public void testGeoIntersects() throws ServiceFailureException {
         filterAndCheck(service.locations(), "geo.intersects(location, geography'LINESTRING(7.5 51, 7.5 54)')", getFromList(LOCATIONS, 4, 7));
         filterAndCheck(service.featuresOfInterest(), "geo.intersects(feature, geography'LINESTRING(7.5 51, 7.5 54)')", getFromList(FEATURESOFINTEREST, 4, 7));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function geo.length", groups = "level-3")
     public void testGeoLength() throws ServiceFailureException {
         filterAndCheck(service.locations(), "geo.length(location) gt 1", getFromList(LOCATIONS, 6, 7));
         filterAndCheck(service.locations(), "geo.length(location) ge 1", getFromList(LOCATIONS, 5, 6, 7));
@@ -325,7 +325,7 @@ public class GeoTests {
         filterAndCheck(service.featuresOfInterest(), "geo.length(feature) lt 4", getFromList(FEATURESOFINTEREST, 0, 1, 2, 3, 4, 5, 6));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_contains", groups = "level-3")
     public void testStContains() throws ServiceFailureException {
         filterAndCheck(service.locations(),
                 "st_contains(geography'POLYGON((7.5 51.5, 7.5 53.5, 8.5 53.5, 8.5 51.5, 7.5 51.5))', location)",
@@ -335,13 +335,13 @@ public class GeoTests {
                 getFromList(OBSERVATIONS, 1, 2));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_crosses", groups = "level-3")
     public void testStCrosses() throws ServiceFailureException {
         filterAndCheck(service.locations(), "st_crosses(geography'LINESTRING(7.5 51.5, 7.5 53.5)', location)", getFromList(LOCATIONS, 4, 7));
         filterAndCheck(service.featuresOfInterest(), "st_crosses(geography'LINESTRING(7.5 51.5, 7.5 53.5)', feature)", getFromList(FEATURESOFINTEREST, 4, 7));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_disjoint", groups = "level-3")
     public void testStDisjoint() throws ServiceFailureException {
         filterAndCheck(service.locations(),
                 "st_disjoint(geography'POLYGON((7.5 51.5, 7.5 53.5, 8.5 53.5, 8.5 51.5, 7.5 51.5))', location)",
@@ -351,19 +351,19 @@ public class GeoTests {
                 getFromList(FEATURESOFINTEREST, 0, 3, 5, 6));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_equals", groups = "level-3")
     public void testStEquals() throws ServiceFailureException {
         filterAndCheck(service.locations(), "st_equals(location, geography'POINT(8 53)')", getFromList(LOCATIONS, 2));
         filterAndCheck(service.featuresOfInterest(), "st_equals(feature, geography'POINT(8 53)')", getFromList(FEATURESOFINTEREST, 2));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_intersects", groups = "level-3")
     public void testStIntersects() throws ServiceFailureException {
         filterAndCheck(service.locations(), "st_intersects(location, geography'LINESTRING(7.5 51, 7.5 54)')", getFromList(LOCATIONS, 4, 7));
         filterAndCheck(service.featuresOfInterest(), "st_intersects(feature, geography'LINESTRING(7.5 51, 7.5 54)')", getFromList(FEATURESOFINTEREST, 4, 7));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_overlaps", groups = "level-3")
     public void testStOverlaps() throws ServiceFailureException {
         filterAndCheck(service.locations(),
                 "st_overlaps(geography'POLYGON((7.5 51.5, 7.5 53.5, 8.5 53.5, 8.5 51.5, 7.5 51.5))', location)",
@@ -373,7 +373,7 @@ public class GeoTests {
                 getFromList(FEATURESOFINTEREST, 4));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_relate", groups = "level-3")
     public void testStRelate() throws ServiceFailureException {
         filterAndCheck(service.locations(),
                 "st_relate(geography'POLYGON((7.5 51.5, 7.5 53.5, 8.5 53.5, 8.5 51.5, 7.5 51.5))', location, 'T********')",
@@ -383,13 +383,13 @@ public class GeoTests {
                 getFromList(FEATURESOFINTEREST, 1, 2, 4, 7));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_touches", groups = "level-3")
     public void testStTouches() throws ServiceFailureException {
         filterAndCheck(service.locations(), "st_touches(geography'POLYGON((8 53, 7.5 54.5, 8.5 54.5, 8 53))', location)", getFromList(LOCATIONS, 2, 4));
         filterAndCheck(service.featuresOfInterest(), "st_touches(geography'POLYGON((8 53, 7.5 54.5, 8.5 54.5, 8 53))', feature)", getFromList(FEATURESOFINTEREST, 2, 4));
     }
 
-    @Test(description = "", groups = "level-3")
+    @Test(description = "Test filter function st_within", groups = "level-3")
     public void testStWithin() throws ServiceFailureException {
         filterAndCheck(service.locations(), "st_within(geography'POINT(7.5 52.75)', location)", getFromList(LOCATIONS, 4));
         filterAndCheck(service.featuresOfInterest(), "st_within(geography'POINT(7.5 52.75)', feature)", getFromList(FEATURESOFINTEREST, 4));
