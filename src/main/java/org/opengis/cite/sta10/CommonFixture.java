@@ -3,9 +3,11 @@ package org.opengis.cite.sta10;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
+
 import java.net.URI;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
+
 import org.opengis.cite.sta10.util.ClientUtils;
 import org.testng.ITestContext;
 import org.testng.SkipException;
@@ -37,11 +39,11 @@ public class CommonFixture {
     protected ClientResponse response;
 
     /**
-     * Initializes the common test fixture with a client component for 
+     * Initializes the common test fixture with a client component for
      * interacting with HTTP endpoints.
      *
      * @param testContext The test context that contains all the information for
-     * a test run, including suite attributes.
+     *                    a test run, including suite attributes.
      */
     @BeforeClass
     public void initCommonFixture(ITestContext testContext) {
@@ -66,17 +68,15 @@ public class CommonFixture {
      * method wraps a static method call to facilitate unit testing (Mockito
      * workaround).
      *
-     * @param response A representation of an HTTP response message.
+     * @param response  A representation of an HTTP response message.
      * @param targetURI The target URI from which the entity was retrieved (may
-     * be null).
+     *                  be null).
      * @return A Document representing the entity.
-     *
-     * @see
-     * ClientUtils#getResponseEntityAsDocument(com.sun.jersey.api.client.ClientResponse,
+     * @see ClientUtils#getResponseEntityAsDocument(com.sun.jersey.api.client.ClientResponse,
      * java.lang.String)
      */
     public Document getResponseEntityAsDocument(ClientResponse response,
-            String targetURI) {
+                                                String targetURI) {
         return ClientUtils.getResponseEntityAsDocument(response, targetURI);
     }
 
@@ -85,17 +85,16 @@ public class CommonFixture {
      * method wraps a static method call to facilitate unit testing (Mockito
      * workaround).
      *
-     * @param endpoint A URI indicating the target resource.
-     * @param qryParams A Map containing query parameters (may be null);
+     * @param endpoint   A URI indicating the target resource.
+     * @param qryParams  A Map containing query parameters (may be null);
      * @param mediaTypes A list of acceptable media types; if not specified,
-     * generic XML ("application/xml") is preferred.
+     *                   generic XML ("application/xml") is preferred.
      * @return A ClientRequest object.
-     *
      * @see ClientUtils#buildGetRequest(java.net.URI, java.util.Map,
      * javax.ws.rs.core.MediaType...)
      */
     public ClientRequest buildGetRequest(URI endpoint,
-            Map<String, String> qryParams, MediaType... mediaTypes) {
+                                         Map<String, String> qryParams, MediaType... mediaTypes) {
         return ClientUtils.buildGetRequest(endpoint, qryParams, mediaTypes);
     }
 

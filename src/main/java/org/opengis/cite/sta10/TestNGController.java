@@ -34,14 +34,12 @@ public class TestNGController implements TestSuiteController {
     /**
      * A convenience method to facilitate test development.
      *
-     * @param args
-     *            Test run arguments (optional). The first argument must refer
-     *            to an XML properties file containing the expected set of test
-     *            run arguments. If no argument is supplied, the file located at
-     *            ${user.home}/test-run-props.xml will be used.
-     * @throws Exception
-     *             If the test run cannot be executed (usually due to
-     *             unsatisfied pre-conditions).
+     * @param args Test run arguments (optional). The first argument must refer
+     *             to an XML properties file containing the expected set of test
+     *             run arguments. If no argument is supplied, the file located at
+     *             ${user.home}/test-run-props.xml will be used.
+     * @throws Exception If the test run cannot be executed (usually due to
+     *                   unsatisfied pre-conditions).
      */
     public static void main(String[] args) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -74,11 +72,10 @@ public class TestNGController implements TestSuiteController {
 
     /**
      * Construct a controller that writes results to the given output directory.
-     * 
-     * @param outputDirUri
-     *            A file URI that specifies the location of the directory in
-     *            which test results will be written. It will be created if it
-     *            does not exist.
+     *
+     * @param outputDirUri A file URI that specifies the location of the directory in
+     *                     which test results will be written. It will be created if it
+     *                     does not exist.
      */
     public TestNGController(String outputDirUri) {
         InputStream is = getClass().getResourceAsStream("ets.properties");
@@ -120,14 +117,12 @@ public class TestNGController implements TestSuiteController {
     }
 
     /**
-     * Validates the test run arguments. The test run is aborted if any of 
+     * Validates the test run arguments. The test run is aborted if any of
      * these checks fail.
      *
-     * @param testRunArgs
-     *            A DOM Document containing a set of XML properties (key-value
-     *            pairs).
-     * @throws IllegalArgumentException
-     *             If any arguments are missing or invalid for some reason.
+     * @param testRunArgs A DOM Document containing a set of XML properties (key-value
+     *                    pairs).
+     * @throws IllegalArgumentException If any arguments are missing or invalid for some reason.
      */
     void validateTestRunArgs(Document testRunArgs) {
 //        if (null == testRunArgs

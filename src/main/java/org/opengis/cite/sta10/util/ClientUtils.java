@@ -15,6 +15,7 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.client.urlconnection.HttpURLConnectionFactory;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
+
 import java.net.URI;
 import java.util.Map;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+
 import org.opengis.cite.sta10.ReusableEntityFilter;
 import org.w3c.dom.Document;
 
@@ -60,11 +62,10 @@ public class ClientUtils {
      *
      * @param proxyHost The host name or IP address of the proxy server.
      * @param proxyPort The port number of the proxy listener.
-     *
      * @return A Client component that submits requests through a web proxy.
      */
     public static Client buildClientWithProxy(final String proxyHost,
-            final int proxyPort) {
+                                              final int proxyPort) {
         ClientConfig config = new DefaultClientConfig();
         config.getProperties().put(
                 ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
@@ -85,15 +86,14 @@ public class ClientUtils {
     /**
      * Builds an HTTP request message that uses the GET method.
      *
-     * @param endpoint A URI indicating the target resource.
-     * @param qryParams A Map containing query parameters (may be null);
+     * @param endpoint   A URI indicating the target resource.
+     * @param qryParams  A Map containing query parameters (may be null);
      * @param mediaTypes A list of acceptable media types; if not specified,
-     * generic XML ("application/xml") is preferred.
-     *
+     *                   generic XML ("application/xml") is preferred.
      * @return A ClientRequest object.
      */
     public static ClientRequest buildGetRequest(URI endpoint,
-            Map<String, String> qryParams, MediaType... mediaTypes) {
+                                                Map<String, String> qryParams, MediaType... mediaTypes) {
         UriBuilder uriBuilder = UriBuilder.fromUri(endpoint);
         if (null != qryParams) {
             for (Map.Entry<String, String> param : qryParams.entrySet()) {
@@ -126,15 +126,15 @@ public class ClientUtils {
      * Obtains the (XML) response entity as a JAXP Source object and resets the
      * entity input stream for subsequent reads.
      *
-     * @param response A representation of an HTTP response message.
+     * @param response  A representation of an HTTP response message.
      * @param targetURI The target URI from which the entity was retrieved (may
-     * be null).
+     *                  be null).
      * @return A Source to read the entity from; its system identifier is set
      * using the given targetURI value (this may be used to resolve any relative
      * URIs found in the source).
      */
     public static Source getResponseEntityAsSource(ClientResponse response,
-            String targetURI) {
+                                                   String targetURI) {
         Source source = response.getEntity(DOMSource.class);
         if (null != targetURI && !targetURI.isEmpty()) {
             source.setSystemId(targetURI);
@@ -155,15 +155,15 @@ public class ClientUtils {
      * Obtains the (XML) response entity as a DOM Document and resets the entity
      * input stream for subsequent reads.
      *
-     * @param response A representation of an HTTP response message.
+     * @param response  A representation of an HTTP response message.
      * @param targetURI The target URI from which the entity was retrieved (may
-     * be null).
+     *                  be null).
      * @return A Document representing the entity; its base URI is set using the
      * given targetURI value (this may be used to resolve any relative URIs
      * found in the document).
      */
     public static Document getResponseEntityAsDocument(ClientResponse response,
-            String targetURI) {
+                                                       String targetURI) {
         DOMSource domSource = (DOMSource) getResponseEntityAsSource(response,
                 targetURI);
         Document entityDoc = (Document) domSource.getNode();

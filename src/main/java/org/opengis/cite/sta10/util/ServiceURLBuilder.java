@@ -11,16 +11,17 @@ public class ServiceURLBuilder {
 
     /**
      * Build the URL String based on the entityType, parent EntityType and id, and the targeted property or query
-     * @param rootURI The base URL of the SensorThings Service
-     * @param parentEntityType The entity type of the parent entity
-     * @param parentId The parent entity id
+     *
+     * @param rootURI            The base URL of the SensorThings Service
+     * @param parentEntityType   The entity type of the parent entity
+     * @param parentId           The parent entity id
      * @param relationEntityType The entity type of the targeted entity
-     * @param property The targeted property or the query string
+     * @param property           The targeted property or the query string
      * @return The URL String created based on the input parameters
      */
-    public static String buildURLString(String rootURI, EntityType parentEntityType, long parentId, EntityType relationEntityType, String property){
+    public static String buildURLString(String rootURI, EntityType parentEntityType, long parentId, EntityType relationEntityType, String property) {
         String urlString = rootURI;
-        if(relationEntityType == null){
+        if (relationEntityType == null) {
             switch (parentEntityType) {
                 case THING:
                     urlString += "/Things";
@@ -50,10 +51,10 @@ public class ServiceURLBuilder {
                     Assert.fail("Entity type is not recognized in SensorThings API : " + parentEntityType);
                     return null;
             }
-            if(parentId !=-1){
-                urlString += "("+parentId+")";
+            if (parentId != -1) {
+                urlString += "(" + parentId + ")";
             }
-        } else{
+        } else {
             switch (parentEntityType) {
                 case THING:
                     urlString += "/Things(" + parentId + ")";
@@ -81,7 +82,7 @@ public class ServiceURLBuilder {
                             urlString += "/HistoricalLocations";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 case HISTORICAL_LOCATION:
@@ -94,7 +95,7 @@ public class ServiceURLBuilder {
                             urlString += "/Locations";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 case DATASTREAM:
@@ -113,7 +114,7 @@ public class ServiceURLBuilder {
                             urlString += "/ObservedProperty";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 case SENSOR:
@@ -123,7 +124,7 @@ public class ServiceURLBuilder {
                             urlString += "/Datastreams";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 case OBSERVATION:
@@ -137,7 +138,7 @@ public class ServiceURLBuilder {
                             urlString += "/FeatureOfInterest";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 case OBSERVED_PROPERTY:
@@ -147,7 +148,7 @@ public class ServiceURLBuilder {
                             urlString += "/Datastreams";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 case FEATURE_OF_INTEREST:
@@ -157,16 +158,16 @@ public class ServiceURLBuilder {
                             urlString += "/Observations";
                             break;
                         default:
-                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType+" and "+relationEntityType);
+                            Assert.fail("Entity type relation is not recognized in SensorThings API : " + parentEntityType + " and " + relationEntityType);
                     }
                     break;
                 default:
                     Assert.fail("Entity type is not recognized in SensorThings API : " + parentEntityType);
             }
         }
-        if(property!=null){
-            if(property.indexOf('?')>=0){
-                urlString +=property;
+        if (property != null) {
+            if (property.indexOf('?') >= 0) {
+                urlString += property;
             } else {
                 urlString += "/" + property;
             }
@@ -176,32 +177,33 @@ public class ServiceURLBuilder {
 
     /**
      * Build the URL String based on a chain of entity type hierarchy and ids, and the targeted property or query
-     * @param rootURI The base URL of the SensorThings Service
+     *
+     * @param rootURI     The base URL of the SensorThings Service
      * @param entityTypes The list of entity type chain
-     * @param ids The ids for the entity type chain
-     * @param property The targeted property or the query string
+     * @param ids         The ids for the entity type chain
+     * @param property    The targeted property or the query string
      * @return The URL String created based on the input parameters
      */
-    public static String buildURLString(String rootURI, List<String > entityTypes, List<Long> ids, String property){
+    public static String buildURLString(String rootURI, List<String> entityTypes, List<Long> ids, String property) {
         String urlString = rootURI;
-        if(entityTypes.size()!=ids.size() && entityTypes.size()!=ids.size()+1){
+        if (entityTypes.size() != ids.size() && entityTypes.size() != ids.size() + 1) {
             Assert.fail("There is problem with the path of entities!!!");
         }
-        if(urlString.charAt(urlString.length()-1)!='/'){
-            urlString+='/';
+        if (urlString.charAt(urlString.length() - 1) != '/') {
+            urlString += '/';
         }
         for (int i = 0; i < entityTypes.size(); i++) {
             urlString += entityTypes.get(i);
-            if(i<ids.size()){
-                urlString+="("+ids.get(i)+")/";
+            if (i < ids.size()) {
+                urlString += "(" + ids.get(i) + ")/";
             }
         }
-        if(urlString.charAt(urlString.length()-1)=='/'){
-            urlString=urlString.substring(0,urlString.length()-1);
+        if (urlString.charAt(urlString.length() - 1) == '/') {
+            urlString = urlString.substring(0, urlString.length() - 1);
         }
-        if(property!=null){
-            if(property.indexOf('?')>=0){
-                urlString +=property;
+        if (property != null) {
+            if (property.indexOf('?') >= 0) {
+                urlString += property;
             } else {
                 urlString += "/" + property;
             }
