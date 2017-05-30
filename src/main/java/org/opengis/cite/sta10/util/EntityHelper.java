@@ -131,7 +131,7 @@ public class EntityHelper {
                     + "   \"Sensor\": {        \n"
                     + "        \"name\": \"Acme Fluxomatic 1000\",\n"
                     + "        \"description\": \"Acme Fluxomatic 1000\",\n"
-                    + "        \"encodingType\": \"http://schema.org/description\",\n"
+                    + "        \"encodingType\": \"application/pdf\",\n"
                     + "        \"metadata\": \"Light flux sensor\"\n"
                     + "   },\n"
                     + "      \"Observations\": [\n"
@@ -268,7 +268,7 @@ public class EntityHelper {
             String urlParameters = "{\n"
                     + "  \"name\": \"Fuguro Barometer\",\n"
                     + "  \"description\": \"Fuguro Barometer\",\n"
-                    + "  \"encodingType\": \"http://schema.org/description\",\n"
+                    + "  \"encodingType\": \"application/pdf\",\n"
                     + "  \"metadata\": \"Barometer\"\n"
                     + "}";
             JSONObject entity = postEntity(EntityType.SENSOR, urlParameters);
@@ -327,7 +327,7 @@ public class EntityHelper {
                     + "      \"Sensor\": {        \n"
                     + "        \"name\": \"Acme Fluxomatic 1000\",\n"
                     + "        \"description\": \"Acme Fluxomatic 1000\",\n"
-                    + "        \"encodingType\": \"http://schema.org/description\",\n"
+                    + "        \"encodingType\": \"application/pdf\",\n"
                     + "        \"metadata\": \"Light flux sensor\"\n"
                     + "      }\n"
                     + "    }\n"
@@ -598,7 +598,7 @@ public class EntityHelper {
         Map<String, Object> changes = new HashMap<>();
         changes.put("name", "UPDATED");
         changes.put("description", "UPDATED");
-        changes.put("encodingType", "http://schema.org/newDescription");
+        changes.put("encodingType", "http://www.opengis.net/doc/IS/SensorML/2.0");
         changes.put("metadata", "UPDATED");
         return changes;
     }
