@@ -131,7 +131,7 @@ public class EntityHelper {
                     + "   \"Sensor\": {        \n"
                     + "        \"name\": \"Acme Fluxomatic 1000\",\n"
                     + "        \"description\": \"Acme Fluxomatic 1000\",\n"
-                    + "        \"encodingType\": \"application/pdfn\",\n"
+                    + "        \"encodingType\": \"application/pdf\",\n"
                     + "        \"metadata\": \"Light flux sensor\"\n"
                     + "   },\n"
                     + "      \"Observations\": [\n"
