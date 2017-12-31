@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONArray;
@@ -23,6 +22,8 @@ import org.opengis.cite.sta10.util.PathElement;
 import org.opengis.cite.sta10.util.Query;
 import org.opengis.cite.sta10.util.Request;
 import org.opengis.cite.sta10.util.ServiceURLBuilder;
+import org.opengis.cite.sta10.util.Utils;
+import static org.opengis.cite.sta10.util.Utils.quoteIdForJson;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
@@ -39,7 +40,7 @@ public class Capability3Tests {
      */
     public String rootUri;//="http://localhost:8080/OGCSensorThings/v1.0";
 
-    private long thingId1, thingId2,
+    private Object thingId1, thingId2,
             datastreamId1, datastreamId2, datastreamId3, datastreamId4,
             locationId1, locationId2, historicalLocationId1,
             historicalLocationId2, historicalLocationId3, historicalLocationId4,
@@ -259,8 +260,7 @@ public class Capability3Tests {
      * {@literal <, <=, =, >=, >} on properties. It tests $filter for collection
      * of entities with 1 level and 2 levels resource path.
      *
-     * @throws java.io.UnsupportedEncodingException Should not happen, UTF-8
-     *                                              should always be supported.
+     * @throws java.io.UnsupportedEncodingException Should not happen for UTF-8.
      */
     @Test(description = "GET Entities with $filter", groups = "level-3")
     public void readEntitiesWithFilterQO() throws UnsupportedEncodingException {
@@ -290,14 +290,14 @@ public class Capability3Tests {
     @Test(description = "Check priority of query options", groups = "level-3")
     public void checkQueriesPriorityOrdering() {
         try {
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, null, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code"));
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
             Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned " + new JSONObject(response).getLong("@iot.count"));
             Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned " + array.length() + " entities.");
-            Assert.assertEquals(array.getJSONObject(0).getString("result"), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).getString("result"));
+            Assert.assertEquals(array.getJSONObject(0).get("result").toString(), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).get("result").toString());
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -312,14 +312,14 @@ public class Capability3Tests {
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
         List<String> relations = entityType.getRelations();
         try {
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
             if (array.length() == 0) {
                 return;
             }
-            long id = array.getJSONObject(0).getLong(ControlInformation.ID);
+            Object id = array.getJSONObject(0).get(ControlInformation.ID);
 
             for (String relation : relations) {
                 if (!EntityType.isPlural(relation)) {
@@ -438,21 +438,21 @@ public class Capability3Tests {
                 if (!property.canSort) {
                     continue;
                 }
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property.name);
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$orderby=" + property.name);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 String response = responseMap.get("response").toString();
                 JSONArray array = new JSONObject(response).getJSONArray("value");
                 for (int i = 1; i < array.length(); i++) {
                     Assert.assertTrue(compareWithPrevious(i, array, property.name) <= 0, "The default ordering is not correct for EntityType " + entityType + " orderby property " + property.name);
                 }
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property.name + "%20asc");
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$orderby=" + property.name + "%20asc");
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
                 for (int i = 1; i < array.length(); i++) {
                     Assert.assertTrue(compareWithPrevious(i, array, property.name) <= 0, "The ascending ordering is not correct for EntityType " + entityType + " orderby asc property " + property.name);
                 }
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property.name + "%20desc");
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$orderby=" + property.name + "%20desc");
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
@@ -475,7 +475,7 @@ public class Capability3Tests {
                 }
                 orderby += property.name;
                 orderbyPropeties.add(property.name);
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderby);
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, orderby);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 String response = responseMap.get("response").toString();
                 JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -492,7 +492,7 @@ public class Capability3Tests {
                     orderbyAsc += ",";
                 }
                 orderbyAsc += property + "%20asc";
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderbyAsc);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, orderbyAsc);
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
@@ -509,7 +509,7 @@ public class Capability3Tests {
                     orderbyDesc += ",";
                 }
                 orderbyDesc += property + "%20desc";
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderbyDesc);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, orderbyDesc);
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
@@ -589,7 +589,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkSkipForEntityTypeRelation(EntityType entityType, long entityId) {
+    private void checkSkipForEntityTypeRelation(EntityType entityType, Object entityId) {
         List<String> relations = entityType.getRelations();
         for (String relation : relations) {
             if (!EntityType.isPlural(relation)) {
@@ -642,7 +642,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkTopForEntityTypeRelation(EntityType entityType, long entityId) {
+    private void checkTopForEntityTypeRelation(EntityType entityType, Object entityId) {
         List<String> relations = entityType.getRelations();
         for (String relation : relations) {
             if (!EntityType.isPlural(relation)) {
@@ -687,7 +687,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkSelectForEntityTypeRelations(EntityType entityType, long entityId) {
+    private void checkSelectForEntityTypeRelations(EntityType entityType, Object entityId) {
         List<String> parentRelations = entityType.getRelations();
         for (String parentRelation : parentRelations) {
             EntityType relationEntityType = EntityType.getForRelation(parentRelation);
@@ -744,7 +744,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkExpandForEntityTypeRelations(EntityType entityType, long entityId) {
+    private void checkExpandForEntityTypeRelations(EntityType entityType, Object entityId) {
         PathElement entityPathElement = new PathElement(entityType.plural, entityId);
         List<String> parentRelations = entityType.getRelations();
         for (String parentRelation : parentRelations) {
@@ -778,7 +778,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkExpandForEntityTypeMultilevelRelations(EntityType entityType, long entityId) {
+    private void checkExpandForEntityTypeMultilevelRelations(EntityType entityType, Object entityId) {
         PathElement entityPathElement = new PathElement(entityType.plural, entityId);
         List<String> parentRelations = entityType.getRelations();
         for (String parentRelation : parentRelations) {
@@ -889,7 +889,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkNestedExpandForEntity(EntityType entityType, long entityId) {
+    private void checkNestedExpandForEntity(EntityType entityType, Object entityId) {
         PathElement collectionPathElement = new PathElement(entityType.plural);
         PathElement entityPathElement = new PathElement(entityType.plural, entityId);
         Request request2 = new Request(rootUri);
@@ -994,7 +994,7 @@ public class Capability3Tests {
      *
      * @param entityType Entity type from EntityType enum list
      */
-    private void checkCountForEntityTypeRelations(EntityType entityType, long entityId) {
+    private void checkCountForEntityTypeRelations(EntityType entityType, Object entityId) {
         List<String> relations = entityType.getRelations();
         for (String relation : relations) {
             if (!EntityType.isPlural(relation)) {
@@ -1040,32 +1040,32 @@ public class Capability3Tests {
             samplePropertyValues.add(propertyValue);
 
             propertyValue = URLEncoder.encode(propertyValue.toString(), "UTF-8");
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property.name + "%20lt%20" + propertyValue);
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$filter=" + property.name + "%20lt%20" + propertyValue);
             Map responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -2);
 
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property.name + "%20le%20" + propertyValue);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$filter=" + property.name + "%20le%20" + propertyValue);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -1);
 
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property.name + "%20eq%20" + propertyValue);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$filter=" + property.name + "%20eq%20" + propertyValue);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 0);
 
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property.name + "%20ne%20" + propertyValue);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$filter=" + property.name + "%20ne%20" + propertyValue);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, -3);
 
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property.name + "%20ge%20" + propertyValue);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$filter=" + property.name + "%20ge%20" + propertyValue);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 1);
 
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$filter=" + property.name + "%20gt%20" + propertyValue);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, "?$filter=" + property.name + "%20gt%20" + propertyValue);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             checkPropertiesForFilter(response, filteredProperties, samplePropertyValues, 2);
@@ -1081,7 +1081,7 @@ public class Capability3Tests {
      */
     private void checkFilterForEntityTypeRelations(EntityType entityType) throws UnsupportedEncodingException {
         List<String> relations = entityType.getRelations();
-        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, null);
         Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
         JSONArray array = null;
@@ -1094,9 +1094,9 @@ public class Capability3Tests {
         if (array.length() == 0) {
             return;
         }
-        long id = 0;
+        Object id = null;
         try {
-            id = array.getJSONObject(0).getLong(ControlInformation.ID);
+            id = array.getJSONObject(0).get(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -1223,6 +1223,12 @@ public class Capability3Tests {
         }
     }
 
+    private Object postAndGetId(String urlString, String postContent) {
+        Map<String, Object> responseMap = HTTPMethods.doPost(urlString, postContent);
+        String response = responseMap.get("response").toString();
+        return Utils.idObjectFromPostResult(response);
+    }
+
     /**
      * Create entities as a pre-process for testing query options.
      */
@@ -1294,41 +1300,39 @@ public class Capability3Tests {
                     + "        }\n"
                     + "    ]\n"
                     + "}";
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
-            Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            String response = responseMap.get("response").toString();
-            thingId1 = Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")")));
+            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, null, null, null);
+            thingId1 = postAndGetId(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, EntityType.LOCATION, null);
-            responseMap = HTTPMethods.doGet(urlString);
-            response = responseMap.get("response").toString();
+            Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
+            String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
-            locationId1 = array.getJSONObject(0).getLong(ControlInformation.ID);
+            locationId1 = array.getJSONObject(0).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, EntityType.DATASTREAM, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
-            datastreamId1 = array.getJSONObject(0).getLong(ControlInformation.ID);
-            datastreamId2 = array.getJSONObject(1).getLong(ControlInformation.ID);
+            datastreamId1 = array.getJSONObject(0).get(ControlInformation.ID);
+            datastreamId2 = array.getJSONObject(1).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.SENSOR, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            sensorId1 = new JSONObject(response).getLong(ControlInformation.ID);
+            sensorId1 = new JSONObject(response).get(ControlInformation.ID);
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.OBSERVED_PROPERTY, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            observedPropertyId1 = new JSONObject(response).getLong(ControlInformation.ID);
+            observedPropertyId1 = new JSONObject(response).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId2, EntityType.SENSOR, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            sensorId2 = new JSONObject(response).getLong(ControlInformation.ID);
+            sensorId2 = new JSONObject(response).get(ControlInformation.ID);
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId2, EntityType.OBSERVED_PROPERTY, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            observedPropertyId2 = new JSONObject(response).getLong(ControlInformation.ID);
+            observedPropertyId2 = new JSONObject(response).get(ControlInformation.ID);
 
             //Second Thing
             urlParameters = "{\n"
@@ -1383,7 +1387,7 @@ public class Capability3Tests {
                     + "            \"description\": \"datastream 2\",\n"
                     + "            \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement\",\n"
                     + "            \"ObservedProperty\": {\n"
-                    + "                \"@iot.id\": " + observedPropertyId2 + "\n"
+                    + "                \"@iot.id\": " + quoteIdForJson(observedPropertyId2) + "\n"
                     + "            },\n"
                     + "            \"Sensor\": {\n"
                     + "                \"name\": \"sensor 4 \",\n"
@@ -1394,43 +1398,41 @@ public class Capability3Tests {
                     + "        }\n"
                     + "    ]\n"
                     + "}";
-            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            thingId2 = Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")")));
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, null, null, null);
+            thingId2 = postAndGetId(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, EntityType.LOCATION, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
-            locationId2 = array.getJSONObject(0).getLong(ControlInformation.ID);
+            locationId2 = array.getJSONObject(0).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, EntityType.DATASTREAM, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
-            datastreamId3 = array.getJSONObject(0).getLong(ControlInformation.ID);
-            datastreamId4 = array.getJSONObject(1).getLong(ControlInformation.ID);
+            datastreamId3 = array.getJSONObject(0).get(ControlInformation.ID);
+            datastreamId4 = array.getJSONObject(1).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.SENSOR, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            sensorId3 = new JSONObject(response).getLong(ControlInformation.ID);
+            sensorId3 = new JSONObject(response).get(ControlInformation.ID);
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.OBSERVED_PROPERTY, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            observedPropertyId3 = new JSONObject(response).getLong(ControlInformation.ID);
+            observedPropertyId3 = new JSONObject(response).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId4, EntityType.SENSOR, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            sensorId4 = new JSONObject(response).getLong(ControlInformation.ID);
+            sensorId4 = new JSONObject(response).get(ControlInformation.ID);
 
             //HistoricalLocations
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId1, null, null);
             urlParameters = "{\"Locations\": [\n"
                     + "    {\n"
-                    + "      \"@iot.id\": " + locationId2 + "\n"
+                    + "      \"@iot.id\": " + quoteIdForJson(locationId2) + "\n"
                     + "    }\n"
                     + "  ]}";
             HTTPMethods.doPatch(urlString, urlParameters);
@@ -1438,7 +1440,7 @@ public class Capability3Tests {
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, null, null);
             urlParameters = "{\"Locations\": [\n"
                     + "    {\n"
-                    + "      \"@iot.id\": " + locationId1 + "\n"
+                    + "      \"@iot.id\": " + quoteIdForJson(locationId1) + "\n"
                     + "    }\n"
                     + "  ]}";
             HTTPMethods.doPatch(urlString, urlParameters);
@@ -1447,15 +1449,15 @@ public class Capability3Tests {
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
-            historicalLocationId1 = array.getJSONObject(0).getLong(ControlInformation.ID);
-            historicalLocationId2 = array.getJSONObject(1).getLong(ControlInformation.ID);
+            historicalLocationId1 = array.getJSONObject(0).get(ControlInformation.ID);
+            historicalLocationId2 = array.getJSONObject(1).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, thingId2, EntityType.HISTORICAL_LOCATION, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
-            historicalLocationId3 = array.getJSONObject(0).getLong(ControlInformation.ID);
-            historicalLocationId4 = array.getJSONObject(1).getLong(ControlInformation.ID);
+            historicalLocationId3 = array.getJSONObject(0).get(ControlInformation.ID);
+            historicalLocationId4 = array.getJSONObject(1).get(ControlInformation.ID);
 
             //Observations
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId1, EntityType.OBSERVATION, null);
@@ -1463,103 +1465,79 @@ public class Capability3Tests {
                     + "  \"phenomenonTime\": \"2015-03-01T00:00:00Z\",\n"
                     + "  \"result\": 1 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId1 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId1 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-02T00:00:00Z\",\n"
                     + "  \"result\": 2 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId2 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId2 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-03T00:00:00Z\",\n"
                     + "  \"result\": 3 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId3 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId3 = postAndGetId(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId2, EntityType.OBSERVATION, null);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-04T00:00:00Z\",\n"
                     + "  \"result\": 4 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId4 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId4 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-05T00:00:00Z\",\n"
                     + "  \"result\": 5 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId5 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId5 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-06T00:00:00Z\",\n"
                     + "  \"result\": 6 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId6 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId6 = postAndGetId(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId3, EntityType.OBSERVATION, null);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-07T00:00:00Z\",\n"
                     + "  \"result\": 7 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId7 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId7 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-08T00:00:00Z\",\n"
                     + "  \"result\": 8 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId8 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId8 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-09T00:00:00Z\",\n"
                     + "  \"result\": 9 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId9 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId9 = postAndGetId(urlString, urlParameters);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.DATASTREAM, datastreamId4, EntityType.OBSERVATION, null);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-10T00:00:00Z\",\n"
                     + "  \"result\": 10 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId10 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId10 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-11T00:00:00Z\",\n"
                     + "  \"result\": 11 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId11 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId11 = postAndGetId(urlString, urlParameters);
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-03-12T00:00:00Z\",\n"
                     + "  \"result\": 12 \n"
                     + "   }";
-            responseMap = HTTPMethods.doPost(urlString, urlParameters);
-            response = responseMap.get("response").toString();
-            observationId12 = Long.parseLong(response.substring(response.lastIndexOf("(") + 1, response.lastIndexOf(")")));
+            observationId12 = postAndGetId(urlString, urlParameters);
 
             //FeatureOfInterest
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, observationId1, EntityType.FEATURE_OF_INTEREST, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            featureOfInterestId1 = new JSONObject(response).getLong(ControlInformation.ID);
+            featureOfInterestId1 = new JSONObject(response).get(ControlInformation.ID);
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, observationId7, EntityType.FEATURE_OF_INTEREST, null);
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
-            featureOfInterestId2 = new JSONObject(response).getLong(ControlInformation.ID);
+            featureOfInterestId2 = new JSONObject(response).get(ControlInformation.ID);
 
             entityCounts.setGlobalCount(EntityType.DATASTREAM, 4);
             entityCounts.setGlobalCount(EntityType.FEATURE_OF_INTEREST, 2);
@@ -1630,13 +1608,13 @@ public class Capability3Tests {
         JSONArray array = null;
         do {
             try {
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, null);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
                 array = result.getJSONArray("value");
                 for (int i = 0; i < array.length(); i++) {
-                    long id = array.getJSONObject(i).getLong(ControlInformation.ID);
+                    Object id = array.getJSONObject(i).get(ControlInformation.ID);
                     deleteEntity(entityType, id);
                 }
             } catch (JSONException e) {
@@ -1653,7 +1631,7 @@ public class Capability3Tests {
      * @param entityType Entity type in from EntityType enum
      * @param id         The id of requested entity
      */
-    private void deleteEntity(EntityType entityType, long id) {
+    private void deleteEntity(EntityType entityType, Object id) {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());

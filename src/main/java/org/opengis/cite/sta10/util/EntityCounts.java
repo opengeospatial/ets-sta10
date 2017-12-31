@@ -28,15 +28,15 @@ import java.util.Map;
 public class EntityCounts {
 
     private final Map<EntityType, Long> globalCounts = new EnumMap<>(EntityType.class);
-    private final Map<EntityType, Map<Long, Map<EntityType, Long>>> linkedCounts = new EnumMap<>(EntityType.class);
+    private final Map<EntityType, Map<Object, Map<EntityType, Long>>> linkedCounts = new EnumMap<>(EntityType.class);
 
     public long getCount(EntityType type) {
         Long count = globalCounts.get(type);
         return count == null ? -1 : count;
     }
 
-    public long getCount(EntityType parentType, Long parentId, EntityType linkedType) {
-        Map<Long, Map<EntityType, Long>> parents = linkedCounts.get(parentType);
+    public long getCount(EntityType parentType, Object parentId, EntityType linkedType) {
+        Map<Object, Map<EntityType, Long>> parents = linkedCounts.get(parentType);
         if (parents == null) {
             return -1;
         }
@@ -48,8 +48,8 @@ public class EntityCounts {
         return count == null ? -1 : count;
     }
 
-    private Map<Long, Map<EntityType, Long>> getParents(EntityType type) {
-        Map<Long, Map<EntityType, Long>> parents = linkedCounts.get(type);
+    private Map<Object, Map<EntityType, Long>> getParents(EntityType type) {
+        Map<Object, Map<EntityType, Long>> parents = linkedCounts.get(type);
         if (parents == null) {
             parents = new HashMap<>();
             linkedCounts.put(type, parents);
@@ -57,8 +57,8 @@ public class EntityCounts {
         return parents;
     }
 
-    private Map<EntityType, Long> getCounts(EntityType parentType, long parentId) {
-        Map<Long, Map<EntityType, Long>> parents = getParents(parentType);
+    private Map<EntityType, Long> getCounts(EntityType parentType, Object parentId) {
+        Map<Object, Map<EntityType, Long>> parents = getParents(parentType);
         Map<EntityType, Long> parent = parents.get(parentId);
         if (parent == null) {
             parent = new EnumMap<>(EntityType.class);
@@ -72,7 +72,7 @@ public class EntityCounts {
         return this;
     }
 
-    public EntityCounts setCount(EntityType parentType, Long parentId, EntityType linkedType, long count) {
+    public EntityCounts setCount(EntityType parentType, Object parentId, EntityType linkedType, long count) {
         getCounts(parentType, parentId).put(linkedType, count);
         return this;
     }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,7 +148,7 @@ public class Capability1Tests {
     private void readPropertyOfEntityWithEntityType(EntityType entityType) {
         try {
             String response = getEntities(entityType);
-            Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+            Object id = new JSONObject(response).getJSONArray("value").getJSONObject(0).get(ControlInformation.ID);
             for (EntityType.EntityProperty property : entityType.getProperties()) {
                 checkGetPropertyOfEntity(entityType, id, property);
                 checkGetPropertyValueOfEntity(entityType, id, property);
@@ -168,7 +167,7 @@ public class Capability1Tests {
      * @param id         The id of the entity
      * @param property   The property to get requested
      */
-    private void checkGetPropertyOfEntity(EntityType entityType, long id, EntityType.EntityProperty property) {
+    private void checkGetPropertyOfEntity(EntityType entityType, Object id, EntityType.EntityProperty property) {
         try {
             Map<String, Object> responseMap = getEntity(entityType, id, property.name);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
@@ -196,7 +195,7 @@ public class Capability1Tests {
      * @param id         The id of the entity
      * @param property   The property to get requested
      */
-    private void checkGetPropertyValueOfEntity(EntityType entityType, long id, EntityType.EntityProperty property) {
+    private void checkGetPropertyValueOfEntity(EntityType entityType, Object id, EntityType.EntityProperty property) {
         Map<String, Object> responseMap = getEntity(entityType, id, property.name + "/$value");
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         if (responseCode != 200 && property.optional) {
@@ -237,7 +236,7 @@ public class Capability1Tests {
      */
     private void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
         List<String> entityTypes = new ArrayList<>();
-        List<Long> ids = new ArrayList<>();
+        List<Object> ids = new ArrayList<>();
         entityTypes.add(entityType.plural);
         readRelatedEntity(entityTypes, ids);
     }
@@ -248,9 +247,9 @@ public class Capability1Tests {
      *
      * @param entityTypes List of entity type from EntityType enum list for the
      *                    chain
-     * @param ids         List of ids for teh chain
+     * @param ids         List of ids for the chain
      */
-    private void readRelatedEntity(List<String> entityTypes, List<Long> ids) {
+    private void readRelatedEntity(List<String> entityTypes, List<Object> ids) {
         if (entityTypes.size() > resourcePathLevel) {
             return;
         }
@@ -262,11 +261,11 @@ public class Capability1Tests {
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
             String response = responseMap.get("response").toString();
-            Long id;
+            Object id;
             if (isPlural) {
-                id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+                id = new JSONObject(response).getJSONArray("value").getJSONObject(0).get(ControlInformation.ID);
             } else {
-                id = new JSONObject(response).getLong(ControlInformation.ID);
+                id = new JSONObject(response).get(ControlInformation.ID);
             }
 
             //check $ref
@@ -304,9 +303,9 @@ public class Capability1Tests {
      * @param response    The response for GET association link request
      * @param entityTypes List of entity type from EntityType enum list for the
      *                    chain
-     * @param ids         List of ids for teh chain
+     * @param ids         List of ids for the chain
      */
-    private void checkAssociationLinks(String response, List<String> entityTypes, List<Long> ids) {
+    private void checkAssociationLinks(String response, List<String> entityTypes, List<Object> ids) {
 
         try {
             if (EntityType.isPlural(entityTypes.get(entityTypes.size() - 1))) {
@@ -347,7 +346,7 @@ public class Capability1Tests {
     private String readEntityWithEntityType(EntityType entityType) {
         try {
             String response = getEntities(entityType);
-            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+            Object id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).get(ControlInformation.ID);
             Map<String, Object> responseMap = getEntity(entityType, id, null);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
             Assert.assertEquals(responseCode, 200, "Reading existing " + entityType.name() + " with id " + id + " failed.");
@@ -387,6 +386,7 @@ public class Capability1Tests {
             addedLinks.put("Locations", false);
             addedLinks.put("HistoricalLocations", false);
             addedLinks.put("Datastreams", false);
+            addedLinks.put("MultiDatastreams", false);
             addedLinks.put("Sensors", false);
             addedLinks.put("Observations", false);
             addedLinks.put("ObservedProperties", false);
@@ -401,50 +401,11 @@ public class Capability1Tests {
                 }
                 String name = entity.getString("name");
                 String nameUrl = entity.getString("url");
-                switch (name) {
-                    case "Things":
-                        Assert.assertEquals(nameUrl, rootUri + "/Things", "The URL for Things in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Things");
-                        addedLinks.put(name, true);
-                        break;
-                    case "Locations":
-                        Assert.assertEquals(nameUrl, rootUri + "/Locations", "The URL for Locations in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Locations");
-                        addedLinks.put(name, true);
-                        break;
-                    case "HistoricalLocations":
-                        Assert.assertEquals(nameUrl, rootUri + "/HistoricalLocations", "The URL for HistoricalLocations in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("HistoricalLocations");
-                        addedLinks.put(name, true);
-                        break;
-                    case "Datastreams":
-                        Assert.assertEquals(nameUrl, rootUri + "/Datastreams", "The URL for Datastreams in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Datastreams");
-                        addedLinks.put(name, true);
-                        break;
-                    case "Sensors":
-                        Assert.assertEquals(nameUrl, rootUri + "/Sensors", "The URL for Sensors in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Sensors");
-                        addedLinks.put(name, true);
-                        break;
-                    case "Observations":
-                        Assert.assertEquals(nameUrl, rootUri + "/Observations", "The URL for Observations in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("Observations");
-                        addedLinks.put(name, true);
-                        break;
-                    case "ObservedProperties":
-                        Assert.assertEquals(nameUrl, rootUri + "/ObservedProperties", "The URL for ObservedProperties in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("ObservedProperties");
-                        addedLinks.put(name, true);
-                        break;
-                    case "FeaturesOfInterest":
-                        Assert.assertEquals(nameUrl, rootUri + "/FeaturesOfInterest", "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.");
-                        addedLinks.remove("FeaturesOfInterest");
-                        addedLinks.put(name, true);
-                        break;
-                    default:
-                        Assert.fail("There is a component in Service Root URI response that is not in SensorThings API : " + name);
-                        break;
+                if (addedLinks.containsKey(name)) {
+                    Assert.assertEquals(nameUrl, rootUri + "/" + name, "The URL for " + name + " in Service Root URI is not compliant to SensorThings API.");
+                    addedLinks.put(name, true);
+                } else {
+                    Assert.fail("There is a component in Service Root URI response that is not in SensorThings API : " + name);
                 }
             }
             for (String key : addedLinks.keySet()) {
@@ -466,18 +427,18 @@ public class Capability1Tests {
     private String getEntities(EntityType entityType) {
         String urlString = rootUri;
         if (entityType != null) {
-            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, null, null, null);
         }
         Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
         Assert.assertEquals(responseCode, 200, "Error during getting entities: " + ((entityType != null) ? entityType.name() : "root URI"));
         if (entityType != null) {
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
+            Assert.assertTrue(response.contains("value"), "The GET entities response for entity type \"" + entityType + "\" does not match SensorThings API : missing \"value\" in response.");
         } else { // GET Service Base URI
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
+            Assert.assertTrue(response.contains("value"), "The GET entities response for service root URI does not match SensorThings API : missing \"value\" in response.");
         }
-        return response.toString();
+        return response;
     }
 
     /**
@@ -487,10 +448,10 @@ public class Capability1Tests {
      * @param id         The if of the specific entity
      * @param property   The requested property of the entity
      * @return The response-code and response (body) of the request in Map
-     * format.
+     *         format.
      */
-    private Map<String, Object> getEntity(EntityType entityType, long id, String property) {
-        if (id == -1) {
+    private Map<String, Object> getEntity(EntityType entityType, Object id, String property) {
+        if (id == null) {
             return null;
         }
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, property);

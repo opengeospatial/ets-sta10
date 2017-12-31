@@ -19,12 +19,12 @@ public class EntityUtils {
      * the count for paths like /Datastreams(xxx)/Thing/Locations since the id
      * of the Thing can not be determined from the path.
      *
-     * @param request The request to determine the count for.
+     * @param request      The request to determine the count for.
      * @param entityCounts The object holding the entity counts.
      * @return The expected count for the given request.
      */
     public static long findCountForRequest(Request request, EntityCounts entityCounts) {
-        long parentId = -1;
+        Object parentId = -1;
         long count = -1;
         EntityType parentType = null;
         for (PathElement element : request.getPath()) {
@@ -54,8 +54,8 @@ public class EntityUtils {
     /**
      * Checks the given response against the given request.
      *
-     * @param response The response object to check.
-     * @param request The request to check the response against.
+     * @param response     The response object to check.
+     * @param request      The request to check the response against.
      * @param entityCounts The object with the expected entity counts.
      */
     public static void checkResponse(JSONObject response, Request request, EntityCounts entityCounts) {
@@ -113,8 +113,8 @@ public class EntityUtils {
      * Check a collection from a response, against the given expand as present
      * in the request.
      *
-     * @param collection The collection of items to check.
-     * @param expand The expand that led to the collection.
+     * @param collection   The collection of items to check.
+     * @param expand       The expand that led to the collection.
      * @param entityCounts The object with the expected entity counts.
      * @throws JSONException if there is a problem with the json.
      */
@@ -130,8 +130,8 @@ public class EntityUtils {
     /**
      * Check the given entity from a response against the given expand.
      *
-     * @param entity The entity to check.
-     * @param expand The expand that led to the entity.
+     * @param entity       The entity to check.
+     * @param expand       The expand that led to the entity.
      * @param entityCounts The object with the expected entity counts.
      * @throws JSONException if there is a problem with the json.
      */
@@ -172,7 +172,7 @@ public class EntityUtils {
         }
 
         // Entity id in case we need to check counts.
-        long entityId = entity.optLong("@iot.id", -1);
+        Object entityId = entity.opt("@iot.id");
 
         // Check expand
         List<String> relations = new ArrayList<>(entityType.getRelations());

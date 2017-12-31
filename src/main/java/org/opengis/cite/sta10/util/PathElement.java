@@ -23,9 +23,9 @@ public class PathElement implements Cloneable {
 
     private final EntityType entityType;
     private final boolean plural;
-    private final Long id;
+    private final Object id;
 
-    public PathElement(EntityType entityType, boolean plural, Long id) {
+    public PathElement(EntityType entityType, boolean plural, Object id) {
         this.entityType = entityType;
         this.plural = plural;
         this.id = id;
@@ -35,7 +35,7 @@ public class PathElement implements Cloneable {
         this(pathPart, null);
     }
 
-    public PathElement(String pathPart, Long id) {
+    public PathElement(String pathPart, Object id) {
         entityType = EntityType.getForRelation(pathPart);
         plural = EntityType.isPlural(pathPart);
         this.id = id;
@@ -54,7 +54,7 @@ public class PathElement implements Cloneable {
         StringBuilder value = new StringBuilder();
         value.append(plural ? entityType.plural : entityType.singular);
         if (id != null) {
-            value.append('(').append(id).append(')');
+            value.append('(').append(Utils.quoteIdForUrl(id)).append(')');
         }
         return value.toString();
     }
@@ -63,7 +63,7 @@ public class PathElement implements Cloneable {
         return plural && id == null;
     }
 
-    public Long getId() {
+    public Object getId() {
         return id;
     }
 

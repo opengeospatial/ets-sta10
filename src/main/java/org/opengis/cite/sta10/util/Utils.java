@@ -35,4 +35,45 @@ public class Utils {
         }
         return link;
     }
+
+    /**
+     * Quote the ID for use in json, if needed.
+     *
+     * @param id The id to quote.
+     * @return The quoted id.
+     */
+    public static String quoteIdForJson(Object id) {
+        if (id instanceof Number) {
+            return id.toString();
+        }
+        return "\"" + id + "\"";
+    }
+
+    /**
+     * Quote the ID for use in URLs, if needed.
+     *
+     * @param id The id to quote.
+     * @return The quoted id.
+     */
+    public static String quoteIdForUrl(Object id) {
+        if (id instanceof Number) {
+            return id.toString();
+        }
+        return "'" + id + "'";
+    }
+
+    public static Object idObjectFromPostResult(String postResultLine) {
+        int pos1 = postResultLine.lastIndexOf("(") + 1;
+        int pos2 = postResultLine.lastIndexOf(")");
+        String part = postResultLine.substring(pos1, pos2);
+        try {
+            return Long.parseLong(part);
+        } catch (NumberFormatException exc) {
+            // Id was not a long, thus a String.
+            if (!part.startsWith("'") || !part.endsWith("'")) {
+                throw new IllegalArgumentException("Strings in urls must be quoted with single quotes.");
+            }
+            return part.substring(1, part.length() - 1);
+        }
+    }
 }

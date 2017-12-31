@@ -18,7 +18,7 @@ public class ServiceURLBuilder {
      * @param property           The targeted property or the query string
      * @return The URL String created based on the input parameters
      */
-    public static String buildURLString(String rootURI, EntityType parentEntityType, long parentId, EntityType relationEntityType, String property) {
+    public static String buildURLString(String rootURI, EntityType parentEntityType, Object parentId, EntityType relationEntityType, String property) {
         String urlString = rootURI;
         if (relationEntityType == null) {
             switch (parentEntityType) {
@@ -50,13 +50,13 @@ public class ServiceURLBuilder {
                     Assert.fail("Entity type is not recognized in SensorThings API : " + parentEntityType);
                     return null;
             }
-            if (parentId != -1) {
-                urlString += "(" + parentId + ")";
+            if (parentId != null) {
+                urlString += "(" + Utils.quoteIdForUrl(parentId) + ")";
             }
         } else {
             switch (parentEntityType) {
                 case THING:
-                    urlString += "/Things(" + parentId + ")";
+                    urlString += "/Things(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case LOCATION:
                             urlString += "/Locations";
@@ -72,7 +72,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case LOCATION:
-                    urlString += "/Locations(" + parentId + ")";
+                    urlString += "/Locations(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case THING:
                             urlString += "/Things";
@@ -85,7 +85,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case HISTORICAL_LOCATION:
-                    urlString += "/HistoricalLocations(" + parentId + ")";
+                    urlString += "/HistoricalLocations(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case THING:
                             urlString += "/Thing";
@@ -98,7 +98,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case DATASTREAM:
-                    urlString += "/Datastreams(" + parentId + ")";
+                    urlString += "/Datastreams(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case THING:
                             urlString += "/Thing";
@@ -117,7 +117,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case SENSOR:
-                    urlString += "/Sensors(" + parentId + ")";
+                    urlString += "/Sensors(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case DATASTREAM:
                             urlString += "/Datastreams";
@@ -127,7 +127,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case OBSERVATION:
-                    urlString += "/Observations(" + parentId + ")";
+                    urlString += "/Observations(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case THING:
                         case DATASTREAM:
@@ -141,7 +141,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case OBSERVED_PROPERTY:
-                    urlString += "/ObservedProperties(" + parentId + ")";
+                    urlString += "/ObservedProperties(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case DATASTREAM:
                             urlString += "/Datastreams";
@@ -151,7 +151,7 @@ public class ServiceURLBuilder {
                     }
                     break;
                 case FEATURE_OF_INTEREST:
-                    urlString += "/FeaturesOfInterest(" + parentId + ")";
+                    urlString += "/FeaturesOfInterest(" + Utils.quoteIdForUrl(parentId) + ")";
                     switch (relationEntityType) {
                         case OBSERVATION:
                             urlString += "/Observations";
@@ -183,7 +183,7 @@ public class ServiceURLBuilder {
      * @param property    The targeted property or the query string
      * @return The URL String created based on the input parameters
      */
-    public static String buildURLString(String rootURI, List<String> entityTypes, List<Long> ids, String property) {
+    public static String buildURLString(String rootURI, List<String> entityTypes, List<Object> ids, String property) {
         String urlString = rootURI;
         if (entityTypes.size() != ids.size() && entityTypes.size() != ids.size() + 1) {
             Assert.fail("There is problem with the path of entities!!!");
@@ -194,10 +194,11 @@ public class ServiceURLBuilder {
         for (int i = 0; i < entityTypes.size(); i++) {
             urlString += entityTypes.get(i);
             if (i < ids.size()) {
-                if (ids.get(i) == null) {
+                Object id = ids.get(i);
+                if (id == null) {
                     urlString += "/";
                 } else {
-                    urlString += "(" + ids.get(i) + ")/";
+                    urlString += "(" + Utils.quoteIdForUrl(id) + ")/";
                 }
             }
         }
