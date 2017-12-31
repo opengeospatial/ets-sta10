@@ -102,6 +102,7 @@ public class GeoTests {
     }
 
     private void createEntities() throws ServiceFailureException, URISyntaxException {
+        EntityUtils.deleteAll(service);
         {
             Thing thing = new Thing("Thing 1", "The first thing.");
             service.create(thing);
