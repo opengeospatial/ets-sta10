@@ -3,6 +3,7 @@ package org.opengis.cite.sta10.util;
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.dao.BaseDao;
 import de.fraunhofer.iosb.ilt.sta.model.Entity;
+import de.fraunhofer.iosb.ilt.sta.model.Id;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import java.util.ArrayList;
@@ -45,9 +46,9 @@ public class EntityUtils {
     /**
      * Checks if the list contains all the given entities exactly once.
      *
-     * @param result
-     * @param entityList
-     * @return
+     * @param result     the result entities.
+     * @param entityList The expected entities.
+     * @return the test result.
      */
     public static resultTestResult resultContains(EntityList<? extends Entity> result, List<? extends Entity> entityList) {
         long count = result.getCount();
@@ -72,7 +73,7 @@ public class EntityUtils {
     }
 
     public static Entity findEntityIn(Entity entity, List<? extends Entity> entities) {
-        Long id = entity.getId();
+        Id id = entity.getId();
         for (Entity inList : entities) {
             if (Objects.equals(inList.getId(), id)) {
                 return inList;
@@ -90,7 +91,7 @@ public class EntityUtils {
         deleteAll(sts.observations());
     }
 
-    public static <T extends Entity> void deleteAll(BaseDao<T> doa) throws ServiceFailureException {
+    public static <T extends Entity<T>> void deleteAll(BaseDao<T> doa) throws ServiceFailureException {
         boolean more = true;
         int count = 0;
         while (more) {
