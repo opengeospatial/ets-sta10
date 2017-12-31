@@ -56,25 +56,29 @@ public class EntityPropertiesSampleValue {
      * "entityType" positioned in location "index" in the list
      */
     public static Comparable getPropertyValueFor(EntityType entityType, int index) {
-        switch (entityType) {
-            case THING:
-                return THING_PROPERTIES_Values[index];
-            case LOCATION:
-                return LOCATION_PROPERTIES_Values[index];
-            case FEATURE_OF_INTEREST:
-                return FEATURE_OF_INTEREST_PROPERTIES_Values[index];
-            case OBSERVED_PROPERTY:
-                return OBSERVED_PROPETY_PROPERTIES_Values[index];
-            case HISTORICAL_LOCATION:
-                return HISTORICAL_LOCATION_PROPERTIES_Values[index];
-            case SENSOR:
-                return SENSOR_PROPERTIES_Values[index];
-            case DATASTREAM:
-                return DATASTREAM_PROPERTIES_Values[index];
-            case OBSERVATION:
-                return OBSERVATION_PROPERTIES_Values[index];
-            default:
-                break;
+        try {
+            switch (entityType) {
+                case THING:
+                    return THING_PROPERTIES_Values[index];
+                case LOCATION:
+                    return LOCATION_PROPERTIES_Values[index];
+                case FEATURE_OF_INTEREST:
+                    return FEATURE_OF_INTEREST_PROPERTIES_Values[index];
+                case OBSERVED_PROPERTY:
+                    return OBSERVED_PROPETY_PROPERTIES_Values[index];
+                case HISTORICAL_LOCATION:
+                    return HISTORICAL_LOCATION_PROPERTIES_Values[index];
+                case SENSOR:
+                    return SENSOR_PROPERTIES_Values[index];
+                case DATASTREAM:
+                    return DATASTREAM_PROPERTIES_Values[index];
+                case OBSERVATION:
+                    return OBSERVATION_PROPERTIES_Values[index];
+                default:
+                    break;
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // No sample value for this property...
         }
         return null;
     }

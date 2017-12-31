@@ -1,4 +1,3 @@
-
 package org.opengis.cite.sta10.util;
 
 import org.apache.http.client.ClientProtocolException;
@@ -101,7 +100,7 @@ public class HTTPMethods {
                 wr.write(postData);
             }
 
-            Map<String, Object> result = new HashMap<String, Object>();
+            Map<String, Object> result = new HashMap<>();
             result.put("response-code", connection.getResponseCode());
             if (connection.getResponseCode() == 201) {
                 result.put("response", connection.getHeaderField("location"));
