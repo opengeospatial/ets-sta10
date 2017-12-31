@@ -84,7 +84,7 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20090211</version>
+      <version>20171018</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>de.fraunhofer.iosb.ilt</groupId>
       <artifactId>SensorThingsClient</artifactId>
-      <version>0.5</version>
+      <version>0.14</version>
     </dependency>
   </dependencies>
 
