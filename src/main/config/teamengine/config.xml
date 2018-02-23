@@ -12,6 +12,11 @@
         <title>SensorThings API Conformance Test Suite</title>
         <description>Assesses conformance of the IUT with respect to OGC 15-078: 
         OGC SensorThings API, Version 0.9.</description>
+        <BasicConformanceClasses>
+          <conformanceClass>Conformance Level 1</conformanceClass>
+          <conformanceClass>Conformance Level 2</conformanceClass>
+          <conformanceClass>Conformance Level 3</conformanceClass>
+        </BasicConformanceClasses>
       </suite>
       <revision>
         <name>${version}</name>
