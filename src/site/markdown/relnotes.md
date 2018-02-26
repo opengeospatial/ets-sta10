@@ -1,5 +1,8 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
+1.1 (2018-02-26)
+---------------------
+-  Small fix to make the Test Suite workable with latest version of TEAMEngine.
 
 1.0 (2017-03-12)
 ---------------------
