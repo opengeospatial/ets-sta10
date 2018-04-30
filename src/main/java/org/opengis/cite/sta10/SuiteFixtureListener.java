@@ -233,6 +233,11 @@ public class SuiteFixtureListener implements ISuiteListener {
                     addedLinks.remove("FeaturesOfInterest");
                     addedLinks.put(name, true);
                     break;
+                case "MultiDatastreams":
+                    if(!nameUrl.equals(rootUri + "/MultiDatastreams")) {
+                        return "The URL for MultiDatastreams in Service Root URI is not compliant to SensorThings API.";
+                    }
+                    break;
                 default:
                     return "There is a component in Service Root URI response that is not in SensorThings API : " + name;
             }

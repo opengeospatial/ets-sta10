@@ -448,6 +448,9 @@ public class Capability1Tests {
                         addedLinks.remove("FeaturesOfInterest");
                         addedLinks.put(name, true);
                         break;
+                    case "MultiDatastreams":
+                        Assert.assertEquals(nameUrl, rootUri + "/MultiDatastreams", "The URL for MultiDatastreams in Service Root URI is not compliant to SensorThings API.");
+                        break;
                     default:
                         Assert.fail("There is a component in Service Root URI response that is not in SensorThings API : " + name);
                         break;
