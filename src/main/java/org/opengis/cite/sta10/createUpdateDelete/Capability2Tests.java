@@ -847,135 +847,6 @@ public class Capability2Tests {
     }
 
     /**
-     * This method is testing update or PUT. The response should be 200 and all
-     * the properties in the PUT body should be updated, and the rest must be
-     * restored to their default value.
-     */
-    @Test(description = "PUT Entities", groups = "level-2", priority = 4)
-    public void putEntities() {
-        try {
-            /* Thing */
-            long thingId = thingIds.get(0);
-            JSONObject entity = getEntity(EntityType.THING, thingId);
-            String urlParameters = "{"
-                    + "\"name\":\"This is a Updated Test Thing From TestNG\","
-                    + "\"description\":\"This is a Updated Test Thing From TestNG\""
-                    + "}";
-            Map<String, Object> diffs = new HashMap<>();
-            diffs.put("name", "This is a Updated Test Thing From TestNG");
-            diffs.put("description", "This is a Updated Test Thing From TestNG");
-            JSONObject updatedEntity = updateEntity(EntityType.THING, urlParameters, thingId);
-            checkPut(EntityType.THING, entity, updatedEntity, diffs);
-
-            /* Location */
-            long locationId = locationIds.get(0);
-            entity = getEntity(EntityType.LOCATION, locationId);
-            urlParameters = "{"
-                    + "\"encodingType\":\"application/vnd.geo+json\","
-                    + "\"name\":\"UPDATED NAME\","
-                    + "\"description\":\"UPDATED DESCRIPTION\","
-                    + "\"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
-            diffs = new HashMap<>();
-            diffs.put("name", "UPDATED NAME");
-            diffs.put("description", "UPDATED DESCRIPTION");
-            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
-            updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
-            checkPut(EntityType.LOCATION, entity, updatedEntity, diffs);
-
-            /* HistoricalLocation */
-            long histLocId = historicalLocationIds.get(0);
-            entity = getEntity(EntityType.HISTORICAL_LOCATION, histLocId);
-            urlParameters = "{\"time\": \"2015-08-01T00:00:00.000Z\"}";
-            diffs = new HashMap<>();
-            diffs.put("time", "2015-08-01T00:00:00.000Z");
-            updatedEntity = updateEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
-            checkPut(EntityType.HISTORICAL_LOCATION, entity, updatedEntity, diffs);
-
-            /* Sensor */
-            long sensorId = sensorIds.get(0);
-            entity = getEntity(EntityType.SENSOR, sensorId);
-            urlParameters = "{"
-                    + "\"name\": \"UPDATED\", "
-                    + "\"description\": \"UPDATED\", "
-                    + "\"encodingType\":\"application/pdf\", "
-                    + "\"metadata\": \"UPDATED\"}";
-            diffs = new HashMap<>();
-            diffs.put("name", "UPDATED");
-            diffs.put("description", "UPDATED");
-            diffs.put("metadata", "UPDATED");
-            updatedEntity = updateEntity(EntityType.SENSOR, urlParameters, sensorId);
-            checkPut(EntityType.SENSOR, entity, updatedEntity, diffs);
-
-            /* ObserverdProperty */
-            long obsPropId = obsPropIds.get(0);
-            urlParameters = "{"
-                    + "\"name\":\"QWERTY\", "
-                    + "\"definition\": \"ZXCVB\", "
-                    + "\"name\":\"POIUYTREW\","
-                    + "\"description\":\"POIUYTREW\""
-                    + "}";
-            diffs = new HashMap<>();
-            diffs.put("name", "QWERTY");
-            diffs.put("definition", "ZXCVB");
-            diffs.put("description", "POIUYTREW");
-            diffs.put("name", "POIUYTREW");
-            updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
-            checkPut(EntityType.OBSERVED_PROPERTY, entity, updatedEntity, diffs);
-
-            /* FeatureOfInterest */
-            long foiId = foiIds.get(0);
-            entity = getEntity(EntityType.FEATURE_OF_INTEREST, foiId);
-            urlParameters = "{"
-                    + "\"encodingType\":\"application/vnd.geo+json\","
-                    + "\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, "
-                    + "\"description\":\"POIUYTREW\","
-                    + "\"name\":\"POIUYTREW\""
-                    + "}";
-            diffs = new HashMap<>();
-            diffs.put("feature", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
-            diffs.put("name", "POIUYTREW");
-            diffs.put("description", "POIUYTREW");
-            updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
-            checkPut(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
-
-            /* Datastream */
-            long datastreamId = datastreamIds.get(0);
-            entity = getEntity(EntityType.DATASTREAM, datastreamId);
-            urlParameters = "{\n"
-                    + "  \"name\": \"Data coming from sensor on ISS.\",\n"
-                    + "  \"description\": \"Data coming from sensor on ISS.\",\n"
-                    + "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation\",\n"
-                    + "  \"unitOfMeasurement\": {\n"
-                    + "    \"name\": \"Entropy\",\n"
-                    + "    \"symbol\": \"S\",\n"
-                    + "    \"definition\": \"http://qudt.org/vocab/unit#Entropy\"\n"
-                    + "  }\n"
-                    + "}\n";
-            diffs = new HashMap<>();
-            diffs.put("name", "Data coming from sensor on ISS.");
-            diffs.put("description", "Data coming from sensor on ISS.");
-            diffs.put("observationType", "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation");
-            diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy\",\"symbol\": \"S\",\"definition\": \"http://qudt.org/vocab/unit#Entropy\"}"));
-            updatedEntity = updateEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
-            checkPut(EntityType.DATASTREAM, entity, updatedEntity, diffs);
-
-            /* Observation */
-            long obsId1 = observationIds.get(0);
-            entity = getEntity(EntityType.OBSERVATION, obsId1);
-            urlParameters = "{\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
-            diffs = new HashMap<>();
-            diffs.put("result", "99");
-            diffs.put("phenomenonTime", "2015-08-01T00:40:00.000Z");
-            updatedEntity = updateEntity(EntityType.OBSERVATION, urlParameters, obsId1);
-            checkPut(EntityType.OBSERVATION, entity, updatedEntity, diffs);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
-        }
-    }
-
-    /**
      * This method is testing DELETE and its integrity constraint. The response
      * should be 200. After DELETE the GET request to that entity should return
      * 404.
@@ -1377,32 +1248,6 @@ public class Capability2Tests {
 
     }
 
-    /**
-     * This method created the URL string for the entity with specific idand
-     * then PUT the entity with urlParameters to that URL.
-     *
-     * @param entityType    Entity type in from EntityType enum
-     * @param urlParameters The PUT body
-     * @param id            The id of requested entity
-     * @return The updated entity in the format of JSON Object
-     */
-    private JSONObject updateEntity(EntityType entityType, String urlParameters, long id) {
-        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
-        try {
-            Map<String, Object> responseMap = HTTPMethods.doPut(urlString, urlParameters);
-            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Error during updating(PUT) of entity " + entityType.name());
-
-            responseMap = HTTPMethods.doGet(urlString);
-            JSONObject result = new JSONObject(responseMap.get("response").toString());
-            return result;
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
-            return null;
-        }
-    }
 
     /**
      * This method created the URL string for the entity with specific id and
@@ -1473,30 +1318,6 @@ public class Capability2Tests {
         }
     }
 
-    /**
-     * Check the updated entity properties are updates correctly
-     *
-     * @param entityType Entity type in from EntityType enum
-     * @param oldEntity  The old properties of the updated entity
-     * @param newEntity  The updated properties of the updated entity
-     * @param diffs      The properties that supposed to be updated based on the
-     *                   request due to the specification
-     */
-    private void checkPut(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
-        try {
-            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
-                if (diffs.containsKey(property)) {
-                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for " + entityType + ".");
-                } else {
-//                    Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
-        }
-    }
 
     /**
      * Check the FeatureOfInterest is created automatically correctly if not
