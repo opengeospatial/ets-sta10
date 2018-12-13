@@ -4,6 +4,7 @@ package org.opengis.cite.sta10.util;
  * List of the entity relations for each entity type.
  */
 public class EntityRelations {
+
     /**
      * List of entity relations for Thing entity.
      */
@@ -37,6 +38,54 @@ public class EntityRelations {
      */
     public static final String[] FEATURE_OF_INTEREST_RELATIONS = {"Observations"};
 
+    public static EntityType getEntityTypeOfRelation(String relation) {
+        switch (relation.toLowerCase()) {
+            case "datastream":
+            case "datastreams":
+                return EntityType.DATASTREAM;
+            case "location":
+            case "locations":
+                return EntityType.LOCATION;
+            case "historicallocations":
+                return EntityType.HISTORICAL_LOCATION;
+            case "thing":
+            case "things":
+                return EntityType.THING;
+            case "sensor":
+                return EntityType.SENSOR;
+            case "observedproperty":
+                return EntityType.OBSERVED_PROPERTY;
+            case "observations":
+                return EntityType.OBSERVATION;
+            case "featureofinterest":
+                return EntityType.FEATURE_OF_INTEREST;
+        }
+        throw new IllegalArgumentException("Unknown relation.");
+    }
+
+    public static String getRootEntitySet(EntityType entityType) {
+        switch (entityType) {
+            case THING:
+                return "Things";
+            case LOCATION:
+                return "Locations";
+            case FEATURE_OF_INTEREST:
+                return "FeaturesOfInterest";
+            case OBSERVED_PROPERTY:
+                return "ObservedProperties";
+            case HISTORICAL_LOCATION:
+                return "HistoricalLocations";
+            case SENSOR:
+                return "Sensors";
+            case DATASTREAM:
+                return "Datastreams";
+            case OBSERVATION:
+                return "Observations";
+            default:
+                break;
+        }
+        return null;
+    }
 
     /**
      * Returning the list of entity relations for the given entityType.

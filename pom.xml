@@ -53,7 +53,19 @@
     <spec-version>1.0</spec-version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>Eclipse Paho Repo</id>
+      <url>https://repo.eclipse.org/content/repositories/paho-snapshots/</url>
+    </repository>
+  </repositories>
+
   <dependencies>
+    <dependency>
+      <groupId>org.eclipse.paho</groupId>
+      <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+      <version>1.1.1</version>
+    </dependency>
     <dependency>
       <groupId>org.opengis.cite.teamengine</groupId>
       <artifactId>teamengine-spi</artifactId>
