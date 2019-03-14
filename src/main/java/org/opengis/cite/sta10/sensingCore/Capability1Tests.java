@@ -282,17 +282,21 @@ public class Capability1Tests {
         try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             String response = responseMap.get("response").toString();
             if (!entityTypes.get(entityTypes.size() - 1).toLowerCase().equals("featuresofinterest") && !entityTypes.get(entityTypes.size() - 1).endsWith("s")) {
                 return;
             }
-            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+            JSONArray jsonValueArray = new JSONObject(response.toString()).getJSONArray("value");
+            if(jsonValueArray == null || jsonValueArray.length() == 0){
+              Assert.fail("Expecting a non-empty list for request: " + urlString);
+            }
+            Long id = jsonValueArray.getJSONObject(0).getLong(ControlInformation.ID);
 
             //check $ref
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, "$ref");
             responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             response = responseMap.get("response").toString();
             checkAssociationLinks(response, entityTypes, ids);
 

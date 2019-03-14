@@ -133,10 +133,10 @@ public class SuiteFixtureListener implements ISuiteListener {
             rd.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            return "Cannot connect to " + rootUri + ".";
+            return "The requested URL is not well formed: " + rootUri + ".";
         } catch (ProtocolException e) {
             e.printStackTrace();
-            return "Cannot connect to " + rootUri + ".";
+            return "Unknown protocol in requested URL: " + rootUri + ".";
         } catch (IOException e) {
             e.printStackTrace();
             return "Cannot connect to " + rootUri + ".";
@@ -164,11 +164,11 @@ public class SuiteFixtureListener implements ISuiteListener {
             String name, nameUrl;
             try {
                 entity = entities.getJSONObject(i);
-                if (entity.get("name") == null) {
-                    return "The name component of Service root URI response is not available.";
+                if (!entity.has("name")) {
+                    return "The name component of Service root URI response is not available.[ENTITY]: " + entity.toString();
                 }
-                if (entity.get("url") == null) {
-                    return "The name component of Service root URI response is not available.";
+                if (!entity.has("url")) {
+                    return "The name component of Service root URI response is not available. [ENTITY]: " + entity.toString();
                 }
                 name = entity.getString("name");
                 nameUrl = entity.getString("url");
