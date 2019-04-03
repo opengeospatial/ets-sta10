@@ -280,12 +280,12 @@ public class Capability3Tests {
         try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code"));
+            Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code") + ". [Request] " + urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
-            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned " + new JSONObject(response).getLong("@iot.count"));
-            Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned " + array.length() + " entities.");
-            Assert.assertEquals(array.getJSONObject(0).getString("result"), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).getString("result"));
+            Assert.assertEquals(new JSONObject(response).getLong("@iot.count"), 6, "The query order of execution is not correct. The expected count is 6, but the service returned " + new JSONObject(response).getLong("@iot.count") + ". [Request] " + urlString);
+            Assert.assertEquals(array.length(), 1, "The query asked for top 1, but the service rerurned " + array.length() + " entities. [Request] " + urlString);
+            Assert.assertEquals(array.getJSONObject(0).getString("result"), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).getString("result") + ". [Request] " + urlString);
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -325,21 +325,21 @@ public class Capability3Tests {
                     response = responseMap.get("response").toString();
                     array = new JSONObject(response).getJSONArray("value");
                     for (int i = 1; i < array.length(); i++) {
-                        Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + property);
+                        Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + property + ". [Request] " + urlString);
                     }
-                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20asc");
+                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20asc. [Request] " + urlString);
                     responseMap = HTTPMethods.doGet(urlString);
                     response = responseMap.get("response").toString();
                     array = new JSONObject(response).getJSONArray("value");
                     for (int i = 1; i < array.length(); i++) {
-                        Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + property);
+                        Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + property + ". [Request] " + urlString);
                     }
-                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20desc");
+                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20desc. [Request] " + urlString);
                     responseMap = HTTPMethods.doGet(urlString);
                     response = responseMap.get("response").toString();
                     array = new JSONObject(response).getJSONArray("value");
                     for (int i = 1; i < array.length(); i++) {
-                        Assert.assertTrue(compareWithPrevious(i, array, property) >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + property);
+                        Assert.assertTrue(compareWithPrevious(i, array, property) >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + property + ". [Request] " + urlString);
                     }
                 }
 
@@ -364,7 +364,7 @@ public class Capability3Tests {
                     for (int i = 1; i < array.length(); i++) {
                         for (String orderProperty : orderbyPropeties) {
                             int compare = compareWithPrevious(i, array, orderProperty);
-                            Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + orderProperty);
+                            Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + orderProperty + ". [Request] " + urlString);
                             if (compare != 0) {
                                 break;
                             }
@@ -381,7 +381,7 @@ public class Capability3Tests {
                     for (int i = 1; i < array.length(); i++) {
                         for (String orderProperty : orderbyPropeties) {
                             int compare = compareWithPrevious(i, array, orderProperty);
-                            Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + orderProperty);
+                            Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + orderProperty + ". [Request] " + urlString);
                             if (compare != 0) {
                                 break;
                             }
@@ -398,7 +398,7 @@ public class Capability3Tests {
                     for (int i = 1; i < array.length(); i++) {
                         for (String orderProperty : orderbyPropeties) {
                             int compare = compareWithPrevious(i, array, orderProperty);
-                            Assert.assertTrue(compare >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + orderProperty);
+                            Assert.assertTrue(compare >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + orderProperty + ".  [Request] " + urlString);
                             if (compare != 0) {
                                 break;
                             }
@@ -431,21 +431,21 @@ public class Capability3Tests {
                 String response = responseMap.get("response").toString();
                 JSONArray array = new JSONObject(response).getJSONArray("value");
                 for (int i = 1; i < array.length(); i++) {
-                    Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The default ordering is not correct for EntityType " + entityType + " orderby property " + property);
+                    Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The default ordering is not correct for EntityType " + entityType + " orderby property " + property + ". [Request] " + urlString);
                 }
                 urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property + "%20asc");
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
                 for (int i = 1; i < array.length(); i++) {
-                    Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ascending ordering is not correct for EntityType " + entityType + " orderby asc property " + property);
+                    Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ascending ordering is not correct for EntityType " + entityType + " orderby asc property " + property + ". [Request] " + urlString);
                 }
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property + "%20desc");
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property + "%20desc.  [Request] " + urlString);
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
                 for (int i = 1; i < array.length(); i++) {
-                    Assert.assertTrue(compareWithPrevious(i, array, property) >= 0, "The descending ordering is not correct for EntityType " + entityType + " orderby desc property " + property);
+                    Assert.assertTrue(compareWithPrevious(i, array, property) >= 0, "The descending ordering is not correct for EntityType " + entityType + " orderby desc property " + property + ". [Request] " + urlString);
                 }
             }
 
@@ -470,7 +470,7 @@ public class Capability3Tests {
                 for (int i = 1; i < array.length(); i++) {
                     for (String orderProperty : orderbyPropeties) {
                         int compare = compareWithPrevious(i, array, orderProperty);
-                        Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + orderProperty);
+                        Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + orderProperty + ". [Request] " + urlString);
                         if (compare != 0) {
                             break;
                         }
@@ -487,7 +487,7 @@ public class Capability3Tests {
                 for (int i = 1; i < array.length(); i++) {
                     for (String orderProperty : orderbyPropeties) {
                         int compare = compareWithPrevious(i, array, orderProperty);
-                        Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + orderProperty);
+                        Assert.assertTrue(compare <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + orderProperty + ". [Request] " + urlString);
                         if (compare != 0) {
                             break;
                         }
@@ -504,7 +504,7 @@ public class Capability3Tests {
                 for (int i = 1; i < array.length(); i++) {
                     for (String orderProperty : orderbyPropeties) {
                         int compare = compareWithPrevious(i, array, orderProperty);
-                        Assert.assertTrue(compare >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + orderProperty);
+                        Assert.assertTrue(compare >= 0, "The ordering is not correct for EntityType " + entityType + " orderby desc property " + orderProperty + ". [Request] " + urlString);
                         if (compare != 0) {
                             break;
                         }
@@ -550,25 +550,25 @@ public class Capability3Tests {
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
             switch (entityType) {
                 case THING:
                 case LOCATION:
                 case FEATURE_OF_INTEREST:
-                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case HISTORICAL_LOCATION:
                 case SENSOR:
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 3, "Query requested entities skipping 1, result should have contained 3 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 3, "Query requested entities skipping 1, result should have contained 3 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVATION:
-                    Assert.assertEquals(array.length(), 11, "Query requested entities skipping 1, result should have contained 11 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 11, "Query requested entities skipping 1, result should have contained 11 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 default:
                     break;
@@ -579,25 +579,25 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
             switch (entityType) {
                 case THING:
                 case LOCATION:
                 case FEATURE_OF_INTEREST:
-                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 2, result should have contained 0 entity, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 2, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 2, result should have contained 1 entity, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 2, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case HISTORICAL_LOCATION:
                 case SENSOR:
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 2, "Query requested entities skipping 2, result should have contained 2 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested entities skipping 2, result should have contained 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVATION:
-                    Assert.assertEquals(array.length(), 10, "Query requested entities skipping 2, result should have contained 10 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 10, "Query requested entities skipping 2, result should have contained 10 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 default:
                     break;
@@ -608,7 +608,7 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
             switch (entityType) {
@@ -616,15 +616,15 @@ public class Capability3Tests {
                 case LOCATION:
                 case FEATURE_OF_INTEREST:
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 3, result should have contained 0 entity, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 3, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case HISTORICAL_LOCATION:
                 case SENSOR:
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 3, result should have contained 1 entity, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 1, "Query requested entities skipping 3, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVATION:
-                    Assert.assertEquals(array.length(), 9, "Query requested entities skipping 3, result should have contained 9 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 9, "Query requested entities skipping 3, result should have contained 9 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 default:
                     break;
@@ -635,7 +635,7 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
             switch (entityType) {
@@ -646,10 +646,10 @@ public class Capability3Tests {
                 case HISTORICAL_LOCATION:
                 case SENSOR:
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 4, result should have contained 0 entity, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 0, "Query requested entities skipping 4, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVATION:
-                    Assert.assertEquals(array.length(), 8, "Query requested entities skipping 4, result should have contained 8 entities, but it contains " + array.length());
+                    Assert.assertEquals(array.length(), 8, "Query requested entities skipping 4, result should have contained 8 entities, but it contains " + array.length() + ". [Request] " + urlString);
                     break;
                 default:
                     break;
@@ -660,10 +660,10 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
-            Assert.assertEquals(array.length(), 0, "Query requested entities skipping 12, result should have contained 0 entity, but it contains " + array.length());
+            Assert.assertEquals(array.length(), 0, "Query requested entities skipping 12, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -697,53 +697,53 @@ public class Capability3Tests {
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
                 try {
-                    Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink.");
+                    Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
                 } catch (JSONException e) {
                 }
                 switch (entityType) {
                     case THING:
                         switch (relationEntityType) {
                             case LOCATION:
-                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                             case DATASTREAM:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
                     case LOCATION:
                         switch (relationEntityType) {
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities skipping 1, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                             case THING:
-                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
                     case FEATURE_OF_INTEREST:
-                        Assert.assertEquals(array.length(), 5, "Query requested entities skipping 1, result should have contained 5 entities, but it contains " + array.length());
+                        Assert.assertEquals(array.length(), 5, "Query requested entities skipping 1, result should have contained 5 entities, but it contains " + array.length() + ". [Request] " + urlString);
                         break;
                     case OBSERVED_PROPERTY:
-                        Assert.assertTrue(array.length() == 1 || array.length() == 0, "Query requested entities skipping 1, result should have contained 0 or 1 entity, but it contains " + array.length());
+                        Assert.assertTrue(array.length() == 1 || array.length() == 0, "Query requested entities skipping 1, result should have contained 0 or 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                         break;
                     case HISTORICAL_LOCATION:
                         switch (relationEntityType) {
                             case LOCATION:
-                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
                     case SENSOR:
-                        Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length());
+                        Assert.assertEquals(array.length(), 0, "Query requested entities skipping 1, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
                         break;
                     case DATASTREAM:
                         switch (relationEntityType) {
                             case OBSERVATION:
-                                Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities skipping 1, result should have contained 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
@@ -768,9 +768,9 @@ public class Capability3Tests {
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
-            Assert.assertEquals(array.length(), 1, "Query requested 1 entity but response contains " + array.length());
+            Assert.assertEquals(array.length(), 1, "Query requested 1 entity but response contains " + array.length() + ". [Request] " + urlString);
             try {
-                Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
                 Assert.fail("The response does not have nextLink");
             }
@@ -779,19 +779,19 @@ public class Capability3Tests {
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
-            Assert.assertEquals(array.length(), 2, "Query requested 2 entities but response contains " + array.length());
+            Assert.assertEquals(array.length(), 2, "Query requested 2 entities but response contains " + array.length()+ ". [Request] " + urlString);
             switch (entityType) {
                 case THING:
                 case LOCATION:
                 case FEATURE_OF_INTEREST:
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString );
                     } catch (JSONException e) {
                     }
                     break;
                 default:
                     try {
-                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                         Assert.fail("The response does not have nextLink");
                     }
@@ -804,37 +804,37 @@ public class Capability3Tests {
             array = new JSONObject(response).getJSONArray("value");
             switch (entityType) {
                 case THING:
-                    Assert.assertEquals(array.length(), 2, "Query requested 3 Things, there are only 2 Things,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 3 Things, there are only 2 Things,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case LOCATION:
-                    Assert.assertEquals(array.length(), 2, "Query requested 3 Locations, there are only 2 Locations,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 3 Locations, there are only 2 Locations,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case FEATURE_OF_INTEREST:
-                    Assert.assertEquals(array.length(), 2, "Query requested 3 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 3 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 3, "Query requested 3 entities but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 3, "Query requested 3 entities but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 default:
-                    Assert.assertEquals(array.length(), 3, "Query requested 3 entities but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 3, "Query requested 3 entities but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                         Assert.fail("The response does not have nextLink");
                     }
@@ -847,48 +847,48 @@ public class Capability3Tests {
             array = new JSONObject(response).getJSONArray("value");
             switch (entityType) {
                 case THING:
-                    Assert.assertEquals(array.length(), 2, "Query requested 4 Things, there are only 2 Things,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 4 Things, there are only 2 Things,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case LOCATION:
-                    Assert.assertEquals(array.length(), 2, "Query requested 4 Locations, there are only 2 Locations,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 4 Locations, there are only 2 Locations,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case FEATURE_OF_INTEREST:
-                    Assert.assertEquals(array.length(), 2, "Query requested 4 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 4 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 3, "Query requested 4 ObservedProperties, there are only 3 ObservedProperties,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 3, "Query requested 4 ObservedProperties, there are only 3 ObservedProperties,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case SENSOR:
                 case HISTORICAL_LOCATION:
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 4, "Query requested 4 entities but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 4 entities but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 default:
-                    Assert.assertEquals(array.length(), 4, "Query requested 4 entities but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 4 entities but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
-                        Assert.fail("The response does not have nextLink");
+                        Assert.fail("The response does not have nextLink. [Request] " + urlString);
                     }
                     break;
             }
@@ -899,60 +899,60 @@ public class Capability3Tests {
             array = new JSONObject(response).getJSONArray("value");
             switch (entityType) {
                 case THING:
-                    Assert.assertEquals(array.length(), 2, "Query requested 5 Things, there are only 2 Things,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 5 Things, there are only 2 Things,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case LOCATION:
-                    Assert.assertEquals(array.length(), 2, "Query requested 5 Locations, there are only 2 Locations,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 5 Locations, there are only 2 Locations,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case FEATURE_OF_INTEREST:
-                    Assert.assertEquals(array.length(), 2, "Query requested 5 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 5 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 3, "Query requested 5 ObservedProperties, there are only 3 ObservedProperties,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 3, "Query requested 5 ObservedProperties, there are only 3 ObservedProperties,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case SENSOR:
-                    Assert.assertEquals(array.length(), 4, "Query requested 5 Sensors, there are only 4 Sensors,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 5 Sensors, there are only 4 Sensors,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case HISTORICAL_LOCATION:
-                    Assert.assertEquals(array.length(), 4, "Query requested 5 HistoricalLocations, there are only 4 HistoricalLocations,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 5 HistoricalLocations, there are only 4 HistoricalLocations,  but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 4, "Query requested 5 Datastreams, there are only 4 Datastreams, but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 5 Datastreams, there are only 4 Datastreams, but response contains " + array.length() + ". [Request] " + urlString);
                     try {
-                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
                     }
                     break;
                 default:
                     Assert.assertEquals(array.length(), 5, "Query requested 5 entities but response contains " + array.length());
                     try {
-                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                        Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
-                        Assert.fail("The response does not have nextLink");
+                        Assert.fail("The response does not have nextLink. [Request] " + urlString);
                     }
                     break;
             }
@@ -961,7 +961,7 @@ public class Capability3Tests {
             responseMap = HTTPMethods.doGet(urlString);
             response = responseMap.get("response").toString();
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
 
@@ -970,33 +970,33 @@ public class Capability3Tests {
             response = responseMap.get("response").toString();
             array = new JSONObject(response).getJSONArray("value");
             try {
-                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
             }
             switch (entityType) {
                 case THING:
-                    Assert.assertEquals(array.length(), 2, "Query requested 13 Things, there are only 2 Things,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 13 Things, there are only 2 Things,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case LOCATION:
                     Assert.assertEquals(array.length(), 2, "Query requested 13 Locations, there are only 2 Locations,  but response contains " + array.length());
                     break;
                 case FEATURE_OF_INTEREST:
-                    Assert.assertEquals(array.length(), 2, "Query requested 13 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 13 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVED_PROPERTY:
-                    Assert.assertEquals(array.length(), 3, "Query requested 13 ObservedProperties, there are only 3 ObservedProperties,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 3, "Query requested 13 ObservedProperties, there are only 3 ObservedProperties,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case SENSOR:
-                    Assert.assertEquals(array.length(), 4, "Query requested 13 Sensors, there are only 4 Sensors,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 13 Sensors, there are only 4 Sensors,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case HISTORICAL_LOCATION:
-                    Assert.assertEquals(array.length(), 4, "Query requested 13 HistoricalLocations, there are only 4 HistoricalLocations,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 13 HistoricalLocations, there are only 4 HistoricalLocations,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case DATASTREAM:
-                    Assert.assertEquals(array.length(), 4, "Query requested 13 Datastreams, there are only 4 Datastreams, but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 4, "Query requested 13 Datastreams, there are only 4 Datastreams, but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case OBSERVATION:
-                    Assert.assertEquals(array.length(), 12, "Query requested 13 Observations, there are only 12 Observations, but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 12, "Query requested 13 Observations, there are only 12 Observations, but response contains " + array.length() + ". [Request] " + urlString);
                     break;
             }
 
@@ -1035,76 +1035,76 @@ public class Capability3Tests {
                 switch (entityType) {
                     case THING:
                         try {
-                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
                         }
                         switch (relationEntityType) {
                             case LOCATION:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                             case DATASTREAM:
-                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
                     case LOCATION:
                         try {
-                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
                         }
                         switch (relationEntityType) {
                             case HISTORICAL_LOCATION:
-                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 2, "Query requested entities 3 entities, result should have contained 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                             case THING:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains" + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains" + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
                     case FEATURE_OF_INTEREST:
-                        Assert.assertEquals(array.length(), 3, "Query requested entities 3 entities, result should have contained 3 entities, but it contains " + array.length());
+                        Assert.assertEquals(array.length(), 3, "Query requested entities 3 entities, result should have contained 3 entities, but it contains " + array.length() + ". [Request] " + urlString);
                         try {
-                            Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                            Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
-                            Assert.fail("The response does not have nextLink");
+                            Assert.fail("The response does not have nextLink. [Request] " + urlString);
                         }
                         break;
                     case OBSERVED_PROPERTY:
                         Assert.assertTrue(array.length() == 1 || array.length() == 2, "Query requested entities 3 entities, result should have contained 1 or 2 entities, but it contains " + array.length());
                         try {
-                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink");
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
                         }
                         break;
                     case HISTORICAL_LOCATION:
                         try {
-                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink");
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
                         }
                         switch (relationEntityType) {
                             case LOCATION:
-                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
                     case SENSOR:
                         try {
-                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink");
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
                         }
-                        Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length());
+                        Assert.assertEquals(array.length(), 1, "Query requested entities 3 entities, result should have contained 1 entity, but it contains " + array.length() + ". [Request] " + urlString);
                         break;
                     case DATASTREAM:
                         try {
-                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink");
+                            Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
                         }
                         switch (relationEntityType) {
                             case OBSERVATION:
-                                Assert.assertEquals(array.length(), 3, "Query requested entities 3 entities, result should have contained 3 entities, but it contains " + array.length());
+                                Assert.assertEquals(array.length(), 3, "Query requested entities 3 entities, result should have contained 3 entities, but it contains " + array.length() + ". [Request] " + urlString);
                                 break;
                         }
                         break;
@@ -1219,7 +1219,7 @@ public class Capability3Tests {
         Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
         String response = responseMap.get("response").toString();
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + entityType.name());
+        Assert.assertEquals(responseCode, 200, "Error during getting entities: " + entityType.name() + ". [Request] " + urlString);
         return response;
     }
 
@@ -1604,8 +1604,8 @@ public class Capability3Tests {
         responseMap = HTTPMethods.doGet(urlString);
         response = responseMap.get("response").toString();
         try {
-            Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: " + entityType);
-            Assert.fail("the query asked for not count but the response does contain count, for getting collection: " + entityType);
+            Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: " + entityType + ". [Request] " + urlString);
+            Assert.fail("the query asked for not count but the response does contain count, for getting collection: " + entityType + ". [Request] " + urlString);
         } catch (JSONException e) {
         }
     }
@@ -1639,7 +1639,7 @@ public class Capability3Tests {
                 try {
                     count = new JSONObject(response).getInt("@iot.count");
                 } catch (JSONException e) {
-                    Assert.fail("the query asked for count but the response does not contain count, for getting collection: " + entityType);
+                    Assert.fail("the query asked for count but the response does not contain count, for getting collection: " + entityType + ". [Request] " + urlString);
                 }
                 switch (relationEntityType) {
                     case THING:
@@ -1675,8 +1675,8 @@ public class Capability3Tests {
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 try {
-                    Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: " + entityType);
-                    Assert.fail("the query asked for not count but the response does contain count, for getting collection: " + entityType);
+                    Assert.assertNull(new JSONObject(response).getInt("@iot.count"), "the query asked for not count but the response does contain count, for getting collection: " + entityType + ". [Request] " + urlString);
+                    Assert.fail("the query asked for not count but the response does contain count, for getting collection: " + entityType + ". [Request] " + urlString);
                 } catch (JSONException e) {
                 }
             }
@@ -2356,11 +2356,11 @@ public class Capability3Tests {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ". [Request] " + urlString);
 
         responseMap = HTTPMethods.doGet(urlString);
         responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
+        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + "). [Request] " + urlString);
     }
 
 }
