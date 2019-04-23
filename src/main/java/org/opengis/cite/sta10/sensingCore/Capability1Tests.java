@@ -282,17 +282,21 @@ public class Capability1Tests {
         try {
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             String response = responseMap.get("response").toString();
             if (!entityTypes.get(entityTypes.size() - 1).toLowerCase().equals("featuresofinterest") && !entityTypes.get(entityTypes.size() - 1).endsWith("s")) {
                 return;
             }
-            Long id = new JSONObject(response.toString()).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+            JSONArray jsonValueArray = new JSONObject(response.toString()).getJSONArray("value");
+            if(jsonValueArray == null || jsonValueArray.length() == 0){
+              Assert.fail("Expecting a non-empty list for request: " + urlString);
+            }
+            Long id = jsonValueArray.getJSONObject(0).getLong(ControlInformation.ID);
 
             //check $ref
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, "$ref");
             responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             response = responseMap.get("response").toString();
             checkAssociationLinks(response, entityTypes, ids);
 
@@ -648,7 +652,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
 
     }
@@ -665,14 +669,14 @@ public class Capability1Tests {
             JSONObject entity = new JSONObject(response.toString());
             for (String relation : EntityRelations.getRelationsListFor(entityType)) {
                 try {
-                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 } catch (JSONException e) {
-                    Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                    Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
     }
 
