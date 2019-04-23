@@ -277,8 +277,9 @@ public class Capability3Tests {
      */
     @Test(description = "Check priotity of query options", groups = "level-3")
     public void checkQueriesPriorityOrdering() {
+      String urlString = "";
         try {
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.OBSERVATION, -1, null, "?$count=true&$top=1&$skip=2&$orderby=phenomenonTime%20asc&$filter=result%20gt%20'3'");
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             Assert.assertEquals(Integer.parseInt(responseMap.get("response-code").toString()), 200, "There is problem for GET Observations using multiple Query Options! HTTP status code: " + responseMap.get("response-code") + ". [Request] " + urlString);
             String response = responseMap.get("response").toString();
@@ -288,7 +289,7 @@ public class Capability3Tests {
             Assert.assertEquals(array.getJSONObject(0).getString("result"), "6", "The query order of execution is not correct. The expected Observation result is 6, but it is " + array.getJSONObject(0).getString("result") + ". [Request] " + urlString);
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -299,8 +300,9 @@ public class Capability3Tests {
      */
     private void checkOrderbyForEntityTypeRelations(EntityType entityType) {
         String[] relations = EntityRelations.getRelationsListFor(entityType);
+        String urlString = "";
         try {
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -408,7 +410,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
     }
@@ -420,13 +422,14 @@ public class Capability3Tests {
      */
     private void checkOrderbyForEntityType(EntityType entityType) {
         String[] properties = EntityProperties.getPropertiesListFor(entityType);
+        String urlString = "";
         try {
             //single orderby
             for (String property : properties) {
                 if (property.equals("unitOfMeasurement")) {
                     continue;
                 }
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 String response = responseMap.get("response").toString();
                 JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -463,7 +466,7 @@ public class Capability3Tests {
                 }
                 orderby += property;
                 orderbyPropeties.add(property);
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderby);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, orderby);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 String response = responseMap.get("response").toString();
                 JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -513,7 +516,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
     }
@@ -543,9 +546,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkSkipForEntityType(EntityType entityType) {
+      String urlString = "";
         try {
 
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=1");
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$skip=1");
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -666,7 +670,7 @@ public class Capability3Tests {
             Assert.assertEquals(array.length(), 0, "Query requested entities skipping 12, result should have contained 0 entity, but it contains " + array.length() + ". [Request] " + urlString);
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -676,9 +680,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkSkipForEntityTypeRelation(EntityType entityType) {
+      String urlString = "";
         try {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -753,7 +758,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + "[Request] " + urlString);
         }
     }
 
@@ -763,8 +768,9 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkTopForEntityType(EntityType entityType) {
+      String urlString = "";
         try {
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=1");
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=1");
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -772,7 +778,7 @@ public class Capability3Tests {
             try {
                 Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
             } catch (JSONException e) {
-                Assert.fail("The response does not have nextLink");
+                Assert.fail("The response does not have nextLink" + "[Request] " + urlString);
             }
 
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$top=2");
@@ -836,7 +842,7 @@ public class Capability3Tests {
                     try {
                         Assert.assertNotNull(new JSONObject(response).get("@iot.nextLink"), "The response does not have nextLink. [Request] " + urlString);
                     } catch (JSONException e) {
-                        Assert.fail("The response does not have nextLink");
+                        Assert.fail("The response does not have nextLink" + " [Request] " + urlString);
                     }
                     break;
             }
@@ -978,7 +984,7 @@ public class Capability3Tests {
                     Assert.assertEquals(array.length(), 2, "Query requested 13 Things, there are only 2 Things,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case LOCATION:
-                    Assert.assertEquals(array.length(), 2, "Query requested 13 Locations, there are only 2 Locations,  but response contains " + array.length());
+                    Assert.assertEquals(array.length(), 2, "Query requested 13 Locations, there are only 2 Locations,  but response contains " + array.length() + ". [Request] " + urlString);
                     break;
                 case FEATURE_OF_INTEREST:
                     Assert.assertEquals(array.length(), 2, "Query requested 13 FeaturesOfInterest, there are only 2 FeaturesOfInterest,  but response contains " + array.length() + ". [Request] " + urlString);
@@ -1002,7 +1008,7 @@ public class Capability3Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -1012,9 +1018,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkTopForEntityTypeRelation(EntityType entityType) {
+      String urlString = "";
         try {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -1073,7 +1080,7 @@ public class Capability3Tests {
                         }
                         break;
                     case OBSERVED_PROPERTY:
-                        Assert.assertTrue(array.length() == 1 || array.length() == 2, "Query requested entities 3 entities, result should have contained 1 or 2 entities, but it contains " + array.length());
+                        Assert.assertTrue(array.length() == 1 || array.length() == 2, "Query requested entities 3 entities, result should have contained 1 or 2 entities, but it contains " + array.length() + ". [Request] " + urlString);
                         try {
                             Assert.assertNull(new JSONObject(response).get("@iot.nextLink"), "The response should not have nextLink. [Request] " + urlString);
                         } catch (JSONException e) {
@@ -1114,7 +1121,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -1146,9 +1153,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkSelectForEntityTypeRelations(EntityType entityType) {
+      String urlString = "";
         try {
             String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -1176,7 +1184,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -1257,7 +1265,7 @@ public class Capability3Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
 
     }
@@ -1299,20 +1307,20 @@ public class Capability3Tests {
             for (String property : properties) {
                 if (selectedProperties.contains(property)) {
                     try {
-                        Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                        Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\". [Response]: " + response.toString());
                     } catch (JSONException e) {
-                        Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\".");
+                        Assert.fail("Entity type \"" + entityType + "\" does not have selected property: \"" + property + "\". [Response]: " + response.toString());
                     }
                 } else {
                     try {
-                        Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\".");
+                        Assert.assertNull(entity.get(property), "Entity type \"" + entityType + "\" contains not-selected property: \"" + property + "\". [Response]: " + response.toString());
                     } catch (JSONException e) {
                     }
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response]: " + response.toString());
         }
 
     }
@@ -1344,7 +1352,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage()+ " [Response]: " + response.toString());
         }
 
     }
@@ -1366,12 +1374,12 @@ public class Capability3Tests {
                 if (selectedProperties == null || selectedProperties.contains(relation)) {
                     if (expandedRelations == null || !listContainsString(expandedRelations, relation)) {
                         try {
-                            Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                            Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\". [Response]: " + response.toString());
                         } catch (JSONException e) {
-                            Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\".");
+                            Assert.fail("Entity type \"" + entityType + "\" does not have selected relation: \"" + relation + "\". [Response]: " + response.toString());
                         }
                     } else {
-                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                        Assert.assertNotNull(entity.get(relation), "Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\". [Response]: " + response.toString());
                         JSONArray expandedEntityArray = null;
                         try {
                             if (relation.charAt(relation.length() - 1) != 's' && !relation.equals("FeaturesOfInterest")) {
@@ -1381,7 +1389,7 @@ public class Capability3Tests {
                                 expandedEntityArray = entity.getJSONArray(relation);
                             }
                         } catch (JSONException e) {
-                            Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\".");
+                            Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "\". [Response]: " + response.toString());
                         }
                         checkPropertiesForEntityArray(getEntityTypeFor(relation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(relation))));
                         if (listContainsString(expandedRelations, "/")) {
@@ -1399,7 +1407,7 @@ public class Capability3Tests {
                                             expandedEntityArray = expandedEntity.getJSONArray(secondLeveleRelation);
                                         }
                                     } catch (JSONException e) {
-                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "/" + secondLeveleRelation + "\".");
+                                        Assert.fail("Entity type \"" + entityType + "\" does not have expanded relation Correctly: \"" + relation + "/" + secondLeveleRelation + "\". [Response]: " + response.toString());
                                     }
                                     checkPropertiesForEntityArray(getEntityTypeFor(secondLeveleRelation), expandedEntityArray, new ArrayList<String>(Arrays.asList(EntityProperties.getPropertiesListFor(secondLeveleRelation))));
                                 }
@@ -1408,18 +1416,18 @@ public class Capability3Tests {
                     }
                 } else {
                     try {
-                        Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                        Assert.assertNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\". [Response]: " + response.toString());
                     } catch (JSONException e) {
                     }
                     try {
-                        Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\".");
+                        Assert.assertNull(entity.get(relation), "Entity type \"" + entityType + "\" contains not-selectd relation: \"" + relation + "\". [Response]: " + response.toString());
                     } catch (JSONException e) {
                     }
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response]: " + response.toString());
         }
     }
 
@@ -1451,9 +1459,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkExpandtForEntityTypeRelations(EntityType entityType) {
+      String urlString="";
         try {
             String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -1481,7 +1490,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request]: " + urlString);
         }
     }
 
@@ -1492,9 +1501,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkExpandtForEntityTypeMultilevelRelations(EntityType entityType) {
+      String urlString ="";
         try {
             String[] parentRelations = EntityRelations.getRelationsListFor(entityType);
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -1529,7 +1539,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -1577,24 +1587,24 @@ public class Capability3Tests {
         try {
             count = new JSONObject(response).getInt("@iot.count");
         } catch (JSONException e) {
-            Assert.fail("the query asked for count but the response does not contain count, for getting collection: " + entityType);
+            Assert.fail("the query asked for count but the response does not contain count, for getting collection: " + entityType + " [Request] " + urlString);
         }
         switch (entityType) {
             case THING:
             case LOCATION:
             case FEATURE_OF_INTEREST:
-                Assert.assertEquals(count, 2, "The count for " + entityType + "should be 2, but it is " + count);
+                Assert.assertEquals(count, 2, "The count for " + entityType + "should be 2, but it is " + count + " [Request] " + urlString);
                 break;
             case OBSERVED_PROPERTY:
-                Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count);
+                Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count + " [Request] " + urlString);
                 break;
             case HISTORICAL_LOCATION:
             case SENSOR:
             case DATASTREAM:
-                Assert.assertEquals(count, 4, "The count for " + entityType + "should be 4, but it is " + count);
+                Assert.assertEquals(count, 4, "The count for " + entityType + "should be 4, but it is " + count + " [Request] " + urlString);
                 break;
             case OBSERVATION:
-                Assert.assertEquals(count, 12, "The count for " + entityType + "should be 12, but it is " + count);
+                Assert.assertEquals(count, 12, "The count for " + entityType + "should be 12, but it is " + count + " [Request] " + urlString);
                 break;
             default:
                 break;
@@ -1616,9 +1626,10 @@ public class Capability3Tests {
      * @param entityType Entity type from EntityType enum list
      */
     private void checkCountForEntityTypeRelations(EntityType entityType) {
+      String urlString = "";
         try {
             String[] relations = EntityRelations.getRelationsListFor(entityType);
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             String response = responseMap.get("response").toString();
             JSONArray array = new JSONObject(response).getJSONArray("value");
@@ -1644,27 +1655,27 @@ public class Capability3Tests {
                 switch (relationEntityType) {
                     case THING:
                     case LOCATION:
-                        Assert.assertEquals(count, 1, "The count for " + entityType + "should be 1, but it is " + count);
+                        Assert.assertEquals(count, 1, "The count for " + entityType + "should be 1, but it is " + count + " [Request] " + urlString);
                         break;
                     case HISTORICAL_LOCATION:
                     case DATASTREAM:
                         switch (entityType) {
                             case THING:
-                                Assert.assertEquals(count, 2, "The count for " + entityType + "should be 2, but it is " + count);
+                                Assert.assertEquals(count, 2, "The count for " + entityType + "should be 2, but it is " + count + " [Request] " + urlString);
                                 break;
                             case SENSOR:
-                                Assert.assertEquals(count, 1, "The count for " + entityType + "should be 1, but it is " + count);
+                                Assert.assertEquals(count, 1, "The count for " + entityType + "should be 1, but it is " + count + " [Request] " + urlString);
                                 break;
                             case OBSERVED_PROPERTY:
-                                Assert.assertTrue(count == 2 || count == 1, "The count for " + entityType + "should be 1 or 2, but it is " + count);
+                                Assert.assertTrue(count == 2 || count == 1, "The count for " + entityType + "should be 1 or 2, but it is " + count + " [Request] " + urlString);
                                 break;
                         }
                         break;
                     case OBSERVATION:
                         if (entityType.equals(EntityType.DATASTREAM)) {
-                            Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count);
+                            Assert.assertEquals(count, 3, "The count for " + entityType + "should be 3, but it is " + count + " [Request] " + urlString);
                         } else if (entityType.equals(EntityType.FEATURE_OF_INTEREST)) {
-                            Assert.assertEquals(count, 6, "The count for " + entityType + "should be 6, but it is " + count);
+                            Assert.assertEquals(count, 6, "The count for " + entityType + "should be 6, but it is " + count + " [Request] " + urlString);
                         }
                         break;
                     default:
@@ -1682,7 +1693,7 @@ public class Capability3Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
     }
 
@@ -1769,7 +1780,7 @@ public class Capability3Tests {
             array = new JSONObject(response).getJSONArray("value");
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         if (array.length() == 0) {
             return;
@@ -1779,7 +1790,7 @@ public class Capability3Tests {
             id = array.getJSONObject(0).getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
         for (String relation : relations) {
@@ -1855,10 +1866,10 @@ public class Capability3Tests {
                     try {
                         propertyValue = entity.get(properties.get(j));
                     } catch (JSONException e) {
-                        Assert.fail("The entity does not have property " + properties.get(j));
+                        Assert.fail("The entity does not have property " + properties.get(j) + " [Response] " + response.toString());
                     }
                     if (propertyValue == null) {
-                        Assert.fail("The entity has null value for property " + properties.get(j));
+                        Assert.fail("The entity has null value for property " + properties.get(j) + " [Response] " + response.toString());
                     }
                     Comparable value = values.get(j);
                     if (value instanceof String && ((String) value).charAt(0) == '\'') {
@@ -1874,29 +1885,29 @@ public class Capability3Tests {
                     int result = value.compareTo(propertyValue);
                     switch (operator) {
                         case -3:
-                            Assert.assertTrue(result != 0, properties.get(j) + " should not be equal to " + value + ". But the property value is " + propertyValue);
+                            Assert.assertTrue(result != 0, properties.get(j) + " should not be equal to " + value + ". But the property value is " + propertyValue + " [Response] " + response.toString());
                             break;
                         case -2:
-                            Assert.assertTrue(result > 0, properties.get(j) + " should be less than " + value + ". But the property value is " + propertyValue);
+                            Assert.assertTrue(result > 0, properties.get(j) + " should be less than " + value + ". But the property value is " + propertyValue + " [Response] " + response.toString());
                             break;
                         case -1:
-                            Assert.assertTrue(result >= 0, properties.get(j) + " should be less than or equal to " + value + ". But the property value is " + propertyValue);
+                            Assert.assertTrue(result >= 0, properties.get(j) + " should be less than or equal to " + value + ". But the property value is " + propertyValue + " [Response] " + response.toString());
                             break;
                         case 0:
-                            Assert.assertTrue(result == 0, properties.get(j) + " should be equal to than " + value + ". But the property value is " + propertyValue);
+                            Assert.assertTrue(result == 0, properties.get(j) + " should be equal to than " + value + ". But the property value is " + propertyValue + " [Response] " + response.toString());
                             break;
                         case 1:
-                            Assert.assertTrue(result <= 0, properties.get(j) + " should be greate than or equal to " + value + ". But the property value is " + propertyValue);
+                            Assert.assertTrue(result <= 0, properties.get(j) + " should be greate than or equal to " + value + ". But the property value is " + propertyValue + " [Response] " + response.toString());
                             break;
                         case 2:
-                            Assert.assertTrue(result < 0, properties.get(j) + " should be greater than " + value + ". But the property value is " + propertyValue);
+                            Assert.assertTrue(result < 0, properties.get(j) + " should be greater than " + value + ". But the property value is " + propertyValue + " [Response] " + response.toString());
                             break;
                     }
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
     }
 
@@ -1940,6 +1951,7 @@ public class Capability3Tests {
      * Create entities as a pre-process for testing query options.
      */
     private void createEntities() {
+      String urlString = "";
         try {
             //First Thing
             String urlParameters = "{\n"
@@ -2007,7 +2019,7 @@ public class Capability3Tests {
                     + "        }\n"
                     + "    ]\n"
                     + "}";
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
             String response = responseMap.get("response").toString();
             thingId1 = Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")")));
@@ -2276,7 +2288,7 @@ public class Capability3Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
     }
@@ -2327,9 +2339,10 @@ public class Capability3Tests {
      */
     private void deleteEntityType(EntityType entityType) {
         JSONArray array = null;
+        String urlString = "";
         do {
             try {
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
@@ -2340,7 +2353,7 @@ public class Capability3Tests {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + "[Request] " + urlString);
             }
         } while (array.length() > 0);
     }

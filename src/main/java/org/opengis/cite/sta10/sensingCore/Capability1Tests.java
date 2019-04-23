@@ -652,7 +652,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
 
     }
@@ -669,14 +669,14 @@ public class Capability1Tests {
             JSONObject entity = new JSONObject(response.toString());
             for (String relation : EntityRelations.getRelationsListFor(entityType)) {
                 try {
-                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 } catch (JSONException e) {
-                    Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                    Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
     }
 

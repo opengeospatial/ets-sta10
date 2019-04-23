@@ -1162,7 +1162,7 @@ public class Capability2Tests {
             return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString());
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1193,7 +1193,7 @@ public class Capability2Tests {
             return result;
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1271,7 +1271,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1344,7 +1344,7 @@ public class Capability2Tests {
             return id;
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
     }
@@ -1381,7 +1381,7 @@ public class Capability2Tests {
             return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
     }
@@ -1420,7 +1420,7 @@ public class Capability2Tests {
                 Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't. [Request] " + urlString);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         }
     }
@@ -1440,7 +1440,7 @@ public class Capability2Tests {
                 Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't. [Request] " + urlString);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         }
     }
@@ -1468,9 +1468,10 @@ public class Capability2Tests {
      */
     private void deleteEntityType(EntityType entityType) {
         JSONArray array = null;
+        String urlString = "";
         do {
             try {
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
@@ -1481,7 +1482,7 @@ public class Capability2Tests {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         } while (array.length() > 0);
     }
@@ -1490,6 +1491,7 @@ public class Capability2Tests {
      * Create entities as a pre-process for testing DELETE.
      */
     private void createEntitiesForDelete() {
+      String urlString = "";
         try {
 
             deleteEverythings();
@@ -1547,7 +1549,7 @@ public class Capability2Tests {
                     + "        }\n"
                     + "    ]\n"
                     + "}";
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
             String response = responseMap.get("response").toString();
             thingIds.add(Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")"))));
@@ -1597,7 +1599,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
     }
