@@ -13,7 +13,6 @@
     <dependencySet>
       <includes>
         <include>com.sun.jersey:jersey-client</include>
-        <include>org.opengis.cite:schema-utils</include>
       </includes>
       <outputDirectory>/</outputDirectory>
       <unpack>false</unpack>
@@ -24,7 +23,8 @@
       <excludes>
         <exclude>org.opengis.cite.teamengine:teamengine-spi</exclude>
         <exclude>com.sun.jersey:jersey-client</exclude>
-        <exclude>org.opengis.cite:schema-utils</exclude>
+        <exclude>org.testng:testng</exclude>
+        <exclude>javax.ws.rs:jsr311-api</exclude>
       </excludes>
       <outputDirectory>/</outputDirectory>
       <unpack>false</unpack>
