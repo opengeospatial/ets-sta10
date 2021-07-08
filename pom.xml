@@ -53,6 +53,14 @@
     <spec-version>1.0</spec-version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>bintray-fraunhoferiosb-Maven</id>
+      <name>bintray</name>
+      <url>http://dl.bintray.com/fraunhoferiosb/Maven</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.opengis.cite.teamengine</groupId>
@@ -77,7 +85,7 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20090211</version>
+      <version>20171018</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -87,6 +95,11 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>de.fraunhofer.iosb.ilt</groupId>
+      <artifactId>SensorThingsClient</artifactId>
+      <version>0.14</version>
     </dependency>
   </dependencies>
 
