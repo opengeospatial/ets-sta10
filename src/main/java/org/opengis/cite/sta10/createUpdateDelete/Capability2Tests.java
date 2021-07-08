@@ -193,6 +193,7 @@ public class Capability2Tests {
             entity = postEntity(EntityType.OBSERVATION, urlParameters);
             long obsId1 = entity.getLong(ControlInformation.ID);
             observationIds.add(obsId1);
+
             //POST Observation without FOI (Automatic creation of FOI)
             //Add location to the Thing
             urlParameters = "{\"Locations\":[{\"@iot.id\":" + locationId + "}]}";
@@ -210,6 +211,7 @@ public class Capability2Tests {
             observationIds.add(obsId2);
             long automatedFOIId = checkAutomaticInsertionOfFOI(obsId2, locationEntity, -1);
             foiIds.add(automatedFOIId);
+
             //POST another Observation to make sure it is linked to the previously created FOI
             urlParameters = "{\n"
                     + "  \"phenomenonTime\": \"2015-05-01T00:00:00.000Z\",\n"
