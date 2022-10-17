@@ -1868,7 +1868,7 @@ public class Capability3Tests {
                             propertyValue = propertyValue.toString();
                         }
                     } else if (value instanceof DateTime) {
-                        propertyValue = ISODateTimeFormat.dateTime().parseDateTime(propertyValue.toString());
+                        propertyValue = ISODateTimeFormat.dateTimeParser().parseDateTime(propertyValue.toString());
                     }
 
                     int result = value.compareTo(propertyValue);
