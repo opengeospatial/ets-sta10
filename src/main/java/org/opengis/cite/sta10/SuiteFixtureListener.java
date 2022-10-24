@@ -1,13 +1,11 @@
 package org.opengis.cite.sta10;
 
 import com.sun.jersey.api.client.Client;
-
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,6 +69,17 @@ public class SuiteFixtureListener implements ISuiteListener {
                     response);
         }
         suite.setAttribute(SuiteAttribute.TEST_SUBJECT.getName(), iutParam);
+        suite.setAttribute(SuiteAttribute.MQTT_SERVER.getName(), params.get(TestRunArg.MQTT_SERVER.toString()));
+        // defaulting to 30s timeout
+        Long mqttTimeout = new Long(30000);
+        if (null != params.get(TestRunArg.MQTT_TIMEOUT.toString())) {
+            try {
+                mqttTimeout = Long.valueOf(params.get(TestRunArg.MQTT_TIMEOUT.toString()));
+            } catch (NumberFormatException nfe) { // use default value instead
+                mqttTimeout = 30000l;
+            }
+        }
+        suite.setAttribute(SuiteAttribute.MQTT_TIMEOUT.getName(), mqttTimeout);
         if (TestSuiteLogger.isLoggable(Level.FINE)) {
             StringBuilder logMsg = new StringBuilder(
                     "Parsed resource retrieved from ");
@@ -98,7 +107,9 @@ public class SuiteFixtureListener implements ISuiteListener {
      * Checking the service root URL to be compliant with SensorThings API
      *
      * @param rootUri The root URL for the service under test
-     * @return If the root URL of the service is not compliant to SensorThings API, it will return the reason it is not compliant. Otherwise it returns empty String.
+     * @return If the root URL of the service is not compliant to SensorThings
+     * API, it will return the reason it is not compliant. Otherwise it returns
+     * empty String.
      */
     private String checkServiceRootUri(String rootUri) {
         rootUri = rootUri.trim();
