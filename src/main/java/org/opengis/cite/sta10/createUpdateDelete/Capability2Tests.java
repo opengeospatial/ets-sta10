@@ -1378,7 +1378,7 @@ public class Capability2Tests {
             Iterator iterator = relationObj.keys();
             while (iterator.hasNext()) {
                 String key = iterator.next().toString();
-                assertParameterEquals(key, Objects.toString(result.get(key)), Objects.toString(relationObj.get(key)), "ERROR: Deep inserted " + relationEntityType + " is not created correctly. [Request] " + urlString");
+                assertParameterEquals(key, Objects.toString(result.get(key)), Objects.toString(relationObj.get(key)), "ERROR: Deep inserted " + relationEntityType + " is not created correctly. [Request] " + urlString);
             }
             return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
