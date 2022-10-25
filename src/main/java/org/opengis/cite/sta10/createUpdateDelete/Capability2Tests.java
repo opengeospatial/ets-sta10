@@ -1164,7 +1164,7 @@ public class Capability2Tests {
             return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString());
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1189,13 +1189,13 @@ public class Capability2Tests {
             urlString = urlString + "(" + id + ")";
             responseMap = HTTPMethods.doGet(urlString);
             responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "The POSTed entity is not created.");
+            Assert.assertEquals(responseCode, 200, "The POSTed entity is not created. [Request] " + urlString);
 
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1212,7 +1212,7 @@ public class Capability2Tests {
 
         Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertTrue(responseCode == 400 || responseCode == 409, "The  " + entityType.name() + " should not be created due to integrity constraints.");
+        Assert.assertTrue(responseCode == 400 || responseCode == 409, "The  " + entityType.name() + " should not be created due to integrity constraints. [Request] " + urlString);
 
     }
 
@@ -1227,11 +1227,11 @@ public class Capability2Tests {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ". [Request] " + urlString);
 
         responseMap = HTTPMethods.doGet(urlString);
         responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
+        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + "). [Request] " + urlString);
     }
 
     /**
@@ -1246,7 +1246,7 @@ public class Capability2Tests {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ". [Request] " + urlString);
 
     }
 
@@ -1266,14 +1266,14 @@ public class Capability2Tests {
 
             Map<String, Object> responseMap = HTTPMethods.doPatch(urlString, urlParameters);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name());
+            Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name() + "with [Request] " + urlString);
             responseMap = HTTPMethods.doGet(urlString);
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1292,7 +1292,7 @@ public class Capability2Tests {
 
         Map<String, Object> responseMap = HTTPMethods.doPatch(urlString, urlParameters);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name());
+        Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name() + ". [Request] " + urlString);
 
     }
 
@@ -1340,13 +1340,13 @@ public class Capability2Tests {
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             long id = result.getLong(ControlInformation.ID);
             if (expectedFOIId != -1) {
-                Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: " + expectedFOIId + " , but it is linked for FeatureOfInterest with Id: " + id + ".");
+                Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: " + expectedFOIId + " , but it is linked for FeatureOfInterest with Id: " + id + ". [Request] " + urlString);
             }
-            Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing.");
+            Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing. [Request] " + urlString);
             return id;
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
     }
@@ -1370,7 +1370,7 @@ public class Capability2Tests {
         try {
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted " + relationEntityType + " does not created or linked to " + parentEntityType);
+            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted " + relationEntityType + " does not created or linked to " + parentEntityType + ".  [Request] " + urlString);
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             if (isCollection == true) {
                 result = result.getJSONArray("value").getJSONObject(0);
@@ -1378,12 +1378,12 @@ public class Capability2Tests {
             Iterator iterator = relationObj.keys();
             while (iterator.hasNext()) {
                 String key = iterator.next().toString();
-                assertParameterEquals(key, Objects.toString(result.get(key)), Objects.toString(relationObj.get(key)), "ERROR: Deep inserted " + relationEntityType + " is not created correctly.");
+                assertParameterEquals(key, Objects.toString(result.get(key)), Objects.toString(relationObj.get(key)), "ERROR: Deep inserted " + relationEntityType + " is not created correctly. [Request] " + urlString);
             }
             return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
     }
@@ -1434,10 +1434,10 @@ public class Capability2Tests {
             try {
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
                 JSONArray array = result.getJSONArray("value");
-                Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't.");
+                Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't. [Request] " + urlString);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         }
     }
@@ -1454,10 +1454,10 @@ public class Capability2Tests {
             try {
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
                 JSONArray array = result.getJSONArray("value");
-                Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't.");
+                Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't. [Request] " + urlString);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         }
     }
@@ -1485,9 +1485,10 @@ public class Capability2Tests {
      */
     private void deleteEntityType(EntityType entityType) {
         JSONArray array = null;
+        String urlString = "";
         do {
             try {
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
@@ -1498,7 +1499,7 @@ public class Capability2Tests {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         } while (array.length() > 0);
     }
@@ -1507,6 +1508,7 @@ public class Capability2Tests {
      * Create entities as a pre-process for testing DELETE.
      */
     private void createEntitiesForDelete() {
+      String urlString = "";
         try {
 
             deleteEverythings();
@@ -1564,7 +1566,7 @@ public class Capability2Tests {
                     + "        }\n"
                     + "    ]\n"
                     + "}";
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
             String response = responseMap.get("response").toString();
             thingIds.add(Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")"))));
@@ -1614,7 +1616,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
     }
