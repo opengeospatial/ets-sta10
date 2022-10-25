@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite>
+	<title>Test suite: ets-sta10</title>
+	<description>
+	    This executable test suite (ETS) verifies the conformance of the implementation under test (IUT) with 
+		respect to all relevant specifications. Conformance testing is a kind of "black box" testing that 
+		examines externally visible characteristics or behaviors of the IUT and is independent of any implementation
+		details. The test run arguments are summarized in the following table. The obligation descriptor can 
+		have the following values: M (mandatory), O (optional), or C (conditional).
+	</description>
+	<testrunarguments>
+		<testrunargument>
+			<name>iut</name>
+			<valuedomain>URI</valuedomain>
+			<obligation>M</obligation>
+			<description>A URI that refers to the implementation under test or metadata about it.
+				Ampersand ('&amp;') characters must be percent-encoded as '%26'.
+			</description>
+		</testrunargument>
+		<testrunargument>
+			<name>ics</name>
+			<valuedomain>A comma-separated list of string values.</valuedomain>
+			<obligation>O</obligation>
+			<description>An implementation conformance statement that indicates which conformance
+				classes or options are supported.
+			</description>
+		</testrunargument>
+	</testrunarguments>
+</testsuite>

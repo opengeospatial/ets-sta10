@@ -1,10 +1,12 @@
 package org.opengis.cite.sta10.createUpdateDelete;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1307,9 +1309,9 @@ public class Capability2Tests {
         try {
             for (String property : EntityProperties.getPropertiesListFor(entityType)) {
                 if (diffs.containsKey(property)) {
-                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
+                    assertParameterEquals(property, newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
                 } else {
-                    Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
+                    assertParameterEquals(property, newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
                 }
             }
         } catch (JSONException e) {
@@ -1376,7 +1378,7 @@ public class Capability2Tests {
             Iterator iterator = relationObj.keys();
             while (iterator.hasNext()) {
                 String key = iterator.next().toString();
-                Assert.assertEquals(result.get(key).toString(), relationObj.get(key).toString(), "ERROR: Deep inserted " + relationEntityType + " is not created correctly. [Request] " + urlString);
+                assertParameterEquals(key, Objects.toString(result.get(key)), Objects.toString(relationObj.get(key)), "ERROR: Deep inserted " + relationEntityType + " is not created correctly. [Request] " + urlString");
             }
             return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
@@ -1384,6 +1386,21 @@ public class Capability2Tests {
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
+    }
+
+    private void assertParameterEquals(String key, final String actual, final String expected, String message) {
+        if (key.toLowerCase().contains("time") && !"null".equals(expected) && !"null".equals(actual)) {
+            if (expected.contains("/")) {
+                String[] expextedParts = expected.split("/");
+                String[] actualParts = actual.split("/");
+                Assert.assertEquals(ZonedDateTime.parse(actualParts[0]), ZonedDateTime.parse(expextedParts[0]), message);
+                Assert.assertEquals(ZonedDateTime.parse(actualParts[1]), ZonedDateTime.parse(expextedParts[1]), message);
+            } else {
+                Assert.assertEquals(ZonedDateTime.parse(actual), ZonedDateTime.parse(expected), message);
+            }
+        } else {
+            Assert.assertEquals(actual, expected, message);
+        }
     }
 
     /**
@@ -1397,7 +1414,7 @@ public class Capability2Tests {
             if (resultTimeValue == null) {
                 Assert.assertEquals(observation.get("resultTime").toString(), "null", "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been null but it is now \"" + observation.get("resultTime").toString() + "\".");
             } else {
-                Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
+                Assert.assertEquals(ZonedDateTime.parse(observation.getString("resultTime")), ZonedDateTime.parse(resultTimeValue), "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
             }
         } catch (JSONException e) {
             e.printStackTrace();
