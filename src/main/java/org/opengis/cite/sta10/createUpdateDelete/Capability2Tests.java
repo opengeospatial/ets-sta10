@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.ControlInformation;
-import org.opengis.cite.sta10.util.EntityProperties;
 import org.opengis.cite.sta10.util.EntityType;
 import org.opengis.cite.sta10.util.HTTPMethods;
 import org.opengis.cite.sta10.util.ServiceURLBuilder;
@@ -1307,7 +1306,7 @@ public class Capability2Tests {
      */
     private void checkPatch(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
         try {
-            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+            for (String property : entityType.getProperties()) {
                 if (diffs.containsKey(property)) {
                     assertParameterEquals(property, newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
                 } else {
@@ -1319,7 +1318,6 @@ public class Capability2Tests {
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
         }
     }
-
 
     /**
      * Check the FeatureOfInterest is created automatically correctly if not
@@ -1363,7 +1361,7 @@ public class Capability2Tests {
     private long checkRelatedEntity(EntityType parentEntityType, long parentId, EntityType relationEntityType, JSONObject relationObj) {
         boolean isCollection = true;
         String urlString = ServiceURLBuilder.buildURLString(rootUri, parentEntityType, parentId, relationEntityType, null);
-        if (urlString.trim().charAt(urlString.trim().length() - 1) != 's') {
+        if (parentEntityType.getRelations().contains(relationEntityType.singular)) {
             isCollection = false;
         }
 

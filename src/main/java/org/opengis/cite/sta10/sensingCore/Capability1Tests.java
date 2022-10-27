@@ -10,8 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.opengis.cite.sta10.SuiteAttribute;
 import org.opengis.cite.sta10.util.ControlInformation;
-import org.opengis.cite.sta10.util.EntityProperties;
-import org.opengis.cite.sta10.util.EntityRelations;
 import org.opengis.cite.sta10.util.EntityType;
 import org.opengis.cite.sta10.util.HTTPMethods;
 import org.opengis.cite.sta10.util.ServiceURLBuilder;
@@ -152,7 +150,7 @@ public class Capability1Tests {
         try {
             String response = getEntities(entityType);
             Long id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
-            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+            for (String property : entityType.getProperties()) {
                 checkGetPropertyOfEntity(entityType, id, property);
                 checkGetPropertyValueOfEntity(entityType, id, property);
             }
@@ -236,34 +234,7 @@ public class Capability1Tests {
     private void readRelatedEntityOfEntityWithEntityType(EntityType entityType) {
         List<String> entityTypes = new ArrayList<>();
         List<Long> ids = new ArrayList<>();
-        switch (entityType) {
-            case THING:
-                entityTypes.add("Things");
-                break;
-            case LOCATION:
-                entityTypes.add("Locations");
-                break;
-            case HISTORICAL_LOCATION:
-                entityTypes.add("HistoricalLocations");
-                break;
-            case DATASTREAM:
-                entityTypes.add("Datastreams");
-                break;
-            case SENSOR:
-                entityTypes.add("Sensors");
-                break;
-            case OBSERVATION:
-                entityTypes.add("Observations");
-                break;
-            case OBSERVED_PROPERTY:
-                entityTypes.add("ObservedProperties");
-                break;
-            case FEATURE_OF_INTEREST:
-                entityTypes.add("FeaturesOfInterest");
-                break;
-            default:
-                Assert.fail("Entity type is not recognized in SensorThings API : " + entityType);
-        }
+        entityTypes.add(entityType.plural);
         readRelatedEntity(entityTypes, ids);
     }
 
@@ -280,18 +251,23 @@ public class Capability1Tests {
             return;
         }
         try {
+            String headName = entityTypes.get(entityTypes.size() - 1);
+            EntityType headEntity = EntityType.getForRelation(headName);
+            boolean isPlural = EntityType.isPlural(headName);
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             String response = responseMap.get("response").toString();
-            if (!entityTypes.get(entityTypes.size() - 1).toLowerCase().equals("featuresofinterest") && !entityTypes.get(entityTypes.size() - 1).endsWith("s")) {
-                return;
+            Long id;
+            if (isPlural) {
+                JSONArray jsonValueArray = new JSONObject(response).getJSONArray("value");
+                if(jsonValueArray == null || jsonValueArray.length() == 0){
+                    Assert.fail("Expecting a non-empty list for request: " + urlString);
+                }
+                id = jsonValueArray.getJSONObject(0).getLong(ControlInformation.ID);
+            } else {
+                id = new JSONObject(response).getLong(ControlInformation.ID);
             }
-            JSONArray jsonValueArray = new JSONObject(response.toString()).getJSONArray("value");
-            if(jsonValueArray == null || jsonValueArray.length() == 0){
-              Assert.fail("Expecting a non-empty list for request: " + urlString);
-            }
-            Long id = jsonValueArray.getJSONObject(0).getLong(ControlInformation.ID);
 
             //check $ref
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, "$ref");
@@ -303,8 +279,12 @@ public class Capability1Tests {
             if (entityTypes.size() == resourcePathLevel) {
                 return;
             }
-            ids.add(id);
-            for (String relation : EntityRelations.getRelationsListFor(entityTypes.get(entityTypes.size() - 1))) {
+            if (EntityType.isPlural(headName)) {
+                ids.add(id);
+            } else {
+                ids.add(null);
+            }
+            for (String relation : headEntity.getRelations()) {
                 entityTypes.add(relation);
                 readRelatedEntity(entityTypes, ids);
                 entityTypes.remove(entityTypes.size() - 1);
@@ -329,12 +309,22 @@ public class Capability1Tests {
     private void checkAssociationLinks(String response, List<String> entityTypes, List<Long> ids) {
 
         try {
-            Assert.assertTrue(response.indexOf("value") != -1, "The GET entities Association Link response does not match SensorThings API : missing \"value\" in response.: " + entityTypes.toString() + ids.toString());
-            JSONArray value = new JSONObject(response.toString()).getJSONArray("value");
-            int count = 0;
-            for (int i = 0; i < value.length() && count < 2; i++) {
-                count++;
-                JSONObject obj = value.getJSONObject(i);
+            if (EntityType.isPlural(entityTypes.get(entityTypes.size() - 1))) {
+                Assert.assertTrue(response.contains("value"), "The GET entities Association Link response does not match SensorThings API : missing \"value\" in response.: " + entityTypes.toString() + ids.toString());
+                JSONArray value = new JSONObject(response).getJSONArray("value");
+                int count = 0;
+                for (int i = 0; i < value.length() && count < 2; i++) {
+                    count++;
+                    JSONObject obj = value.getJSONObject(i);
+                    try {
+                        Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link does not contain self-links.: " + entityTypes.toString() + ids.toString());
+                    } catch (JSONException e) {
+                        Assert.fail("The Association Link does not contain self-links.: " + entityTypes.toString() + ids.toString());
+                    }
+                    Assert.assertEquals(obj.length(), 1, "The Association Link contains properties other than self-link.: " + entityTypes.toString() + ids.toString());
+                }
+            } else {
+                JSONObject obj = new JSONObject(response);
                 try {
                     Assert.assertNotNull(obj.get(ControlInformation.SELF_LINK), "The Association Link does not contain self-links.: " + entityTypes.toString() + ids.toString());
                 } catch (JSONException e) {
@@ -618,7 +608,7 @@ public class Capability1Tests {
     private void checkEntityProperties(EntityType entityType, Object response) {
         try {
             JSONObject entity = new JSONObject(response.toString());
-            for (String property : EntityProperties.getPropertiesListFor(entityType)) {
+            for (String property : entityType.getProperties()) {
                 try {
                     Assert.assertNotNull(entity.get(property), "Entity type \"" + entityType + "\" does not have mandatory property: \"" + property + "\".");
                 } catch (JSONException e) {
@@ -667,7 +657,7 @@ public class Capability1Tests {
     private void checkEntityRelations(EntityType entityType, Object response) {
         try {
             JSONObject entity = new JSONObject(response.toString());
-            for (String relation : EntityRelations.getRelationsListFor(entityType)) {
+            for (String relation : entityType.getRelations()) {
                 try {
                     Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 } catch (JSONException e) {
