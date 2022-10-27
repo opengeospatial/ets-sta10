@@ -256,11 +256,15 @@ public class Capability1Tests {
             boolean isPlural = EntityType.isPlural(headName);
             String urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, null);
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             String response = responseMap.get("response").toString();
             Long id;
             if (isPlural) {
-                id = new JSONObject(response).getJSONArray("value").getJSONObject(0).getLong(ControlInformation.ID);
+                JSONArray jsonValueArray = new JSONObject(response).getJSONArray("value");
+                if(jsonValueArray == null || jsonValueArray.length() == 0){
+                    Assert.fail("Expecting a non-empty list for request: " + urlString);
+                }
+                id = jsonValueArray.getJSONObject(0).getLong(ControlInformation.ID);
             } else {
                 id = new JSONObject(response).getLong(ControlInformation.ID);
             }
@@ -268,7 +272,7 @@ public class Capability1Tests {
             //check $ref
             urlString = ServiceURLBuilder.buildURLString(rootUri, entityTypes, ids, "$ref");
             responseMap = HTTPMethods.doGet(urlString);
-            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity failed: " + entityTypes.toString());
+            Assert.assertEquals(responseMap.get("response-code"), 200, "Reading relation of the entity from request: " + urlString + " failed with type: " + entityTypes.toString());
             response = responseMap.get("response").toString();
             checkAssociationLinks(response, entityTypes, ids);
 
@@ -437,6 +441,9 @@ public class Capability1Tests {
                         Assert.assertEquals(nameUrl, rootUri + "/FeaturesOfInterest", "The URL for FeaturesOfInterest in Service Root URI is not compliant to SensorThings API.");
                         addedLinks.remove("FeaturesOfInterest");
                         addedLinks.put(name, true);
+                        break;
+                    case "MultiDatastreams":
+                        Assert.assertEquals(nameUrl, rootUri + "/MultiDatastreams", "The URL for MultiDatastreams in Service Root URI is not compliant to SensorThings API.");
                         break;
                     default:
                         Assert.fail("There is a component in Service Root URI response that is not in SensorThings API : " + name);
@@ -635,7 +642,7 @@ public class Capability1Tests {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
 
     }
@@ -652,14 +659,14 @@ public class Capability1Tests {
             JSONObject entity = new JSONObject(response.toString());
             for (String relation : entityType.getRelations()) {
                 try {
-                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                    Assert.assertNotNull(entity.get(relation + ControlInformation.NAVIGATION_LINK), "Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 } catch (JSONException e) {
-                    Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\".");
+                    Assert.fail("Entity type \"" + entityType + "\" does not have mandatory relation: \"" + relation + "\". [Response] " + response.toString());
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Response] " + response.toString());
         }
     }
 

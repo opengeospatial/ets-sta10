@@ -1,10 +1,12 @@
 package org.opengis.cite.sta10.createUpdateDelete;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -846,135 +848,6 @@ public class Capability2Tests {
     }
 
     /**
-     * This method is testing update or PUT. The response should be 200 and all
-     * the properties in the PUT body should be updated, and the rest must be
-     * restored to their default value.
-     */
-    @Test(description = "PUT Entities", groups = "level-2", priority = 4)
-    public void putEntities() {
-        try {
-            /* Thing */
-            long thingId = thingIds.get(0);
-            JSONObject entity = getEntity(EntityType.THING, thingId);
-            String urlParameters = "{"
-                    + "\"name\":\"This is a Updated Test Thing From TestNG\","
-                    + "\"description\":\"This is a Updated Test Thing From TestNG\""
-                    + "}";
-            Map<String, Object> diffs = new HashMap<>();
-            diffs.put("name", "This is a Updated Test Thing From TestNG");
-            diffs.put("description", "This is a Updated Test Thing From TestNG");
-            JSONObject updatedEntity = updateEntity(EntityType.THING, urlParameters, thingId);
-            checkPut(EntityType.THING, entity, updatedEntity, diffs);
-
-            /* Location */
-            long locationId = locationIds.get(0);
-            entity = getEntity(EntityType.LOCATION, locationId);
-            urlParameters = "{"
-                    + "\"encodingType\":\"application/vnd.geo+json\","
-                    + "\"name\":\"UPDATED NAME\","
-                    + "\"description\":\"UPDATED DESCRIPTION\","
-                    + "\"location\": { \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}";
-            diffs = new HashMap<>();
-            diffs.put("name", "UPDATED NAME");
-            diffs.put("description", "UPDATED DESCRIPTION");
-            diffs.put("location", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 50] }}"));
-            updatedEntity = updateEntity(EntityType.LOCATION, urlParameters, locationId);
-            checkPut(EntityType.LOCATION, entity, updatedEntity, diffs);
-
-            /* HistoricalLocation */
-            long histLocId = historicalLocationIds.get(0);
-            entity = getEntity(EntityType.HISTORICAL_LOCATION, histLocId);
-            urlParameters = "{\"time\": \"2015-08-01T00:00:00.000Z\"}";
-            diffs = new HashMap<>();
-            diffs.put("time", "2015-08-01T00:00:00.000Z");
-            updatedEntity = updateEntity(EntityType.HISTORICAL_LOCATION, urlParameters, histLocId);
-            checkPut(EntityType.HISTORICAL_LOCATION, entity, updatedEntity, diffs);
-
-            /* Sensor */
-            long sensorId = sensorIds.get(0);
-            entity = getEntity(EntityType.SENSOR, sensorId);
-            urlParameters = "{"
-                    + "\"name\": \"UPDATED\", "
-                    + "\"description\": \"UPDATED\", "
-                    + "\"encodingType\":\"application/pdf\", "
-                    + "\"metadata\": \"UPDATED\"}";
-            diffs = new HashMap<>();
-            diffs.put("name", "UPDATED");
-            diffs.put("description", "UPDATED");
-            diffs.put("metadata", "UPDATED");
-            updatedEntity = updateEntity(EntityType.SENSOR, urlParameters, sensorId);
-            checkPut(EntityType.SENSOR, entity, updatedEntity, diffs);
-
-            /* ObserverdProperty */
-            long obsPropId = obsPropIds.get(0);
-            urlParameters = "{"
-                    + "\"name\":\"QWERTY\", "
-                    + "\"definition\": \"ZXCVB\", "
-                    + "\"name\":\"POIUYTREW\","
-                    + "\"description\":\"POIUYTREW\""
-                    + "}";
-            diffs = new HashMap<>();
-            diffs.put("name", "QWERTY");
-            diffs.put("definition", "ZXCVB");
-            diffs.put("description", "POIUYTREW");
-            diffs.put("name", "POIUYTREW");
-            updatedEntity = updateEntity(EntityType.OBSERVED_PROPERTY, urlParameters, obsPropId);
-            checkPut(EntityType.OBSERVED_PROPERTY, entity, updatedEntity, diffs);
-
-            /* FeatureOfInterest */
-            long foiId = foiIds.get(0);
-            entity = getEntity(EntityType.FEATURE_OF_INTEREST, foiId);
-            urlParameters = "{"
-                    + "\"encodingType\":\"application/vnd.geo+json\","
-                    + "\"feature\":{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }, "
-                    + "\"description\":\"POIUYTREW\","
-                    + "\"name\":\"POIUYTREW\""
-                    + "}";
-            diffs = new HashMap<>();
-            diffs.put("feature", new JSONObject("{ \"type\": \"Point\", \"coordinates\": [-114.05, 51.05] }"));
-            diffs.put("name", "POIUYTREW");
-            diffs.put("description", "POIUYTREW");
-            updatedEntity = updateEntity(EntityType.FEATURE_OF_INTEREST, urlParameters, foiId);
-            checkPut(EntityType.FEATURE_OF_INTEREST, entity, updatedEntity, diffs);
-
-            /* Datastream */
-            long datastreamId = datastreamIds.get(0);
-            entity = getEntity(EntityType.DATASTREAM, datastreamId);
-            urlParameters = "{\n"
-                    + "  \"name\": \"Data coming from sensor on ISS.\",\n"
-                    + "  \"description\": \"Data coming from sensor on ISS.\",\n"
-                    + "  \"observationType\": \"http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation\",\n"
-                    + "  \"unitOfMeasurement\": {\n"
-                    + "    \"name\": \"Entropy\",\n"
-                    + "    \"symbol\": \"S\",\n"
-                    + "    \"definition\": \"http://qudt.org/vocab/unit#Entropy\"\n"
-                    + "  }\n"
-                    + "}\n";
-            diffs = new HashMap<>();
-            diffs.put("name", "Data coming from sensor on ISS.");
-            diffs.put("description", "Data coming from sensor on ISS.");
-            diffs.put("observationType", "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Observation");
-            diffs.put("unitOfMeasurement", new JSONObject("{\"name\": \"Entropy\",\"symbol\": \"S\",\"definition\": \"http://qudt.org/vocab/unit#Entropy\"}"));
-            updatedEntity = updateEntity(EntityType.DATASTREAM, urlParameters, datastreamId);
-            checkPut(EntityType.DATASTREAM, entity, updatedEntity, diffs);
-
-            /* Observation */
-            long obsId1 = observationIds.get(0);
-            entity = getEntity(EntityType.OBSERVATION, obsId1);
-            urlParameters = "{\"result\": \"99\", \"phenomenonTime\": \"2015-08-01T00:40:00.000Z\"}";
-            diffs = new HashMap<>();
-            diffs.put("result", "99");
-            diffs.put("phenomenonTime", "2015-08-01T00:40:00.000Z");
-            updatedEntity = updateEntity(EntityType.OBSERVATION, urlParameters, obsId1);
-            checkPut(EntityType.OBSERVATION, entity, updatedEntity, diffs);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
-        }
-    }
-
-    /**
      * This method is testing DELETE and its integrity constraint. The response
      * should be 200. After DELETE the GET request to that entity should return
      * 404.
@@ -1290,7 +1163,7 @@ public class Capability2Tests {
             return new JSONObject(HTTPMethods.doGet(urlString).get("response").toString());
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1315,13 +1188,13 @@ public class Capability2Tests {
             urlString = urlString + "(" + id + ")";
             responseMap = HTTPMethods.doGet(urlString);
             responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "The POSTed entity is not created.");
+            Assert.assertEquals(responseCode, 200, "The POSTed entity is not created. [Request] " + urlString);
 
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1338,7 +1211,7 @@ public class Capability2Tests {
 
         Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertTrue(responseCode == 400 || responseCode == 409, "The  " + entityType.name() + " should not be created due to integrity constraints.");
+        Assert.assertTrue(responseCode == 400 || responseCode == 409, "The  " + entityType.name() + " should not be created due to integrity constraints. [Request] " + urlString);
 
     }
 
@@ -1353,11 +1226,11 @@ public class Capability2Tests {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        Assert.assertEquals(responseCode, 200, "DELETE does not work properly for " + entityType + " with id " + id + ". Returned with response code " + responseCode + ". [Request] " + urlString);
 
         responseMap = HTTPMethods.doGet(urlString);
         responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + ").");
+        Assert.assertEquals(responseCode, 404, "Deleted entity was not actually deleted : " + entityType + "(" + id + "). [Request] " + urlString);
     }
 
     /**
@@ -1372,36 +1245,10 @@ public class Capability2Tests {
         String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
         Map<String, Object> responseMap = HTTPMethods.doDelete(urlString);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ".");
+        Assert.assertEquals(responseCode, 404, "DELETE does not work properly for nonexistent " + entityType + " with id " + id + ". Returned with response code " + responseCode + ". [Request] " + urlString);
 
     }
 
-    /**
-     * This method created the URL string for the entity with specific idand
-     * then PUT the entity with urlParameters to that URL.
-     *
-     * @param entityType    Entity type in from EntityType enum
-     * @param urlParameters The PUT body
-     * @param id            The id of requested entity
-     * @return The updated entity in the format of JSON Object
-     */
-    private JSONObject updateEntity(EntityType entityType, String urlParameters, long id) {
-        String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, null, null);
-        try {
-            Map<String, Object> responseMap = HTTPMethods.doPut(urlString, urlParameters);
-            int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Error during updating(PUT) of entity " + entityType.name());
-
-            responseMap = HTTPMethods.doGet(urlString);
-            JSONObject result = new JSONObject(responseMap.get("response").toString());
-            return result;
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
-            return null;
-        }
-    }
 
     /**
      * This method created the URL string for the entity with specific id and
@@ -1418,14 +1265,14 @@ public class Capability2Tests {
 
             Map<String, Object> responseMap = HTTPMethods.doPatch(urlString, urlParameters);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name());
+            Assert.assertEquals(responseCode, 200, "Error during updating(PATCH) of entity " + entityType.name() + "with [Request] " + urlString);
             responseMap = HTTPMethods.doGet(urlString);
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             return result;
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             return null;
         }
     }
@@ -1444,7 +1291,7 @@ public class Capability2Tests {
 
         Map<String, Object> responseMap = HTTPMethods.doPatch(urlString, urlParameters);
         int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-        Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name());
+        Assert.assertEquals(responseCode, 400, "Error: Patching related entities inline must be illegal for entity " + entityType.name() + ". [Request] " + urlString);
 
     }
 
@@ -1461,36 +1308,11 @@ public class Capability2Tests {
         try {
             for (String property : entityType.getProperties()) {
                 if (diffs.containsKey(property)) {
-                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
+                    assertParameterEquals(property, newEntity.get(property).toString(), diffs.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
                 } else {
-                    Assert.assertEquals(newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
+                    assertParameterEquals(property, newEntity.get(property).toString(), oldEntity.get(property).toString(), "PATCH was not applied correctly for " + entityType + "'s " + property + ".");
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
-        }
-    }
-
-    /**
-     * Check the updated entity properties are updates correctly
-     *
-     * @param entityType Entity type in from EntityType enum
-     * @param oldEntity  The old properties of the updated entity
-     * @param newEntity  The updated properties of the updated entity
-     * @param diffs      The properties that supposed to be updated based on the
-     *                   request due to the specification
-     */
-    private void checkPut(EntityType entityType, JSONObject oldEntity, JSONObject newEntity, Map diffs) {
-        try {
-            for (String property : entityType.getProperties()) {
-                if (diffs.containsKey(property)) {
-                    Assert.assertEquals(newEntity.get(property).toString(), diffs.get(property).toString(), "PUT was not applied correctly for " + entityType + ".");
-                } else {
-//                    Assert.assertEquals(newEntity.get(property), oldEntity.get(property), "PUT was not applied correctly for "+entityType+".");
-                }
-            }
-
         } catch (JSONException e) {
             e.printStackTrace();
             Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
@@ -1516,13 +1338,13 @@ public class Capability2Tests {
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             long id = result.getLong(ControlInformation.ID);
             if (expectedFOIId != -1) {
-                Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: " + expectedFOIId + " , but it is linked for FeatureOfInterest with Id: " + id + ".");
+                Assert.assertEquals(id, expectedFOIId, "ERROR: the Observation should have linked to FeatureOfInterest with ID: " + expectedFOIId + " , but it is linked for FeatureOfInterest with Id: " + id + ". [Request] " + urlString);
             }
-            Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing.");
+            Assert.assertEquals(result.getJSONObject("feature").toString(), locationObj.getJSONObject("location").toString(), "ERROR: Automatic created FeatureOfInterest does not match last Location of that Thing. [Request] " + urlString);
             return id;
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
     }
@@ -1546,7 +1368,7 @@ public class Capability2Tests {
         try {
             Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
             int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
-            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted " + relationEntityType + " does not created or linked to " + parentEntityType);
+            Assert.assertEquals(responseCode, 200, "ERROR: Deep inserted " + relationEntityType + " does not created or linked to " + parentEntityType + ".  [Request] " + urlString);
             JSONObject result = new JSONObject(responseMap.get("response").toString());
             if (isCollection == true) {
                 result = result.getJSONArray("value").getJSONObject(0);
@@ -1554,14 +1376,29 @@ public class Capability2Tests {
             Iterator iterator = relationObj.keys();
             while (iterator.hasNext()) {
                 String key = iterator.next().toString();
-                Assert.assertEquals(result.get(key).toString(), relationObj.get(key).toString(), "ERROR: Deep inserted " + relationEntityType + " is not created correctly.");
+                assertParameterEquals(key, Objects.toString(result.get(key)), Objects.toString(relationObj.get(key)), "ERROR: Deep inserted " + relationEntityType + " is not created correctly. [Request] " + urlString);
             }
             return result.getLong(ControlInformation.ID);
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
         return -1;
+    }
+
+    private void assertParameterEquals(String key, final String actual, final String expected, String message) {
+        if (key.toLowerCase().contains("time") && !"null".equals(expected) && !"null".equals(actual)) {
+            if (expected.contains("/")) {
+                String[] expextedParts = expected.split("/");
+                String[] actualParts = actual.split("/");
+                Assert.assertEquals(ZonedDateTime.parse(actualParts[0]), ZonedDateTime.parse(expextedParts[0]), message);
+                Assert.assertEquals(ZonedDateTime.parse(actualParts[1]), ZonedDateTime.parse(expextedParts[1]), message);
+            } else {
+                Assert.assertEquals(ZonedDateTime.parse(actual), ZonedDateTime.parse(expected), message);
+            }
+        } else {
+            Assert.assertEquals(actual, expected, message);
+        }
     }
 
     /**
@@ -1575,7 +1412,7 @@ public class Capability2Tests {
             if (resultTimeValue == null) {
                 Assert.assertEquals(observation.get("resultTime").toString(), "null", "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been null but it is now \"" + observation.get("resultTime").toString() + "\".");
             } else {
-                Assert.assertEquals(observation.get("resultTime").toString(), resultTimeValue, "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
+                Assert.assertEquals(ZonedDateTime.parse(observation.getString("resultTime")), ZonedDateTime.parse(resultTimeValue), "The resultTime of the Observation " + observation.getLong(ControlInformation.ID) + " should have been \"" + resultTimeValue + "\" but it is now \"" + observation.get("resultTime").toString() + "\".");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1595,10 +1432,10 @@ public class Capability2Tests {
             try {
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
                 JSONArray array = result.getJSONArray("value");
-                Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't.");
+                Assert.assertEquals(array.length(), 0, entityType + " is created although it shouldn't. [Request] " + urlString);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         }
     }
@@ -1615,10 +1452,10 @@ public class Capability2Tests {
             try {
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
                 JSONArray array = result.getJSONArray("value");
-                Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't.");
+                Assert.assertTrue(array.length() > 0, entityType + " is created although it shouldn't. [Request] " + urlString);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         }
     }
@@ -1646,9 +1483,10 @@ public class Capability2Tests {
      */
     private void deleteEntityType(EntityType entityType) {
         JSONArray array = null;
+        String urlString = "";
         do {
             try {
-                String urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, null);
                 Map<String, Object> responseMap = HTTPMethods.doGet(urlString);
                 int responseCode = Integer.parseInt(responseMap.get("response-code").toString());
                 JSONObject result = new JSONObject(responseMap.get("response").toString());
@@ -1659,7 +1497,7 @@ public class Capability2Tests {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+                Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
             }
         } while (array.length() > 0);
     }
@@ -1668,6 +1506,7 @@ public class Capability2Tests {
      * Create entities as a pre-process for testing DELETE.
      */
     private void createEntitiesForDelete() {
+      String urlString = "";
         try {
 
             deleteEverythings();
@@ -1725,7 +1564,7 @@ public class Capability2Tests {
                     + "        }\n"
                     + "    ]\n"
                     + "}";
-            String urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
+            urlString = ServiceURLBuilder.buildURLString(rootUri, EntityType.THING, -1, null, null);
             Map<String, Object> responseMap = HTTPMethods.doPost(urlString, urlParameters);
             String response = responseMap.get("response").toString();
             thingIds.add(Long.parseLong(response.substring(response.indexOf("(") + 1, response.indexOf(")"))));
@@ -1775,7 +1614,7 @@ public class Capability2Tests {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage());
+            Assert.fail("An Exception occurred during testing!:\n" + e.getMessage() + " [Request] " + urlString);
         }
 
     }

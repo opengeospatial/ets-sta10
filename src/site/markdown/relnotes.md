@@ -1,5 +1,17 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
+1.2 (2018-04-30)
+---------------------
+-  Fix the problem that the test suite failed if a server implements MultiDatastream.
+-  Remove Tests that are for testing HTTP PUT as implementing PUT is not mandatory in SensorThings specification.
+
+1.1 (2018-02-26)
+---------------------
+-  Small fix to make the Test Suite workable with latest version of TEAMEngine.
+
+1.0 (2017-03-12)
+---------------------
+-  [#36](https://github.com/opengeospatial/ets-sta10/issues/36) Production release after TC /PC approval.
 
 0.7 (2016-10-04)
 -------------------

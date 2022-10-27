@@ -10,7 +10,7 @@ import org.w3c.dom.Document;
 @SuppressWarnings("rawtypes")
 public enum SuiteAttribute {
 
-	/**
+    /**
      * A client component for interacting with HTTP endpoints.
      */
     CLIENT("httpClient", Client.class),
