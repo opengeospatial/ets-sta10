@@ -1,5 +1,16 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
+
+1.3 (2022-10-28)
+---------------------
+- [#61](https://github.com/opengeospatial/ets-sta10/pull/61) - Update url to license and integration into reporting
+- [#29](https://github.com/opengeospatial/ets-sta10/pull/29) - * EntityType refactoring
+- [#44](https://github.com/opengeospatial/ets-sta10/issues/44) - Add detailed error messages
+- [#52](https://github.com/opengeospatial/ets-sta10/issues/52) - Add template to get an XML/JSON response via rest endpoint
+- [#57](https://github.com/opengeospatial/ets-sta10/issues/57) - Tests compare times using String.equals
+- [#59](https://github.com/opengeospatial/ets-sta10/pull/59) - Add Dockerfile and configure Maven to use Docker
+- [#54](https://github.com/opengeospatial/ets-sta10/pull/54) - Bump httpclient from 4.5 to 4.5.13
+
 1.2 (2018-04-30)
 ---------------------
 -  Fix the problem that the test suite failed if a server implements MultiDatastream.
