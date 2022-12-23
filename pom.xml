@@ -230,8 +230,6 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>@{project.version}</tagNameFormat>
           <releaseProfiles>release</releaseProfiles>
-          <!-- Deployment to Central Maven Repository currently not possible -->
-          <goals>install</goals>
         </configuration>
       </plugin>
       <plugin>
@@ -292,8 +290,6 @@
                     <arg>--pinentry-mode</arg>
                     <arg>loopback</arg>
                   </gpgArguments>
-                  <!-- Deployment to Central Maven Repository currently not possible -->
-                  <skip>true</skip>
                 </configuration>
               </execution>
             </executions>
