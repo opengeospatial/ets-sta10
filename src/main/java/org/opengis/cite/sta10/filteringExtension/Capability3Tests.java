@@ -326,14 +326,14 @@ public class Capability3Tests {
                     for (int i = 1; i < array.length(); i++) {
                         Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ordering is not correct for EntityType " + entityType + " orderby property " + property + ". [Request] " + urlString);
                     }
-                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20asc. [Request] " + urlString);
+                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20asc");
                     responseMap = HTTPMethods.doGet(urlString);
                     response = responseMap.get("response").toString();
                     array = new JSONObject(response).getJSONArray("value");
                     for (int i = 1; i < array.length(); i++) {
                         Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ordering is not correct for EntityType " + entityType + " orderby asc property " + property + ". [Request] " + urlString);
                     }
-                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20desc. [Request] " + urlString);
+                    urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, id, relationEntityType, "?$orderby=" + property + "%20desc");
                     responseMap = HTTPMethods.doGet(urlString);
                     response = responseMap.get("response").toString();
                     array = new JSONObject(response).getJSONArray("value");
@@ -440,7 +440,7 @@ public class Capability3Tests {
                 for (int i = 1; i < array.length(); i++) {
                     Assert.assertTrue(compareWithPrevious(i, array, property) <= 0, "The ascending ordering is not correct for EntityType " + entityType + " orderby asc property " + property + ". [Request] " + urlString);
                 }
-                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property + "%20desc.  [Request] " + urlString);
+                urlString = ServiceURLBuilder.buildURLString(rootUri, entityType, -1, null, "?$orderby=" + property + "%20desc");
                 responseMap = HTTPMethods.doGet(urlString);
                 response = responseMap.get("response").toString();
                 array = new JSONObject(response).getJSONArray("value");
