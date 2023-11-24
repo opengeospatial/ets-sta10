@@ -1,6 +1,11 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
 
+1.4 (2023-11-24)
+---------------------
+- [#64](https://github.com/opengeospatial/ets-sta10/issues/64) - Orderby tests broken
+- [#62](https://github.com/opengeospatial/ets-sta10/issues/62) - Upgrade json dependency to v20231013
+
 1.3 (2022-10-28)
 ---------------------
 - [#61](https://github.com/opengeospatial/ets-sta10/pull/61) - Update url to license and integration into reporting
