@@ -13,89 +13,123 @@ import java.util.Set;
  * List of entity types in SensorThings API.
  */
 public enum EntityType {
-    THING("Thing", "Things"),
-    LOCATION("Location", "Locations"),
-    SENSOR("Sensor", "Sensors"),
-    OBSERVED_PROPERTY("ObservedProperty", "ObservedProperties"),
-    OBSERVATION("Observation", "Observations"),
-    DATASTREAM("Datastream", "Datastreams"),
-    FEATURE_OF_INTEREST("FeatureOfInterest", "FeaturesOfInterest"),
-    HISTORICAL_LOCATION("HistoricalLocation", "HistoricalLocations");
-    public final String singular;
-    public final String plural;
-    private final List<String> properties = new ArrayList<>();
-    private final List<String> relations = new ArrayList<>();
 
-    private static final Map<String, EntityType> NAMES_MAP = new HashMap<>();
-    private static final Set<String> NAMES_PLURAL = new HashSet<>();
+	THING("Thing", "Things"), LOCATION("Location", "Locations"), SENSOR("Sensor", "Sensors"),
+	OBSERVED_PROPERTY("ObservedProperty", "ObservedProperties"), OBSERVATION("Observation", "Observations"),
+	DATASTREAM("Datastream", "Datastreams"), FEATURE_OF_INTEREST("FeatureOfInterest", "FeaturesOfInterest"),
+	HISTORICAL_LOCATION("HistoricalLocation", "HistoricalLocations");
 
-    static {
-        THING.addProperties("name", "description");
-        THING.addRelations(DATASTREAM.plural, HISTORICAL_LOCATION.plural, LOCATION.plural);
+	public final String singular;
 
-        LOCATION.addProperties("name", "description", "encodingType", "location");
-        LOCATION.addRelations(HISTORICAL_LOCATION.plural, THING.plural);
+	public final String plural;
 
-        SENSOR.addProperties("name", "description", "encodingType", "metadata");
-        SENSOR.addRelations(DATASTREAM.plural);
+	private final List<String> properties = new ArrayList<>();
 
-        OBSERVED_PROPERTY.addProperties("name", "definition", "description");
-        OBSERVED_PROPERTY.addRelations(DATASTREAM.plural);
+	private final List<String> relations = new ArrayList<>();
 
-        OBSERVATION.addProperties("phenomenonTime", "result", "resultTime");
-        OBSERVATION.addRelations(DATASTREAM.singular, FEATURE_OF_INTEREST.singular);
+	private static final Map<String, EntityType> NAMES_MAP = new HashMap<>();
 
-        DATASTREAM.addProperties("name", "description", "unitOfMeasurement", "observationType");
-        DATASTREAM.addRelations(THING.singular, SENSOR.singular, OBSERVED_PROPERTY.singular, OBSERVATION.plural);
+	private static final Set<String> NAMES_PLURAL = new HashSet<>();
 
-        FEATURE_OF_INTEREST.addProperties("name", "description", "encodingType", "feature");
-        FEATURE_OF_INTEREST.addRelations(OBSERVATION.plural);
+	static {
+		THING.addProperties("name", "description");
+		THING.addRelations(DATASTREAM.plural, HISTORICAL_LOCATION.plural, LOCATION.plural);
 
-        HISTORICAL_LOCATION.addProperties("time");
-        HISTORICAL_LOCATION.addRelations(THING.singular, LOCATION.plural);
+		LOCATION.addProperties("name", "description", "encodingType", "location");
+		LOCATION.addRelations(HISTORICAL_LOCATION.plural, THING.plural);
 
-        for (EntityType entityType : EntityType.values()) {
-            NAMES_MAP.put(entityType.singular, entityType);
-            NAMES_MAP.put(entityType.plural, entityType);
-            NAMES_PLURAL.add(entityType.plural);
-        }
-    }
+		SENSOR.addProperties("name", "description", "encodingType", "metadata");
+		SENSOR.addRelations(DATASTREAM.plural);
 
-    public static EntityType getForRelation(String relation) {
-        EntityType entityType = NAMES_MAP.get(relation);
-        if (entityType == null) {
-            throw new IllegalArgumentException("Unknown relation: " + relation);
-        }
-        return entityType;
-    }
+		OBSERVED_PROPERTY.addProperties("name", "definition", "description");
+		OBSERVED_PROPERTY.addRelations(DATASTREAM.plural);
 
-    public static boolean isPlural(String relation) {
-        return NAMES_PLURAL.contains(relation);
-    }
+		OBSERVATION.addProperties("phenomenonTime", "result", "resultTime");
+		OBSERVATION.addRelations(DATASTREAM.singular, FEATURE_OF_INTEREST.singular);
 
-    private EntityType(String singular, String plural) {
-        this.singular = singular;
-        this.plural = plural;
-    }
+		DATASTREAM.addProperties("name", "description", "unitOfMeasurement", "observationType");
+		DATASTREAM.addRelations(THING.singular, SENSOR.singular, OBSERVED_PROPERTY.singular, OBSERVATION.plural);
 
-    public String getRootEntitySet() {
-        return plural;
-    }
+		FEATURE_OF_INTEREST.addProperties("name", "description", "encodingType", "feature");
+		FEATURE_OF_INTEREST.addRelations(OBSERVATION.plural);
 
-    public List<String> getRelations() {
-        return Collections.unmodifiableList(relations);
-    }
+		HISTORICAL_LOCATION.addProperties("time");
+		HISTORICAL_LOCATION.addRelations(THING.singular, LOCATION.plural);
 
-    public List<String> getProperties() {
-        return Collections.unmodifiableList(properties);
-    }
+		for (EntityType entityType : EntityType.values()) {
+			NAMES_MAP.put(entityType.singular, entityType);
+			NAMES_MAP.put(entityType.plural, entityType);
+			NAMES_PLURAL.add(entityType.plural);
+		}
+	}
 
-    private void addProperties(String... properties) {
-        this.properties.addAll(Arrays.asList(properties));
-    }
+	/**
+	 * <p>
+	 * getForRelation.
+	 * </p>
+	 * @param relation a {@link java.lang.String} object
+	 * @return a {@link org.opengis.cite.sta10.util.EntityType} object
+	 */
+	public static EntityType getForRelation(String relation) {
+		EntityType entityType = NAMES_MAP.get(relation);
+		if (entityType == null) {
+			throw new IllegalArgumentException("Unknown relation: " + relation);
+		}
+		return entityType;
+	}
 
-    private void addRelations(String... relations) {
-        this.relations.addAll(Arrays.asList(relations));
-    }
+	/**
+	 * <p>
+	 * isPlural.
+	 * </p>
+	 * @param relation a {@link java.lang.String} object
+	 * @return a boolean
+	 */
+	public static boolean isPlural(String relation) {
+		return NAMES_PLURAL.contains(relation);
+	}
+
+	private EntityType(String singular, String plural) {
+		this.singular = singular;
+		this.plural = plural;
+	}
+
+	/**
+	 * <p>
+	 * getRootEntitySet.
+	 * </p>
+	 * @return a {@link java.lang.String} object
+	 */
+	public String getRootEntitySet() {
+		return plural;
+	}
+
+	/**
+	 * <p>
+	 * Getter for the field <code>relations</code>.
+	 * </p>
+	 * @return a {@link java.util.List} object
+	 */
+	public List<String> getRelations() {
+		return Collections.unmodifiableList(relations);
+	}
+
+	/**
+	 * <p>
+	 * Getter for the field <code>properties</code>.
+	 * </p>
+	 * @return a {@link java.util.List} object
+	 */
+	public List<String> getProperties() {
+		return Collections.unmodifiableList(properties);
+	}
+
+	private void addProperties(String... properties) {
+		this.properties.addAll(Arrays.asList(properties));
+	}
+
+	private void addRelations(String... relations) {
+		this.relations.addAll(Arrays.asList(relations));
+	}
 
 }
