@@ -1,15 +1,15 @@
 package org.opengis.cite.sta10;
 
-import com.sun.jersey.api.client.ClientRequest;
-import com.sun.jersey.api.client.ClientResponse;
-
 import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.MediaType;
 
+import org.glassfish.jersey.client.ClientRequest;
 import org.opengis.cite.sta10.util.ClientUtils;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 import org.w3c.dom.Document;
+
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
  * A listener that augments a test result with diagnostic information in the
@@ -52,7 +52,7 @@ public class TestFailureListener extends TestListenerAdapter {
         }
         StringBuilder msgInfo = new StringBuilder();
         msgInfo.append("Method: ").append(req.getMethod()).append('\n');
-        msgInfo.append("Target URI: ").append(req.getURI()).append('\n');
+        msgInfo.append("Target URI: ").append(req.getUri()).append('\n');
         msgInfo.append("Headers: ").append(req.getHeaders()).append('\n');
         if (null != req.getEntity()) {
             Object entity = req.getEntity();
@@ -74,7 +74,7 @@ public class TestFailureListener extends TestListenerAdapter {
      * @return A string containing information gleaned from the response
      * message.
      */
-    String getResponseMessageInfo(ClientResponse rsp) {
+    String getResponseMessageInfo(Response rsp) {
         if (null == rsp) {
             return "No response message.";
         }
@@ -82,10 +82,10 @@ public class TestFailureListener extends TestListenerAdapter {
         msgInfo.append("Status: ").append(rsp.getStatus()).append('\n');
         msgInfo.append("Headers: ").append(rsp.getHeaders()).append('\n');
         if (rsp.hasEntity()) {
-            if (rsp.getType().isCompatible(MediaType.APPLICATION_XML_TYPE)) {
+            if (rsp.getMediaType().isCompatible(MediaType.APPLICATION_XML_TYPE)) {
                 Document doc = ClientUtils.getResponseEntityAsDocument(rsp, null);
             } else {
-                byte[] body = rsp.getEntity(byte[].class);
+                byte[] body = rsp.readEntity(byte[].class);
                 msgInfo.append(new String(body, StandardCharsets.UTF_8));
             }
             msgInfo.append('\n');
