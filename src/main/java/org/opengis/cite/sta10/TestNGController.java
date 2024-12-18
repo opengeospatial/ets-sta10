@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -16,8 +14,6 @@ import javax.xml.transform.Source;
 
 import org.opengis.cite.sta10.util.TestSuiteLogger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.occamlab.te.spi.executors.TestRunExecutor;
 import com.occamlab.te.spi.executors.testng.TestNGExecutor;
