@@ -70,6 +70,9 @@ public class SuiteFixtureListener implements ISuiteListener {
 		suite.setAttribute(SuiteAttribute.LEVEL.getName(), level);
 
 		String iutParam = params.get(TestRunArg.IUT.toString());
+		if (iutParam == null) {
+			throw new IllegalArgumentException("No IUT specified.");
+		}
 
 		String response = checkServiceRootUri(iutParam);
 		if (!response.equals("")) {
