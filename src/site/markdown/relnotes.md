@@ -1,6 +1,13 @@
 SensorThings API Conformance Test Release Notes
 ==================================================
 
+1.5 (2025-01-08)
+---------------------
+
+Attention: Java 17 and Tomcat 10.1 are required.
+
+- [#69](https://github.com/opengeospatial/ets-sta10/issues/69) - Migrate test suite to TEAM Engine 6 (Java 17)
+
 1.4 (2023-11-24)
 ---------------------
 - [#64](https://github.com/opengeospatial/ets-sta10/issues/64) - Orderby tests broken
