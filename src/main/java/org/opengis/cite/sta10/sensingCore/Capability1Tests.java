@@ -476,6 +476,18 @@ public class Capability1Tests {
 						Assert.assertEquals(nameUrl, rootUri + "/MultiDatastreams",
 								"The URL for MultiDatastreams in Service Root URI is not compliant to SensorThings API.");
 						break;
+					case "Actuators":
+						// ignore Actuators
+						// see https://github.com/opengeospatial/ets-sta10/issues/56
+						break;
+					case "Tasks":
+						// ignore Tasks
+						// see https://github.com/opengeospatial/ets-sta10/issues/56
+						break;
+					case "TaskingCapabilities":
+						// ignore TaskingCapabilities
+						// see https://github.com/opengeospatial/ets-sta10/issues/56
+						break;
 					default:
 						Assert
 							.fail("There is a component in Service Root URI response that is not in SensorThings API : "
