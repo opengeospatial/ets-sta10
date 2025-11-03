@@ -2,7 +2,7 @@
 ## Scope
 This test suite verifies conformance with SensorThings API (STA) 1.0. It is based on the following OGC specifications:
 
-  * _OGC SensorThings API_, Version 1.0 [OGC 15-078](https://portal.opengeospatial.org/files/?artifact_id=64146) (Has not been released. This the the draft specification)
+  * _OGC SensorThings API_, Version 1.0 [OGC 15-078r6](https://docs.ogc.org/is/15-078r6/15-078r6.html)
 
 ## Test Coverage by Conformance Class
 
