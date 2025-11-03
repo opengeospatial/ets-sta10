@@ -31,7 +31,7 @@
            <ctl:form method="POST" width="800" height="600" xmlns="http://www.w3.org/1999/xhtml">
              <h2>Test suite: ets-sta10</h2>
              <div style="background:#F0F8FF" bgcolor="#F0F8FF">
-               <p>The SensorThings implementation under test (IUT) is checked against the <a href="http://www.opengeospatial.org/projects/groups/sensorthings">OGC SensorThings API 1.0</a></p>
+               <p>The SensorThings implementation under test (IUT) is checked against the <a href="https://www.ogc.org/standards/sensorthings/">OGC SensorThings API 1.0</a></p>
                <p>Detailed information about the test suite is available <a href="index.html" target="otherwindow">here</a>.</p>
        
                <p>Three conformance levels are defined:</p>

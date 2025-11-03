@@ -10,8 +10,8 @@
         <prefix>tns</prefix>
         <local-name>ets-sta10-${version}</local-name>
         <title>SensorThings API Conformance Test Suite</title>
-        <description>Assesses conformance of the IUT with respect to OGC 15-078: 
-        OGC SensorThings API, Version 0.9.</description>
+        <description>Assesses conformance of the IUT with respect to OGC 15-078r6: 
+        OGC SensorThings API, Version 1.0</description>
         <BasicConformanceClasses>
           <conformanceClass>Conformance Level 1</conformanceClass>
           <conformanceClass>Conformance Level 2</conformanceClass>
